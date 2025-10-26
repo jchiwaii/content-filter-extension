@@ -11,13 +11,67 @@ let config = {
   whitelistedDomains: []
 };
 
-// Load configuration from storage
-chrome.storage.sync.get(['config'], function(result) {
-  if (result.config) {
-    config = { ...config, ...result.config };
-  }
-  initializeFilter();
-});
+// Wait for both DOM and profanity database to be ready
+function initialize() {
+  console.log('[Content Filter] Initializing... readyState:', document.readyState);
+
+  // Load configuration from storage
+  chrome.storage.sync.get(['config'], function(result) {
+    if (result.config) {
+      config = { ...config, ...result.config };
+    }
+    console.log('[Content Filter] Config loaded:', config);
+
+    // Wait for profanity database to load before initializing
+    waitForProfanityDB().then(() => {
+      // Ensure DOM is ready before filtering
+      if (document.readyState === 'loading') {
+        console.log('[Content Filter] DOM still loading, waiting...');
+        document.addEventListener('DOMContentLoaded', () => {
+          console.log('[Content Filter] DOM ready (via event), starting filter');
+          initializeFilter();
+        });
+      } else {
+        // DOM is already interactive or complete
+        console.log('[Content Filter] DOM already ready, starting filter immediately');
+        initializeFilter();
+      }
+    });
+  });
+}
+
+// Start initialization
+initialize();
+
+// Wait for profanity database to be ready
+function waitForProfanityDB() {
+  return new Promise((resolve) => {
+    // Check if already loaded
+    if (window.containsProfanity && typeof window.containsProfanity === 'function') {
+      console.log('[Content Filter] Profanity DB already loaded');
+      resolve();
+      return;
+    }
+
+    // Wait for it to load (check every 50ms, timeout after 5 seconds)
+    let attempts = 0;
+    const maxAttempts = 100; // 5 seconds
+
+    const checkInterval = setInterval(() => {
+      attempts++;
+
+      if (window.containsProfanity && typeof window.containsProfanity === 'function') {
+        clearInterval(checkInterval);
+        console.log('[Content Filter] Profanity DB loaded after', attempts * 50, 'ms');
+        resolve();
+      } else if (attempts >= maxAttempts) {
+        clearInterval(checkInterval);
+        console.error('[Content Filter] Profanity DB failed to load - timeout');
+        resolve(); // Continue anyway
+      }
+    }, 50);
+  });
+}
 
 // Statistics for blocked content
 let statistics = {
@@ -262,23 +316,88 @@ function addWarningOverlay(element, detectionResult = {}) {
 
 // Filter text content using ML-enhanced profanity detection
 function filterTextContent() {
+  console.log('[Content Filter] Starting text filtering...');
+
+  // Check if profanity functions are available
+  if (!window.containsProfanity || !window.censorProfanity) {
+    console.error('[Content Filter] Profanity functions not available!');
+    return;
+  }
+
+  // Check if document.body exists
+  if (!document.body) {
+    console.error('[Content Filter] document.body is null! DOM not ready.');
+    return;
+  }
+
   // Use the profanity detection from profanity-data.js
   const filterLevel = config.strictMode ? 'all' : 'moderate';
+  console.log('[Content Filter] Filter level:', filterLevel);
+  console.log('[Content Filter] Config:', JSON.stringify(config));
+
+  let nodesProcessed = 0;
+  let wordsFiltered = 0;
 
   // Walk through all text nodes
   walkTextNodes(document.body, (node) => {
-    if (window.containsProfanity && window.containsProfanity(node.textContent, filterLevel)) {
+    nodesProcessed++;
+
+    if (window.containsProfanity(node.textContent, filterLevel)) {
       const originalText = node.textContent;
       const censoredText = window.censorProfanity(node.textContent, filterLevel, '*');
 
       if (originalText !== censoredText) {
+        console.log('[Content Filter] Filtering:', originalText, '→', censoredText);
+        console.log('[Content Filter] Node parent:', node.parentElement?.tagName);
+        console.log('[Content Filter] Node visible:', node.parentElement?.offsetParent !== null);
+
+        // Store original text before modifying
+        const beforeChange = node.textContent;
         node.textContent = censoredText;
+
+        // Verify the change stuck
+        const afterChange = node.textContent;
+        console.log('[Content Filter] Change verified:', afterChange === censoredText, 'Before:', beforeChange, 'After:', afterChange);
+
+        // Mark the parent element so we know it was filtered
+        if (node.parentElement) {
+          node.parentElement.dataset.contentFiltered = 'true';
+        }
+
         statistics.wordsFiltered++;
+        wordsFiltered++;
       }
     }
   });
 
+  console.log('[Content Filter] Text filtering complete:', nodesProcessed, 'nodes processed,', wordsFiltered, 'words filtered');
   updateStatistics();
+
+  // Verify changes persist after 1 second
+  setTimeout(() => {
+    console.log('[Content Filter] Verifying changes persisted after 1 second...');
+    const filteredElements = document.querySelectorAll('[data-content-filtered="true"]');
+    let changesReverted = 0;
+
+    filteredElements.forEach(element => {
+      walkTextNodes(element, (node) => {
+        if (window.containsProfanity(node.textContent, filterLevel)) {
+          console.warn('[Content Filter] ⚠️ Change was reverted! Element:', element.tagName, 'Text:', node.textContent);
+          changesReverted++;
+
+          // Re-apply filter
+          const censoredText = window.censorProfanity(node.textContent, filterLevel, '*');
+          node.textContent = censoredText;
+        }
+      });
+    });
+
+    if (changesReverted > 0) {
+      console.warn('[Content Filter] ⚠️', changesReverted, 'changes were reverted by page JavaScript. Re-applied filters.');
+    } else {
+      console.log('[Content Filter] ✅ All changes persisted successfully!');
+    }
+  }, 1000);
 }
 
 // Walk through text nodes
@@ -384,7 +503,12 @@ function observeNewContent() {
   }
 }
 
-// Log status
-console.log('Content Filter: Active and filtering content');
-console.log('ML Detector Status: Disabled (CSP restrictions - use text filtering only)');
-console.log('Profanity Detection:', window.containsProfanity ? 'Loaded' : 'Not loaded');
+// Log initialization complete
+setTimeout(() => {
+  console.log('═══════════════════════════════════════════');
+  console.log('✅ Content Filter: Active and filtering content');
+  console.log('⚠️  ML Detector Status: Disabled (CSP restrictions - use text filtering only)');
+  console.log('✅ Profanity Detection:', window.containsProfanity ? 'Loaded and Ready' : '❌ NOT LOADED');
+  console.log('📊 Config:', JSON.stringify(config, null, 2));
+  console.log('═══════════════════════════════════════════');
+}, 1000);

@@ -353,6 +353,11 @@ function findProfanity(text, level = 'moderate') {
   return Array.from(matches);
 }
 
+// Helper function to escape regex special characters
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // Function to censor profanity in text
 function censorProfanity(text, level = 'moderate', replacement = '*') {
   if (!text) return text;
@@ -365,7 +370,9 @@ function censorProfanity(text, level = 'moderate', replacement = '*') {
 
   for (const match of matches) {
     const censor = replacement.repeat(match.length);
-    censored = censored.replace(new RegExp(match, 'gi'), censor);
+    // Escape special regex characters in the match
+    const escapedMatch = escapeRegExp(match);
+    censored = censored.replace(new RegExp(escapedMatch, 'gi'), censor);
   }
 
   return censored;
