@@ -1,0 +1,407 @@
+// Content Filter - Main Content Script
+// Filters images and text content in real-time
+
+// Configuration
+let config = {
+  filterImages: true,
+  filterText: true,
+  blurLevel: 20,
+  strictMode: true,
+  customWords: [],
+  whitelistedDomains: []
+};
+
+// Load configuration from storage
+chrome.storage.sync.get(['config'], function(result) {
+  if (result.config) {
+    config = { ...config, ...result.config };
+  }
+  initializeFilter();
+});
+
+// Statistics for blocked content
+let statistics = {
+  imagesBlocked: 0,
+  wordsFiltered: 0,
+  lastUpdate: Date.now()
+};
+
+// Performance optimization: Queue for batch image processing
+let imageProcessingQueue = [];
+let isProcessingQueue = false;
+const BATCH_SIZE = 5;
+const BATCH_DELAY = 100; // ms
+
+// Initialize the filter
+function initializeFilter() {
+  if (isWhitelisted()) return;
+  
+  // Start filtering
+  filterExistingContent();
+  observeNewContent();
+  
+  // Listen for dynamic content changes
+  setupMutationObserver();
+}
+
+// Check if current domain is whitelisted
+function isWhitelisted() {
+  const currentDomain = window.location.hostname;
+  return config.whitelistedDomains.includes(currentDomain);
+}
+
+// Filter all existing content
+function filterExistingContent() {
+  if (config.filterImages) {
+    filterImages();
+  }
+  if (config.filterText) {
+    filterTextContent();
+  }
+}
+
+// Filter images with batching for performance
+function filterImages() {
+  const images = document.querySelectorAll('img, video, picture, iframe');
+  images.forEach(img => queueImageForProcessing(img));
+}
+
+// Queue image for batch processing
+function queueImageForProcessing(element) {
+  // Skip if already queued or processed
+  if (element.dataset.queued || element.dataset.filtered || element.dataset.filtering === 'true') {
+    return;
+  }
+
+  element.dataset.queued = 'true';
+  imageProcessingQueue.push(element);
+
+  // Start processing queue if not already processing
+  if (!isProcessingQueue) {
+    processImageQueue();
+  }
+}
+
+// Process image queue in batches
+async function processImageQueue() {
+  if (isProcessingQueue || imageProcessingQueue.length === 0) {
+    return;
+  }
+
+  isProcessingQueue = true;
+
+  while (imageProcessingQueue.length > 0) {
+    // Process batch
+    const batch = imageProcessingQueue.splice(0, BATCH_SIZE);
+
+    // Process batch in parallel
+    await Promise.all(batch.map(async (element) => {
+      element.dataset.queued = 'false';
+      await analyzeAndFilterImage(element);
+    }));
+
+    // Small delay between batches to avoid blocking UI
+    if (imageProcessingQueue.length > 0) {
+      await new Promise(resolve => setTimeout(resolve, BATCH_DELAY));
+    }
+  }
+
+  isProcessingQueue = false;
+}
+
+// Analyze and filter individual image using ML
+async function analyzeAndFilterImage(element) {
+  // Skip if already filtered
+  if (element.dataset.filtered) return;
+
+  // Skip if element is not visible
+  if (element.offsetWidth === 0 && element.offsetHeight === 0) return;
+
+  // Mark as being processed
+  element.dataset.filtering = 'true';
+
+  try {
+    // Wait for image to load if not already loaded
+    if (element.tagName === 'IMG' && !element.complete) {
+      await new Promise((resolve, reject) => {
+        element.onload = resolve;
+        element.onerror = reject;
+        // Timeout after 5 seconds
+        setTimeout(resolve, 5000);
+      });
+    }
+
+    // Use ML detector if available
+    if (window.mlDetector && window.mlDetector.isReady()) {
+      const result = await window.mlDetector.classifyImage(element);
+
+      if (!result.safe) {
+        blockElement(element, result);
+        statistics.imagesBlocked++;
+        updateStatistics();
+      }
+    } else {
+      // Fallback to keyword-based detection
+      const isNSFW = checkElementForNSFWKeywords(element);
+      if (isNSFW) {
+        blockElement(element, { reason: 'NSFW keywords detected', method: 'fallback' });
+        statistics.imagesBlocked++;
+        updateStatistics();
+      }
+    }
+  } catch (error) {
+    console.warn('[Content Filter] Error analyzing image:', error);
+  } finally {
+    element.dataset.filtering = 'false';
+  }
+}
+
+// Fallback keyword checking
+function checkElementForNSFWKeywords(element) {
+  const attributes = ['src', 'alt', 'title', 'data-src', 'srcset'];
+
+  for (const attr of attributes) {
+    const value = element.getAttribute(attr);
+    if (value && containsProfanity(value, 'all')) {
+      return true;
+    }
+  }
+
+  // Check parent elements for context
+  const parentText = element.parentElement ? element.parentElement.textContent : '';
+  if (containsProfanity(parentText, 'all')) {
+    return true;
+  }
+
+  return false;
+}
+
+// Update statistics to background script
+function updateStatistics() {
+  if (Date.now() - statistics.lastUpdate > 5000) { // Update every 5 seconds
+    chrome.runtime.sendMessage({
+      action: 'updateStatistics',
+      data: {
+        imagesBlocked: statistics.imagesBlocked,
+        wordsFiltered: statistics.wordsFiltered
+      }
+    });
+    statistics.lastUpdate = Date.now();
+  }
+}
+
+// Block an element
+function blockElement(element, detectionResult = {}) {
+  element.dataset.filtered = 'true';
+  element.dataset.filterReason = detectionResult.reason || 'Inappropriate content detected';
+  element.dataset.filterConfidence = detectionResult.confidence || 0;
+
+  if (config.strictMode) {
+    // Complete removal
+    element.style.display = 'none';
+  } else {
+    // Blur mode
+    element.style.filter = `blur(${config.blurLevel}px)`;
+    element.style.overflow = 'hidden';
+    element.style.transition = 'filter 0.3s ease';
+
+    // Add click to unblur
+    element.style.cursor = 'pointer';
+    element.title = `Content filtered: ${detectionResult.reason || 'Inappropriate content'}\nClick to view`;
+
+    // Remove old listeners
+    const newElement = element.cloneNode(true);
+    element.parentNode.replaceChild(newElement, element);
+
+    newElement.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (confirm(`This content was filtered:\n${detectionResult.reason || 'Inappropriate content'}\n\nAre you sure you want to view it?`)) {
+        newElement.style.filter = 'none';
+        newElement.dataset.filtered = 'unblurred';
+      }
+    });
+  }
+
+  // Add warning overlay for larger images
+  if (element.offsetWidth > 200 && element.offsetHeight > 200) {
+    addWarningOverlay(element, detectionResult);
+  }
+
+  // Report blocked content
+  chrome.runtime.sendMessage({
+    action: 'reportBlocked',
+    data: {
+      type: element.tagName.toLowerCase(),
+      url: element.src || element.href || window.location.href,
+      reason: detectionResult.reason,
+      confidence: detectionResult.confidence,
+      category: detectionResult.category
+    }
+  });
+}
+
+// Add warning overlay
+function addWarningOverlay(element, detectionResult = {}) {
+  const overlay = document.createElement('div');
+  overlay.className = 'content-filter-overlay';
+
+  const confidence = detectionResult.confidence ?
+    Math.round(detectionResult.confidence * 100) : '?';
+
+  overlay.innerHTML = `
+    <div class="filter-message">
+      <span class="filter-icon">🚫</span>
+      <span>Content Filtered</span>
+      ${detectionResult.category ? `<span class="filter-category">${detectionResult.category}</span>` : ''}
+      ${detectionResult.confidence ? `<span class="filter-confidence">${confidence}% confidence</span>` : ''}
+    </div>
+  `;
+
+  // Position overlay
+  const rect = element.getBoundingClientRect();
+  overlay.style.position = 'absolute';
+  overlay.style.top = `${rect.top + window.scrollY}px`;
+  overlay.style.left = `${rect.left + window.scrollX}px`;
+  overlay.style.width = `${rect.width}px`;
+  overlay.style.height = `${rect.height}px`;
+  overlay.style.pointerEvents = 'none';
+
+  document.body.appendChild(overlay);
+
+  // Update position on scroll/resize
+  const updatePosition = () => {
+    const newRect = element.getBoundingClientRect();
+    overlay.style.top = `${newRect.top + window.scrollY}px`;
+    overlay.style.left = `${newRect.left + window.scrollX}px`;
+  };
+
+  window.addEventListener('scroll', updatePosition);
+  window.addEventListener('resize', updatePosition);
+}
+
+// Filter text content using ML-enhanced profanity detection
+function filterTextContent() {
+  // Use the profanity detection from profanity-data.js
+  const filterLevel = config.strictMode ? 'all' : 'moderate';
+
+  // Walk through all text nodes
+  walkTextNodes(document.body, (node) => {
+    if (window.containsProfanity && window.containsProfanity(node.textContent, filterLevel)) {
+      const originalText = node.textContent;
+      const censoredText = window.censorProfanity(node.textContent, filterLevel, '*');
+
+      if (originalText !== censoredText) {
+        node.textContent = censoredText;
+        statistics.wordsFiltered++;
+      }
+    }
+  });
+
+  updateStatistics();
+}
+
+// Walk through text nodes
+function walkTextNodes(element, callback) {
+  if (element.nodeType === 3) { // Text node
+    callback(element);
+  } else if (element.nodeType === 1) { // Element node
+    // Skip script and style elements
+    if (element.tagName !== 'SCRIPT' && element.tagName !== 'STYLE') {
+      for (let child of element.childNodes) {
+        walkTextNodes(child, callback);
+      }
+    }
+  }
+}
+
+// Setup mutation observer for dynamic content
+function setupMutationObserver() {
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      // Handle added nodes
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType === 1) { // Element node
+          if (config.filterImages) {
+            const images = node.querySelectorAll ?
+              node.querySelectorAll('img, video, picture, iframe') : [];
+            images.forEach(img => queueImageForProcessing(img));
+
+            if (node.tagName && ['IMG', 'VIDEO', 'PICTURE', 'IFRAME'].includes(node.tagName)) {
+              queueImageForProcessing(node);
+            }
+          }
+          
+          if (config.filterText) {
+            const filterLevel = config.strictMode ? 'all' : 'moderate';
+            walkTextNodes(node, (textNode) => {
+              if (window.containsProfanity && window.containsProfanity(textNode.textContent, filterLevel)) {
+                const originalText = textNode.textContent;
+                textNode.textContent = window.censorProfanity(textNode.textContent, filterLevel, '*');
+                if (originalText !== textNode.textContent) {
+                  statistics.wordsFiltered++;
+                }
+              }
+            });
+          }
+        }
+      });
+    });
+  });
+  
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+}
+
+// Listen for configuration updates
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (namespace === 'sync' && changes.config) {
+    config = { ...config, ...changes.config.newValue };
+    // Refilter content with new config
+    filterExistingContent();
+  }
+});
+
+// Listen for messages from popup
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'getMLStatus') {
+    const mlStatus = window.mlDetector ? window.mlDetector.getStatus() : null;
+    sendResponse({
+      mlDetectorReady: mlStatus ? mlStatus.modelLoaded : false,
+      mlDetectorLoading: mlStatus ? mlStatus.modelLoading : false,
+      profanityReady: typeof window.containsProfanity === 'function'
+    });
+    return true;
+  }
+});
+
+// Observe for new content with Intersection Observer (lazy loading optimization)
+function observeNewContent() {
+  // Observe for lazy-loaded images
+  if ('IntersectionObserver' in window) {
+    const imageObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && config.filterImages) {
+          queueImageForProcessing(entry.target);
+        }
+      });
+    }, {
+      // Only trigger when image is 200px from viewport
+      rootMargin: '200px'
+    });
+
+    document.querySelectorAll('img[data-src], img[loading="lazy"]').forEach(img => {
+      imageObserver.observe(img);
+    });
+  }
+}
+
+// Wait for ML detector to be ready
+setTimeout(() => {
+  const status = window.mlDetector ? window.mlDetector.getStatus() : { modelLoaded: false };
+  console.log('Content Filter: Active and filtering content');
+  console.log('ML Detector Status:', status);
+  console.log('Profanity Detection:', window.containsProfanity ? 'Loaded' : 'Not loaded');
+}, 2000);

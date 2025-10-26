@@ -1,0 +1,38 @@
+{
+  "name": "safe-browse-content-filter",
+  "version": "1.0.0",
+  "description": "Automatically blocks inappropriate content including nudity, explicit images, and offensive language",
+  "author": "Safe Browse Team",
+  "license": "MIT",
+  "homepage": "https://github.com/yourusername/safe-browse",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/safe-browse.git"
+  },
+  "keywords": [
+    "content-filter",
+    "parental-control",
+    "safe-browsing",
+    "nsfw-filter",
+    "profanity-filter",
+    "chrome-extension",
+    "browser-extension",
+    "web-safety",
+    "inappropriate-content-blocker"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "safebrowse@example.com",
+      "strict_min_version": "109.0"
+    }
+  },
+  "scripts": {
+    "build": "zip -r safe-browse.zip . -x '*.git*' '*.py' 'node_modules/*' '*.zip'",
+    "test": "echo 'No tests configured'",
+    "icons": "python3 generate_icons.py"
+  },
+  "devDependencies": {},
+  "bugs": {
+    "url": "https://github.com/yourusername/safe-browse/issues"
+  }
+}

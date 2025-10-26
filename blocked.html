@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Blocked - Safe Browse</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 48px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .shield-icon {
+      font-size: 64px;
+      margin-bottom: 24px;
+    }
+    
+    h1 {
+      color: #1f2937;
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+    
+    .message {
+      color: #6b7280;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    
+    .url-display {
+      background: #f3f4f6;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 32px;
+      word-break: break-all;
+      color: #4b5563;
+      font-size: 14px;
+      font-family: monospace;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .btn-primary {
+      background: #667eea;
+      color: white;
+      border: none;
+    }
+    
+    .btn-primary:hover {
+      background: #5a67d8;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+      background: white;
+      color: #6b7280;
+      border: 2px solid #e5e7eb;
+    }
+    
+    .btn-secondary:hover {
+      border-color: #9ca3af;
+      background: #f9fafb;
+    }
+    
+    .info-box {
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 32px;
+      text-align: left;
+    }
+    
+    .info-box h3 {
+      color: #92400e;
+      font-size: 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .info-box p {
+      color: #92400e;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid #e5e7eb;
+    }
+    
+    .stat-item {
+      text-align: center;
+    }
+    
+    .stat-number {
+      display: block;
+      font-size: 24px;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 4px;
+    }
+    
+    .stat-label {
+      font-size: 11px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="shield-icon">🛡️</div>
+    <h1>This Site Has Been Blocked</h1>
+    <p class="message">
+      Safe Browse has blocked access to this website because it may contain inappropriate or explicit content.
+    </p>
+    
+    <div class="url-display" id="blockedUrl"></div>
+    
+    <div class="actions">
+      <button class="btn btn-primary" onclick="goBack()">Go Back</button>
+      <button class="btn btn-secondary" onclick="requestAccess()">Request Access</button>
+    </div>
+    
+    <div class="info-box">
+      <h3>
+        <span>⚠️</span>
+        Why was this site blocked?
+      </h3>
+      <p>
+        This website was automatically blocked based on content filters designed to protect against inappropriate material including adult content, explicit images, and offensive language. If you believe this is a mistake, you can request access or whitelist the site in the extension settings.
+      </p>
+    </div>
+    
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-number" id="totalBlocked">0</span>
+        <span class="stat-label">Sites Blocked</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" id="blockedToday">0</span>
+        <span class="stat-label">Blocked Today</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" id="safeTime">0</span>
+        <span class="stat-label">Hours Protected</span>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Display blocked URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const blockedUrl = urlParams.get('url') || window.location.href;
+    document.getElementById('blockedUrl').textContent = blockedUrl;
+    
+    // Load and display statistics
+    chrome.storage.sync.get(['config'], (result) => {
+      if (result.config && result.config.statistics) {
+        const stats = result.config.statistics;
+        document.getElementById('totalBlocked').textContent = stats.sitesProtected || 0;
+        
+        // Update blocked count
+        stats.sitesProtected = (stats.sitesProtected || 0) + 1;
+        chrome.storage.sync.set({ config: result.config });
+      }
+    });
+    
+    // Calculate blocked today
+    chrome.storage.local.get(['dailyStats'], (result) => {
+      const today = new Date().toDateString();
+      const dailyStats = result.dailyStats || {};
+      
+      if (dailyStats.date === today) {
+        dailyStats.count = (dailyStats.count || 0) + 1;
+      } else {
+        dailyStats.date = today;
+        dailyStats.count = 1;
+      }
+      
+      document.getElementById('blockedToday').textContent = dailyStats.count;
+      chrome.storage.local.set({ dailyStats });
+    });
+    
+    // Calculate hours protected
+    chrome.storage.local.get(['installTime'], (result) => {
+      const installTime = result.installTime || Date.now();
+      const hoursProtected = Math.floor((Date.now() - installTime) / (1000 * 60 * 60));
+      document.getElementById('safeTime').textContent = hoursProtected;
+    });
+    
+    // Go back function
+    function goBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = 'https://www.google.com';
+      }
+    }
+    
+    // Request access function
+    function requestAccess() {
+      if (confirm('Are you sure you want to request access to this site? You can whitelist it in the extension settings.')) {
+        // Open extension popup
+        chrome.runtime.sendMessage({ action: 'openSettings' });
+      }
+    }
+  </script>
+</body>
+</html>
