@@ -32,32 +32,35 @@ class MLContentDetector {
     if (this.modelLoading || this.modelLoaded) return;
 
     this.modelLoading = true;
-    console.log('[ML Detector] Initializing TensorFlow.js and NSFWJS...');
+    console.log('[ML Detector] Initializing NSFWJS model...');
 
     try {
-      // Load TensorFlow.js
-      await this.loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js');
+      // Check if TensorFlow.js and NSFWJS are loaded (they should be loaded via manifest)
+      if (typeof tf === 'undefined') {
+        throw new Error('TensorFlow.js not loaded');
+      }
+      if (typeof nsfwjs === 'undefined') {
+        throw new Error('NSFWJS not loaded');
+      }
+
       this.tfReady = true;
-      console.log('[ML Detector] TensorFlow.js loaded');
+      this.nsfwjsReady = true;
+      console.log('[ML Detector] Libraries loaded from local bundle');
 
       // Wait for TensorFlow to be ready
       await tf.ready();
+      console.log('[ML Detector] TensorFlow.js ready');
 
-      // Load NSFWJS
-      await this.loadScript('https://cdn.jsdelivr.net/npm/nsfwjs@2.4.2/dist/nsfwjs.min.js');
-      this.nsfwjsReady = true;
-      console.log('[ML Detector] NSFWJS loaded');
-
-      // Load the NSFW model
-      // Using the 'MobileNetV2' model for better accuracy
-      // Alternative: 'MobileNetV2Mid' (faster, less accurate) or 'InceptionV3' (slower, more accurate)
+      // Load the NSFW model from CDN (cached by browser)
+      // Using the 'MobileNetV2Mid' model for balanced speed/accuracy
+      // Alternative: 'MobileNetV2' (slower, more accurate) or 'InceptionV3' (slowest, most accurate)
       this.model = await nsfwjs.load('MobileNetV2Mid', {
         size: 299 // Image size for classification
       });
 
       this.modelLoaded = true;
       this.modelLoading = false;
-      console.log('[ML Detector] NSFWJS model loaded successfully');
+      console.log('[ML Detector] NSFWJS model loaded successfully (MobileNetV2Mid)');
 
       // Process any pending images
       this.processPendingImages();
@@ -66,26 +69,14 @@ class MLContentDetector {
       console.error('[ML Detector] Error loading model:', error);
       this.modelLoading = false;
       this.modelLoaded = false;
+
+      // Retry after 3 seconds
+      console.log('[ML Detector] Retrying in 3 seconds...');
+      setTimeout(() => {
+        this.modelLoading = false;
+        this.initializeModel();
+      }, 3000);
     }
-  }
-
-  // Load external script
-  loadScript(url) {
-    return new Promise((resolve, reject) => {
-      // Check if already loaded
-      const existingScript = document.querySelector(`script[src="${url}"]`);
-      if (existingScript) {
-        resolve();
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.src = url;
-      script.async = true;
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.appendChild(script);
-    });
   }
 
   // Classify an image element
