@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Custom Words Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .test-box {
+      background: #f0f0f0;
+      padding: 20px;
+      margin: 20px 0;
+      border: 2px solid #333;
+    }
+    .instructions {
+      background: #e3f2fd;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-left: 4px solid #2196f3;
+    }
+    .expected {
+      color: #4caf50;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    code {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔧 Custom Words Filter Test</h1>
+
+  <div class="instructions">
+    <strong>⚙️ Setup Instructions:</strong>
+    <ol>
+      <li>Click the extension icon in Chrome toolbar</li>
+      <li>Go to <strong>Settings</strong></li>
+      <li>Under <strong>"Custom Words"</strong>, add these words (one per line):
+        <ul>
+          <li><code>javascript</code></li>
+          <li><code>curse</code></li>
+          <li><code>banana</code></li>
+        </ul>
+      </li>
+      <li>Click <strong>Save</strong></li>
+      <li><strong>Reload this page</strong></li>
+      <li>Open DevTools (F12) → Console tab</li>
+      <li>Check if the custom words below are censored</li>
+    </ol>
+  </div>
+
+  <div class="test-box">
+    <h2>Test 1: Built-in Profanity (should always work)</h2>
+    <p>This text contains fuck and shit which are in the database.</p>
+    <p class="expected">Expected: "This text contains **** and **** which are in the database."</p>
+  </div>
+
+  <div class="test-box">
+    <h2>Test 2: Custom Word "javascript"</h2>
+    <p>I love programming in javascript because it's powerful.</p>
+    <p class="expected">Expected: "I love programming in ********** because it's powerful."</p>
+  </div>
+
+  <div class="test-box">
+    <h2>Test 3: Custom Word "curse"</h2>
+    <p>Don't curse in front of children.</p>
+    <p class="expected">Expected: "Don't ***** in front of children."</p>
+  </div>
+
+  <div class="test-box">
+    <h2>Test 4: Custom Word "banana"</h2>
+    <p>I eat a banana for breakfast every day.</p>
+    <p class="expected">Expected: "I eat a ****** for breakfast every day."</p>
+  </div>
+
+  <div class="test-box">
+    <h2>Test 5: Mixed (Built-in + Custom)</h2>
+    <p>This fucking javascript code is a curse to debug!</p>
+    <p class="expected">Expected: "This ******* ********** code is a ***** to debug!"</p>
+  </div>
+
+  <div class="test-box">
+    <h2>Test 6: Case Insensitive</h2>
+    <p>JAVASCRIPT and JavaScript and javascript should all be filtered.</p>
+    <p class="expected">Expected: "********** and ********** and ********** should all be filtered."</p>
+  </div>
+
+  <div class="test-box">
+    <h2>Test 7: Not Filtered (no custom words added)</h2>
+    <p>Normal text with python and ruby programming languages.</p>
+    <p class="expected">Expected: "Normal text with python and ruby programming languages." (unchanged)</p>
+  </div>
+
+  <script>
+    // Log when page loads
+    console.log('='.repeat(60));
+    console.log('CUSTOM WORDS TEST PAGE LOADED');
+    console.log('='.repeat(60));
+    console.log('Make sure you added custom words in extension settings:');
+    console.log('1. javascript');
+    console.log('2. curse');
+    console.log('3. banana');
+    console.log('');
+    console.log('Waiting for content filter to run...');
+    console.log('='.repeat(60));
+
+    // Check after 2 seconds
+    setTimeout(() => {
+      console.log('');
+      console.log('='.repeat(60));
+      console.log('RESULTS AFTER 2 SECONDS:');
+      console.log('='.repeat(60));
+
+      const testBoxes = document.querySelectorAll('.test-box');
+      testBoxes.forEach((box, index) => {
+        const paragraph = box.querySelector('p:first-of-type');
+        if (paragraph) {
+          console.log(`Test ${index + 1}:`, paragraph.textContent);
+        }
+      });
+      console.log('='.repeat(60));
+    }, 2000);
+  </script>
+</body>
+</html>

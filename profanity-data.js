@@ -257,7 +257,7 @@ const PROFANITY_DATA = {
 };
 
 // Utility function to check if text contains profanity
-function containsProfanity(text, level = 'moderate') {
+function containsProfanity(text, level = 'moderate', customWords = []) {
   if (!text) return false;
 
   const lowerText = text.toLowerCase();
@@ -287,10 +287,15 @@ function containsProfanity(text, level = 'moderate') {
       wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate);
   }
 
+  // Add custom words to the check list
+  if (customWords && customWords.length > 0) {
+    wordsToCheck.push(...customWords);
+  }
+
   // Check word boundaries to avoid false positives
   for (const word of wordsToCheck) {
     // Use word boundaries for exact matches
-    const regex = new RegExp(`\\b${word}\\b`, 'i');
+    const regex = new RegExp(`\\b${escapeRegExp(word)}\\b`, 'i');
     if (regex.test(processedText)) {
       return true;
     }
@@ -307,7 +312,7 @@ function containsProfanity(text, level = 'moderate') {
 }
 
 // Function to get all profanity matches in text
-function findProfanity(text, level = 'moderate') {
+function findProfanity(text, level = 'moderate', customWords = []) {
   if (!text) return [];
 
   const matches = new Set();
@@ -333,9 +338,14 @@ function findProfanity(text, level = 'moderate') {
       wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate);
   }
 
+  // Add custom words to the check list
+  if (customWords && customWords.length > 0) {
+    wordsToCheck.push(...customWords);
+  }
+
   // Check each word with word boundaries
   for (const word of wordsToCheck) {
-    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    const regex = new RegExp(`\\b${escapeRegExp(word)}\\b`, 'gi');
     const wordMatches = text.match(regex);
     if (wordMatches) {
       wordMatches.forEach(match => matches.add(match));
@@ -359,11 +369,11 @@ function escapeRegExp(string) {
 }
 
 // Function to censor profanity in text
-function censorProfanity(text, level = 'moderate', replacement = '*') {
+function censorProfanity(text, level = 'moderate', replacement = '*', customWords = []) {
   if (!text) return text;
 
   let censored = text;
-  const matches = findProfanity(text, level);
+  const matches = findProfanity(text, level, customWords);
 
   // Sort by length (longest first) to handle overlapping matches
   matches.sort((a, b) => b.length - a.length);

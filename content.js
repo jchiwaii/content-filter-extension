@@ -17,10 +17,14 @@ function initialize() {
 
   // Load configuration from storage
   chrome.storage.sync.get(['config'], function(result) {
+    console.log('[Content Filter] 📦 Storage result:', result);
+
     if (result.config) {
       config = { ...config, ...result.config };
     }
-    console.log('[Content Filter] Config loaded:', config);
+
+    console.log('[Content Filter] ✅ Config loaded:', config);
+    console.log('[Content Filter] 📝 Custom words from storage:', config.customWords);
 
     // Wait for profanity database to load before initializing
     waitForProfanityDB().then(() => {
@@ -193,17 +197,18 @@ async function analyzeAndFilterImage(element) {
 // Fallback keyword checking
 function checkElementForNSFWKeywords(element) {
   const attributes = ['src', 'alt', 'title', 'data-src', 'srcset'];
+  const customWords = config.customWords || [];
 
   for (const attr of attributes) {
     const value = element.getAttribute(attr);
-    if (value && containsProfanity(value, 'all')) {
+    if (value && containsProfanity(value, 'all', customWords)) {
       return true;
     }
   }
 
   // Check parent elements for context
   const parentText = element.parentElement ? element.parentElement.textContent : '';
-  if (containsProfanity(parentText, 'all')) {
+  if (containsProfanity(parentText, 'all', customWords)) {
     return true;
   }
 
@@ -338,13 +343,17 @@ function filterTextContent() {
   let nodesProcessed = 0;
   let wordsFiltered = 0;
 
+  // Get custom words from config
+  const customWords = config.customWords || [];
+  console.log('[Content Filter] Custom words:', customWords);
+
   // Walk through all text nodes
   walkTextNodes(document.body, (node) => {
     nodesProcessed++;
 
-    if (window.containsProfanity(node.textContent, filterLevel)) {
+    if (window.containsProfanity(node.textContent, filterLevel, customWords)) {
       const originalText = node.textContent;
-      const censoredText = window.censorProfanity(node.textContent, filterLevel, '*');
+      const censoredText = window.censorProfanity(node.textContent, filterLevel, '*', customWords);
 
       if (originalText !== censoredText) {
         console.log('[Content Filter] Filtering:', originalText, '→', censoredText);
@@ -381,12 +390,12 @@ function filterTextContent() {
 
     filteredElements.forEach(element => {
       walkTextNodes(element, (node) => {
-        if (window.containsProfanity(node.textContent, filterLevel)) {
+        if (window.containsProfanity(node.textContent, filterLevel, customWords)) {
           console.warn('[Content Filter] ⚠️ Change was reverted! Element:', element.tagName, 'Text:', node.textContent);
           changesReverted++;
 
           // Re-apply filter
-          const censoredText = window.censorProfanity(node.textContent, filterLevel, '*');
+          const censoredText = window.censorProfanity(node.textContent, filterLevel, '*', customWords);
           node.textContent = censoredText;
         }
       });
@@ -438,10 +447,11 @@ function setupMutationObserver() {
           
           if (config.filterText) {
             const filterLevel = config.strictMode ? 'all' : 'moderate';
+            const customWords = config.customWords || [];
             walkTextNodes(node, (textNode) => {
-              if (window.containsProfanity && window.containsProfanity(textNode.textContent, filterLevel)) {
+              if (window.containsProfanity && window.containsProfanity(textNode.textContent, filterLevel, customWords)) {
                 const originalText = textNode.textContent;
-                textNode.textContent = window.censorProfanity(textNode.textContent, filterLevel, '*');
+                textNode.textContent = window.censorProfanity(textNode.textContent, filterLevel, '*', customWords);
                 if (originalText !== textNode.textContent) {
                   statistics.wordsFiltered++;
                 }
@@ -462,7 +472,15 @@ function setupMutationObserver() {
 // Listen for configuration updates
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === 'sync' && changes.config) {
+    console.log('[Content Filter] ⚙️ Config updated!');
+    console.log('[Content Filter] Old config:', changes.config.oldValue);
+    console.log('[Content Filter] New config:', changes.config.newValue);
+
     config = { ...config, ...changes.config.newValue };
+
+    console.log('[Content Filter] Custom words updated:', config.customWords);
+    console.log('[Content Filter] Re-filtering page with new config...');
+
     // Refilter content with new config
     filterExistingContent();
   }
@@ -478,6 +496,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       mlDetectorReason: 'CSP restrictions in Manifest V3',
       profanityReady: typeof window.containsProfanity === 'function'
     });
+    return true;
+  }
+
+  // Handle config updates from popup
+  if (request.action === 'configUpdate') {
+    console.log('[Content Filter] ⚙️ Received config update from popup');
+    console.log('[Content Filter] New config:', request.config);
+
+    config = { ...config, ...request.config };
+
+    console.log('[Content Filter] Custom words:', config.customWords);
+    console.log('[Content Filter] Re-filtering page...');
+
+    // Refilter content with new config
+    filterExistingContent();
+
+    sendResponse({ success: true });
     return true;
   }
 });
