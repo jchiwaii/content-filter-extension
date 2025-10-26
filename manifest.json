@@ -6,9 +6,11 @@
   "permissions": [
     "storage",
     "activeTab",
-    "webRequest",
-    "webRequestBlocking",
-    "declarativeNetRequest"
+    "declarativeNetRequest",
+    "contextMenus",
+    "notifications",
+    "tabs",
+    "alarms"
   ],
   "host_permissions": [
     "<all_urls>"

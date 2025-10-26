@@ -76,22 +76,33 @@ git clone https://github.com/surge-ai/profanity.git
 
 ---
 
-### 4. Fix Manifest V3 Compliance
-**Current Issue**: Using deprecated APIs
-**Status**: ⚠️ Partially Done
+### 4. Fix Manifest V3 Compliance ✅ COMPLETED
+**Previous Issue**: Using deprecated APIs
+**Status**: ✅ DONE (October 26, 2024)
 
-**Changes Needed**:
+**Completed Changes**:
 ```json
-// Remove from manifest.json:
-"webRequestBlocking",
+// Removed from manifest.json:
+❌ "webRequest"
+❌ "webRequestBlocking"
 
-// Keep only:
-"declarativeNetRequest",
+// Added required permissions:
+✅ "contextMenus"
+✅ "notifications"
+✅ "tabs"
+✅ "alarms"
+
+// Kept V3-compatible:
+✅ "declarativeNetRequest"
 ```
 
-**Update background.js**: Remove webRequest listeners, use only declarativeNetRequest
+**Fixed Errors**:
+- ✅ Service worker registration failed (Status code 15)
+- ✅ 'webRequestBlocking' requires manifest version 2 or lower
 
-**Estimate**: 1 hour
+**Documentation**: See MANIFEST_V3_FIX.md for testing checklist
+
+**Time Spent**: 30 minutes
 
 ---
 
