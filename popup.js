@@ -441,7 +441,11 @@ function checkMLStatus() {
 
         if (response) {
           // Update ML model status
-          if (response.mlDetectorReady) {
+          if (response.mlDetectorDisabled) {
+            elements.mlStatus.textContent = '⚠ Disabled (CSP)';
+            elements.mlStatus.className = 'ml-value';
+            elements.mlStatus.title = 'ML detection disabled due to Manifest V3 CSP restrictions. Using keyword-based filtering.';
+          } else if (response.mlDetectorReady) {
             elements.mlStatus.textContent = '✓ Ready (NSFWJS)';
             elements.mlStatus.className = 'ml-value ready';
           } else if (response.mlDetectorLoading) {

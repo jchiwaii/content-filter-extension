@@ -1,74 +1,258 @@
-// Comprehensive Profanity Dataset
-// Compiled from multiple open-source datasets for maximum coverage
-// Sources:
-// - https://github.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words
-// - https://github.com/surge-ai/profanity
-// - Community contributions
-
-// This is a sanitized list for demonstration. In production, you would include
-// the full dataset from the repos mentioned above.
+// Comprehensive Profanity Database
+// For content filtering and parental control purposes
+// Sources: Common profanity filtering standards, content moderation best practices
+// Note: This is a professional content filtering database used for blocking inappropriate content
 
 const PROFANITY_DATA = {
-  // English profanity (partial list for demonstration)
+  // English profanity - organized by severity
   en: [
-    // Mild profanity
-    'damn', 'damnit', 'hell', 'crap', 'jerk', 'stupid', 'idiot', 'dumb', 'moron',
-    'loser', 'suck', 'sucks', 'sucked', 'sucker',
+    // MILD - Common informal language (may be acceptable in some contexts)
+    'damn', 'damnit', 'damned', 'dammit',
+    'hell', 'heck', 'hellish',
+    'crap', 'crappy', 'crapped', 'crapping',
+    'piss', 'pissed', 'pissing',
+    'suck', 'sucks', 'sucked', 'sucker', 'sucking',
+    'stupid', 'idiot', 'idiotic', 'moron', 'moronic', 'dumb', 'dumbass',
+    'jerk', 'jerky', 'jackass',
+    'screw', 'screwed', 'screwing',
+    'butt', 'butthead',
+    'fart', 'farting', 'farted',
+    'boob', 'boobs', 'booby',
 
-    // Moderate profanity
-    'ass', 'arse', 'asshole', 'bastard', 'bitch', 'dick', 'prick', 'douche',
+    // MODERATE - Common profanity (generally inappropriate)
+    'ass', 'arse', 'arsehole', 'asshole', 'assholes', 'asshat', 'asswipe',
+    'bastard', 'bastards',
+    'bitch', 'bitches', 'bitching', 'bitchy', 'biotch',
+    'bollocks', 'bollock',
+    'bugger', 'buggered', 'buggering',
+    'cock', 'cocks', 'cocky', 'cocksucker',
+    'cunt', 'cunts', 'cunty',
+    'dick', 'dicks', 'dickhead', 'dickwad',
+    'douche', 'douchebag', 'douchey',
+    'fag', 'faggot', 'fags',
+    'prick', 'pricks',
+    'pussy', 'pussies',
+    'shit', 'shitty', 'shite', 'shitting', 'shitted', 'shithead', 'shitstorm',
+    'slut', 'slutty', 'sluts',
+    'tit', 'tits', 'titties', 'titty',
+    'twat', 'twats',
+    'whore', 'whores', 'whorish',
 
-    // Strong profanity (censored for demonstration)
-    'f**k', 'f***ing', 's**t', 'c**t', 'p***y', 'c**k',
+    // STRONG - Severe profanity (always inappropriate)
+    'fuck', 'fucked', 'fucker', 'fucking', 'fuckers', 'fucks', 'fuckface', 'fuckhead',
+    'motherfucker', 'motherfucking', 'motherfuckers',
+    'bullshit',
+    'shitface',
+    'assfuck', 'assfucker',
+    'clusterfuck',
+    'fuckwit', 'fuckwad', 'fuckstick',
 
-    // Sexual content
-    'porn', 'porno', 'pornography', 'xxx', 'nsfw', 'nude', 'naked', 'sex',
-    'sexy', 'erotic', 'explicit', 'adult', 'hentai', 'r34',
+    // SEXUAL CONTENT - Explicit sexual terms
+    'porn', 'porno', 'pornography', 'pornographic', 'porns',
+    'xxx', 'xxxx',
+    'nsfw',
+    'nude', 'nudes', 'nudity', 'naked', 'nakedness',
+    'sex', 'sexy', 'sexual', 'sexually',
+    'erotic', 'erotica',
+    'explicit',
+    'adult', 'adults',
+    'hentai',
+    'r34', 'rule34',
+    'milf', 'dilf',
+    'anal',
+    'blowjob', 'bj',
+    'handjob',
+    'orgasm', 'cumming',
+    'fetish', 'kinky', 'kink',
+    'bdsm',
+    'bondage',
+    'masturbate', 'masturbation', 'masturbating',
+    'penis', 'vagina', 'vulva',
+    'dildo', 'vibrator',
+    'horny',
+    'arousal', 'aroused',
 
-    // Slurs and hate speech (partial - handle with care)
-    // Note: These should be included for filtering but are omitted here
-    // for demonstration purposes
+    // SLURS AND HATE SPEECH (racial, homophobic, etc.)
+    // Note: Including for filtering purposes only
+    'nigger', 'nigga', 'negro',
+    'chink', 'gook',
+    'spic', 'wetback',
+    'kike',
+    'retard', 'retarded', 'retards',
+    'tranny',
+    'dyke',
+    'homo', 'homos', 'homosexual',
+
+    // BODY PARTS (vulgar terms)
+    'penis', 'cock', 'dick', 'prick', 'schlong',
+    'vagina', 'pussy', 'cunt', 'twat',
+    'testicles', 'balls', 'nuts',
+    'breast', 'tit', 'boob', 'tits', 'boobs',
+    'ass', 'butt', 'arse',
+    'anus', 'asshole',
+
+    // DRUG REFERENCES
+    'cocaine', 'coke',
+    'heroin', 'smack',
+    'meth', 'methamphetamine',
+    'weed', 'marijuana', 'pot', 'ganja',
+    'crack',
+    'ecstasy', 'molly',
+    'lsd', 'acid',
+
+    // VIOLENCE AND THREATS
+    'kill', 'killing', 'killed', 'killer',
+    'murder', 'murderer', 'murdered',
+    'rape', 'raped', 'raping', 'rapist',
+    'torture', 'tortured', 'torturing',
+    'die', 'dying', 'death',
+
+    // MEDICAL/GROSS (context-dependent)
+    'poop', 'shit', 'crap', 'feces',
+    'pee', 'piss', 'urine',
+    'vomit', 'puke',
+    'snot',
+    'blood',
+    'gore', 'gory',
+
+    // INTERNET SLANG (often inappropriate)
+    'fml',
+    'wtf', 'wth',
+    'stfu',
+    'milf', 'dilf',
+    'thot',
+    'simp',
+    'fap', 'fapping',
+
+    // ALTERNATIVE SPELLINGS AND CENSORED VERSIONS
+    'fuk', 'fuc', 'fck', 'phuck', 'phuk',
+    'sht', 'shyt', 'chit',
+    'cnt',
+    'btch', 'b1tch', 'biatch',
+    'azz', 'asz',
+    'dik', 'dck',
+    'pron',
+    'pr0n',
+    'bewbs',
   ],
 
   // Pattern-based detection for variations
   patterns: [
-    // Leetspeak variations
-    /f[u\*@#]ck/gi,
+    // Leetspeak and character substitutions
+    /f[u@#0]c?k/gi,
     /sh[i!1]t/gi,
     /[a@4]ss/gi,
-    /b[i!1]tch/gi,
-    /d[i!1]ck/gi,
+    /[a@4]ssh[o0]le/gi,
+    /b[i!1]tc?h/gi,
+    /d[i!1]c?k/gi,
     /s[e3]x/gi,
+    /[ck][o0][ck]k/gi,
+    /p[u0]ss[yi]/gi,
+    /tw[a@4]t/gi,
+    /wh[o0]r[e3]/gi,
+    /sl[u0]t/gi,
 
-    // Common censoring patterns
-    /f\*+k/gi,
-    /s\*+t/gi,
-    /c\*+t/gi,
-    /p\*+n/gi,
+    // Common censoring patterns (properly escaped)
+    /f\*\*k/gi,
+    /f\*ck/gi,
+    /s\*\*t/gi,
+    /sh\*t/gi,
+    /c\*\*t/gi,
+    /b\*tch/gi,
+    /d\*ck/gi,
+    /p\*rn/gi,
+    /a\*\*hole/gi,
 
-    // Separated letters
+    // Separated/spaced letters
     /f\s*u\s*c\s*k/gi,
     /s\s*h\s*i\s*t/gi,
+    /b\s*i\s*t\s*c\s*h/gi,
+    /d\s*i\s*c\s*k/gi,
 
     // NSFW image patterns
     /n\s*s\s*f\s*w/gi,
     /p\s*o\s*r\s*n/gi,
     /x\s*x\s*x/gi,
+    /x{3,}/gi,
+
+    // Combined patterns
+    /fuc?k(ing|ed|er|s)?/gi,
+    /sh[i!]t(ty|head|face)?/gi,
+    /b[i!]tc?h(y|ing|es)?/gi,
+
+    // Sexual patterns
+    /sex(y|ual|ually)?/gi,
+    /porn(o|ography|ographic)?/gi,
+    /nude(s|ity)?/gi,
+    /naked(ness)?/gi,
+
+    // Multiple consecutive special characters (often used to evade filters)
+    /(.)\1{4,}/gi, // Same character repeated 5+ times (e.g., "aaaaa")
   ],
 
   // Context-aware exceptions (words that might be legitimate in some contexts)
   exceptions: [
-    'assumption', 'assessment', 'assign', 'classic', 'dickens',
-    'sussex', 'essex', 'grassland', 'bass', 'glass', 'pass',
-    'class', 'mass', 'brass'
+    // Common words that contain profanity substrings
+    'assumption', 'assumptions',
+    'assessment', 'assessments', 'assess', 'assessing',
+    'assign', 'assignment', 'assigned', 'assigns',
+    'assistance', 'assistant', 'assist', 'assisting',
+    'associate', 'associated', 'association',
+    'class', 'classes', 'classic', 'classical', 'classify',
+    'mass', 'masses', 'massive',
+    'pass', 'passed', 'passing', 'passenger', 'passport',
+    'grass', 'grassland',
+    'bass', 'bassist',
+    'brass',
+    'glass', 'glasses',
+    'dickens', 'dickinson',
+    'sussex', 'essex', 'middlesex', 'wessex',
+    'cassette', 'cassettes',
+    'harass', 'harassment', 'harassing',
+    'embarrass', 'embarrassed', 'embarrassing',
+    'compass',
+    'trespass', 'trespassing',
+    'surpass', 'surpassing',
+    'bypass',
+    'assassin', 'assassination',
+    'massacre',
+    'message', 'messages', 'messaging',
+    'passage', 'passages',
+    'assemble', 'assembled', 'assembly',
+    'assert', 'assertion', 'assertive',
+    'asset', 'assets',
+    'assume', 'assumed', 'assuming',
+    'assure', 'assured', 'assurance',
+    'cassava',
+    'sassafras',
+    'scunthorpe', // Famous false positive example
+    'penistone', // UK place name
+    'lightwater', // Contains "twat"
   ],
 
   // Severity levels for graduated filtering
   severity: {
-    mild: ['damn', 'hell', 'crap', 'stupid', 'idiot', 'jerk', 'dumb'],
-    moderate: ['ass', 'bastard', 'bitch', 'dick', 'suck'],
-    strong: ['f**k', 's**t', 'c**t'],
-    nsfw: ['porn', 'xxx', 'nude', 'naked', 'sex', 'nsfw', 'explicit', 'adult']
+    mild: [
+      'damn', 'damnit', 'hell', 'crap', 'piss', 'suck', 'stupid', 'idiot',
+      'moron', 'dumb', 'jerk', 'screw', 'butt', 'fart', 'boob', 'heck'
+    ],
+    moderate: [
+      'ass', 'arse', 'asshole', 'bastard', 'bitch', 'bollocks', 'bugger',
+      'cock', 'dick', 'douche', 'prick', 'shit', 'slut', 'tit', 'twat', 'whore'
+    ],
+    strong: [
+      'fuck', 'fucked', 'fucker', 'fucking', 'motherfucker', 'cunt',
+      'bullshit', 'clusterfuck', 'fuckwit'
+    ],
+    nsfw: [
+      'porn', 'porno', 'xxx', 'nsfw', 'nude', 'naked', 'sex', 'sexy',
+      'erotic', 'explicit', 'adult', 'hentai', 'milf', 'anal', 'blowjob',
+      'orgasm', 'fetish', 'bdsm', 'masturbate', 'dildo', 'horny'
+    ],
+    slurs: [
+      'nigger', 'nigga', 'chink', 'gook', 'spic', 'kike', 'retard', 'tranny',
+      'dyke', 'fag', 'faggot'
+    ]
   }
 };
 
@@ -78,34 +262,38 @@ function containsProfanity(text, level = 'moderate') {
 
   const lowerText = text.toLowerCase();
 
-  // Check exceptions first
-  for (const exception of PROFANITY_DATA.exceptions) {
-    if (lowerText.includes(exception)) {
-      // Remove exception from text for further checking
-      text = text.replace(new RegExp(exception, 'gi'), '');
-    }
-  }
+  // Check exceptions first - if it's an exception, remove it for checking
+  const processedText = PROFANITY_DATA.exceptions.reduce((acc, exception) => {
+    return acc.replace(new RegExp(exception, 'gi'), '');
+  }, lowerText);
 
-  // Check word list based on severity level
+  // Build word list based on severity level
   const wordsToCheck = [];
 
-  if (level === 'mild') {
-    wordsToCheck.push(...PROFANITY_DATA.severity.mild);
-  } else if (level === 'moderate') {
-    wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate);
-  } else if (level === 'strong') {
-    wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate, ...PROFANITY_DATA.severity.strong);
-  } else if (level === 'all') {
-    wordsToCheck.push(...PROFANITY_DATA.en);
+  switch (level) {
+    case 'mild':
+      wordsToCheck.push(...PROFANITY_DATA.severity.mild);
+      break;
+    case 'moderate':
+      wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate);
+      break;
+    case 'strong':
+      wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate, ...PROFANITY_DATA.severity.strong);
+      break;
+    case 'all':
+      wordsToCheck.push(...PROFANITY_DATA.en);
+      break;
+    default:
+      wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate);
   }
 
-  // Add NSFW terms
-  wordsToCheck.push(...PROFANITY_DATA.severity.nsfw);
-
-  // Check word boundaries
-  const wordBoundaryPattern = new RegExp(`\\b(${wordsToCheck.join('|')})\\b`, 'gi');
-  if (wordBoundaryPattern.test(lowerText)) {
-    return true;
+  // Check word boundaries to avoid false positives
+  for (const word of wordsToCheck) {
+    // Use word boundaries for exact matches
+    const regex = new RegExp(`\\b${word}\\b`, 'i');
+    if (regex.test(processedText)) {
+      return true;
+    }
   }
 
   // Check patterns
@@ -122,27 +310,35 @@ function containsProfanity(text, level = 'moderate') {
 function findProfanity(text, level = 'moderate') {
   if (!text) return [];
 
-  const matches = [];
+  const matches = new Set();
   const lowerText = text.toLowerCase();
 
   // Build word list based on level
   const wordsToCheck = [];
 
-  if (level === 'all') {
-    wordsToCheck.push(...PROFANITY_DATA.en);
-  } else {
-    for (const [severityLevel, words] of Object.entries(PROFANITY_DATA.severity)) {
-      wordsToCheck.push(...words);
-      if (severityLevel === level) break;
-    }
+  switch (level) {
+    case 'mild':
+      wordsToCheck.push(...PROFANITY_DATA.severity.mild);
+      break;
+    case 'moderate':
+      wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate);
+      break;
+    case 'strong':
+      wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate, ...PROFANITY_DATA.severity.strong);
+      break;
+    case 'all':
+      wordsToCheck.push(...PROFANITY_DATA.en);
+      break;
+    default:
+      wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate);
   }
 
-  // Check each word
+  // Check each word with word boundaries
   for (const word of wordsToCheck) {
     const regex = new RegExp(`\\b${word}\\b`, 'gi');
     const wordMatches = text.match(regex);
     if (wordMatches) {
-      matches.push(...wordMatches);
+      wordMatches.forEach(match => matches.add(match));
     }
   }
 
@@ -150,11 +346,11 @@ function findProfanity(text, level = 'moderate') {
   for (const pattern of PROFANITY_DATA.patterns) {
     const patternMatches = text.match(pattern);
     if (patternMatches) {
-      matches.push(...patternMatches);
+      patternMatches.forEach(match => matches.add(match));
     }
   }
 
-  return [...new Set(matches)]; // Remove duplicates
+  return Array.from(matches);
 }
 
 // Function to censor profanity in text
@@ -163,6 +359,9 @@ function censorProfanity(text, level = 'moderate', replacement = '*') {
 
   let censored = text;
   const matches = findProfanity(text, level);
+
+  // Sort by length (longest first) to handle overlapping matches
+  matches.sort((a, b) => b.length - a.length);
 
   for (const match of matches) {
     const censor = replacement.repeat(match.length);
@@ -177,3 +376,5 @@ window.PROFANITY_DATA = PROFANITY_DATA;
 window.containsProfanity = containsProfanity;
 window.findProfanity = findProfanity;
 window.censorProfanity = censorProfanity;
+
+console.log('[Profanity Database] Loaded:', PROFANITY_DATA.en.length, 'words');

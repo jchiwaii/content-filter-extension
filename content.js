@@ -109,7 +109,7 @@ async function processImageQueue() {
   isProcessingQueue = false;
 }
 
-// Analyze and filter individual image using ML
+// Analyze and filter individual image using keyword detection
 async function analyzeAndFilterImage(element) {
   // Skip if already filtered
   if (element.dataset.filtered) return;
@@ -121,33 +121,13 @@ async function analyzeAndFilterImage(element) {
   element.dataset.filtering = 'true';
 
   try {
-    // Wait for image to load if not already loaded
-    if (element.tagName === 'IMG' && !element.complete) {
-      await new Promise((resolve, reject) => {
-        element.onload = resolve;
-        element.onerror = reject;
-        // Timeout after 5 seconds
-        setTimeout(resolve, 5000);
-      });
-    }
-
-    // Use ML detector if available
-    if (window.mlDetector && window.mlDetector.isReady()) {
-      const result = await window.mlDetector.classifyImage(element);
-
-      if (!result.safe) {
-        blockElement(element, result);
-        statistics.imagesBlocked++;
-        updateStatistics();
-      }
-    } else {
-      // Fallback to keyword-based detection
-      const isNSFW = checkElementForNSFWKeywords(element);
-      if (isNSFW) {
-        blockElement(element, { reason: 'NSFW keywords detected', method: 'fallback' });
-        statistics.imagesBlocked++;
-        updateStatistics();
-      }
+    // ML detector disabled due to CSP restrictions
+    // Use keyword-based detection only
+    const isNSFW = checkElementForNSFWKeywords(element);
+    if (isNSFW) {
+      blockElement(element, { reason: 'NSFW keywords detected', method: 'keyword' });
+      statistics.imagesBlocked++;
+      updateStatistics();
     }
   } catch (error) {
     console.warn('[Content Filter] Error analyzing image:', error);
@@ -303,6 +283,11 @@ function filterTextContent() {
 
 // Walk through text nodes
 function walkTextNodes(element, callback) {
+  // Safety check for null/undefined elements
+  if (!element || !element.nodeType) {
+    return;
+  }
+
   if (element.nodeType === 3) { // Text node
     callback(element);
   } else if (element.nodeType === 1) { // Element node
@@ -367,10 +352,11 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getMLStatus') {
-    const mlStatus = window.mlDetector ? window.mlDetector.getStatus() : null;
     sendResponse({
-      mlDetectorReady: mlStatus ? mlStatus.modelLoaded : false,
-      mlDetectorLoading: mlStatus ? mlStatus.modelLoading : false,
+      mlDetectorReady: false,
+      mlDetectorLoading: false,
+      mlDetectorDisabled: true,
+      mlDetectorReason: 'CSP restrictions in Manifest V3',
       profanityReady: typeof window.containsProfanity === 'function'
     });
     return true;
@@ -398,10 +384,7 @@ function observeNewContent() {
   }
 }
 
-// Wait for ML detector to be ready
-setTimeout(() => {
-  const status = window.mlDetector ? window.mlDetector.getStatus() : { modelLoaded: false };
-  console.log('Content Filter: Active and filtering content');
-  console.log('ML Detector Status:', status);
-  console.log('Profanity Detection:', window.containsProfanity ? 'Loaded' : 'Not loaded');
-}, 2000);
+// Log status
+console.log('Content Filter: Active and filtering content');
+console.log('ML Detector Status: Disabled (CSP restrictions - use text filtering only)');
+console.log('Profanity Detection:', window.containsProfanity ? 'Loaded' : 'Not loaded');
