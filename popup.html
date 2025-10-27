@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Safe Browse - Content Filter</title>
+  <title>Content Filter</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -12,92 +12,27 @@
     <div class="header">
       <div class="logo">
         <span class="logo-icon">🛡️</span>
-        <h1>Safe Browse</h1>
+        <h1>Content Filter</h1>
       </div>
-      <div class="toggle-container">
-        <label class="switch">
-          <input type="checkbox" id="mainToggle" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-    </div>
-
-    <!-- Status -->
-    <div class="status-bar">
-      <span id="statusText">Protection Active</span>
-      <span class="status-indicator active"></span>
-    </div>
-
-    <!-- ML Model Status -->
-    <div class="ml-status">
-      <div class="ml-status-item">
-        <span class="ml-icon">🧠</span>
-        <div class="ml-info">
-          <span class="ml-label">ML Detection</span>
-          <span id="mlStatus" class="ml-value">Loading...</span>
-        </div>
-      </div>
-      <div class="ml-status-item">
-        <span class="ml-icon">📚</span>
-        <div class="ml-info">
-          <span class="ml-label">Profanity Database</span>
-          <span id="profanityStatus" class="ml-value">Loading...</span>
-        </div>
-      </div>
+      <label class="switch">
+        <input type="checkbox" id="mainToggle" checked>
+        <span class="slider"></span>
+      </label>
     </div>
 
     <!-- Statistics -->
     <div class="statistics">
       <div class="stat-item">
-        <span class="stat-number" id="imagesBlocked">0</span>
-        <span class="stat-label">Images Blocked</span>
-      </div>
-      <div class="stat-item">
         <span class="stat-number" id="wordsFiltered">0</span>
         <span class="stat-label">Words Filtered</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number" id="sitesProtected">0</span>
-        <span class="stat-label">Sites Protected</span>
-      </div>
-    </div>
-
-    <!-- Settings -->
-    <div class="settings">
-      <h2>Filter Settings</h2>
-      
-      <div class="setting-item">
-        <label>
-          <input type="checkbox" id="filterImages" checked>
-          <span>Filter Images & Videos</span>
-        </label>
-      </div>
-      
-      <div class="setting-item">
-        <label>
-          <input type="checkbox" id="filterText" checked>
-          <span>Filter Offensive Text</span>
-        </label>
-      </div>
-      
-      <div class="setting-item">
-        <label>
-          <input type="checkbox" id="strictMode" checked>
-          <span>Strict Mode (Hide completely)</span>
-        </label>
-      </div>
-      
-      <div class="setting-item slider-setting">
-        <label>Blur Level: <span id="blurValue">20</span>px</label>
-        <input type="range" id="blurLevel" min="5" max="50" value="20">
       </div>
     </div>
 
     <!-- Custom Words -->
     <div class="custom-words-section">
-      <h2>Custom Blocked Words</h2>
+      <h2>Custom Words</h2>
       <div class="input-group">
-        <input type="text" id="customWordInput" placeholder="Add word to block...">
+        <input type="text" id="customWordInput" placeholder="Add word...">
         <button id="addWordBtn">Add</button>
       </div>
       <div id="customWordsList" class="words-list"></div>
@@ -106,26 +41,8 @@
     <!-- Whitelist -->
     <div class="whitelist-section">
       <h2>Whitelisted Sites</h2>
-      <button id="whitelistCurrentBtn" class="action-btn">
-        <span>➕</span> Whitelist Current Site
-      </button>
+      <button id="whitelistCurrentBtn">Whitelist Current Site</button>
       <div id="whitelistDisplay" class="whitelist-display"></div>
-    </div>
-
-    <!-- Actions -->
-    <div class="actions">
-      <button id="refreshBtn" class="action-btn secondary">
-        <span>🔄</span> Refresh Page
-      </button>
-      <button id="reportBtn" class="action-btn secondary">
-        <span>⚠️</span> Report Issue
-      </button>
-    </div>
-
-    <!-- Footer -->
-    <div class="footer">
-      <button id="resetBtn" class="text-btn">Reset to Defaults</button>
-      <button id="exportBtn" class="text-btn">Export Settings</button>
     </div>
   </div>
 
