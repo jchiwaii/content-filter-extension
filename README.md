@@ -1,198 +1,228 @@
-# Safe Browse - Content Filter Extension
+# Content Filter Extension
 
-A powerful Chrome/Edge browser extension that automatically blocks inappropriate content including nudity, explicit images, and offensive language - similar to how ad blockers work, but for inappropriate content.
+A Chrome extension that filters inappropriate content using **intelligent pattern-based sentence rewriting** instead of simple asterisk censoring.
+
+## Why This Approach?
+
+Traditional content filters replace offensive words with asterisks (`****`), but your brain can still auto-complete the original word from context. This makes the filtering ineffective.
+
+**This extension rewrites entire sentences** to sound natural while removing inappropriate content.
+
+### The Difference
+
+| Scenario | Traditional Approach | Our Approach |
+|----------|---------------------|--------------|
+| "This is fucking amazing!" | "This is ****ing amazing!" ❌ | "This is very amazing!" ✅ |
+| "What the hell is going on?" | "What the **** is going on?" ❌ | "What on earth is going on?" ✅ |
+| "That's damn good work." | "That's **** good work." ❌ | "That's very good work." ✅ |
+
+**See `test-rewriting.html`** for live examples comparing both approaches.
 
 ## Features
 
-### 🛡️ Image & Video Filtering
-- **Automatic Detection**: Scans images and videos for potentially inappropriate content
-- **Skin Tone Analysis**: Uses canvas-based analysis to detect high skin exposure
-- **Keyword Detection**: Checks image URLs, alt text, and surrounding context for NSFW keywords
-- **Real-time Blocking**: Filters content as pages load and when new content appears
-
-### 📝 Text Filtering
-- **Offensive Word Blocking**: Automatically censors profanity and inappropriate language
+### 🔤 Intelligent Text Filtering
+- **15+ Pattern-Based Rewrites**: Natural sentence reconstruction
+- **Context-Aware**: Understands phrases like "what the hell", "as fuck", etc.
 - **Custom Word Lists**: Add your own words to filter
-- **Smart Detection**: Preserves readability while removing offensive content
+- **Smart Fallback**: Words without patterns are simply removed
 
-### ⚙️ Flexible Controls
-- **Strict Mode**: Completely hide inappropriate content
-- **Blur Mode**: Blur content with option to reveal after confirmation
-- **Whitelist Sites**: Exempt trusted websites from filtering
-- **Quick Toggle**: Instantly enable/disable protection
+### 🖼️ Image Filtering
+- **NSFW Keyword Detection**: Analyzes image URLs, alt text, and context
+- **Blur or Hide**: Choose strict removal or blur with click-to-reveal
+- **Real-time Processing**: Filters new content as it loads
 
-### 📊 Statistics Tracking
-- Track blocked images and filtered words
-- Monitor protected browsing sessions
-- View daily blocking statistics
+### ⚙️ Configuration
+- Toggle image/text filtering independently
+- Adjust blur levels
+- Strict mode for complete hiding
+- Domain whitelist for trusted sites
+- Custom word management
+
+### 📊 Statistics
+- Track blocked images
+- Count filtered words
+- Monitor browsing protection
+
+## Pattern Examples
+
+The extension uses intelligent pattern matching:
+
+```javascript
+// Intensifiers
+"fucking good" → "very good"
+"damn hard" → "very hard"
+
+// Exclamations
+"what the fuck" → "what on earth"
+"holy shit" → "holy wow"
+
+// Emphasis
+"as fuck" / "af" → "extremely"
+"so fucking" → "so very"
+
+// Common phrases
+"hell yeah" → "definitely yes"
+"hell no" → "definitely not"
+```
+
+**Location**: See `content.js:310-408` for all patterns
 
 ## Installation
 
-### Method 1: Load Unpacked Extension (Development Mode)
-
-1. **Download the Extension**
-   - Download all files from this repository
-   - Keep them in a folder named `content-filter-extension`
-
-2. **Open Chrome Extension Management**
-   - Open Chrome/Edge browser
-   - Navigate to `chrome://extensions/` (Chrome) or `edge://extensions/` (Edge)
-   - Enable "Developer mode" (toggle in top-right corner)
-
-3. **Load the Extension**
-   - Click "Load unpacked"
-   - Select the `content-filter-extension` folder
-   - The extension will appear in your extensions list
-
-4. **Pin the Extension**
-   - Click the puzzle piece icon in the browser toolbar
-   - Click the pin icon next to "Safe Browse"
-
-### Method 2: Package and Install
-
-1. **Package the Extension**
-   - In `chrome://extensions/`, click "Pack extension"
-   - Select the extension directory
-   - Click "Pack Extension" (creates a .crx file)
-
-2. **Install the .crx File**
-   - Drag the .crx file into `chrome://extensions/`
-   - Click "Add Extension" when prompted
+1. **Download this repository**
+2. **Open Chrome**: Navigate to `chrome://extensions/`
+3. **Enable Developer mode**: Toggle in top-right
+4. **Load unpacked**: Click and select this folder
+5. **Pin extension**: Click puzzle icon → pin "Content Filter"
 
 ## Usage
 
-### Basic Operation
-1. **Enable Protection**: Click the extension icon and ensure the main toggle is ON
-2. **Browse Safely**: The extension automatically filters content on all websites
-3. **View Statistics**: Click the extension icon to see blocking statistics
+### Basic Usage
+1. Click extension icon to enable filtering
+2. Browse normally - filtering happens automatically
+3. View statistics in the popup
 
-### Configuration Options
-
-#### Filter Settings
-- **Filter Images & Videos**: Toggle image/video filtering on/off
-- **Filter Offensive Text**: Toggle text filtering on/off
-- **Strict Mode**: Hide content completely vs blur with option to reveal
-- **Blur Level**: Adjust blur intensity (5-50 pixels)
-
-#### Custom Word Filtering
-1. Click the extension icon
-2. In "Custom Blocked Words" section, type a word
+### Adding Custom Words
+1. Click extension icon
+2. Type word in "Custom Blocked Words"
 3. Click "Add" or press Enter
-4. Remove words by clicking the × next to them
+4. Remove with × button
 
-#### Whitelisting Sites
-1. Navigate to a trusted website
-2. Click the extension icon
+### Whitelisting Sites
+1. Visit trusted website
+2. Click extension icon
 3. Click "Whitelist Current Site"
-4. The site will be exempt from filtering
 
-### Context Menu Options
-- **Right-click on images**: "Block similar images" - blocks images from the same source
-- **Right-click on page**: "Whitelist this website" - adds site to whitelist
-- **Right-click anywhere**: "Report inappropriate content" - helps improve filtering
+## Roadmap
 
-## How It Works
+### Phase 1: Pattern-Based Rewriting ✅ (Current)
+- Natural sentence rewriting
+- Context-aware filtering
+- Custom word support
 
-### Image Filtering Algorithm
-1. **URL Analysis**: Scans image URLs for NSFW keywords
-2. **Context Analysis**: Checks surrounding text for inappropriate terms
-3. **Visual Analysis**: 
-   - Samples image pixels using canvas
-   - Detects skin tone percentages
-   - Flags images with >40% skin exposure
-4. **Blocking Action**: Either hides or blurs based on settings
+### Phase 2: ML Integration (Next)
+- Use TensorFlow.js & NSFWJS for content detection
+- Combine ML detection with pattern rewriting
+- Maintain natural language output
 
-### Text Filtering Algorithm
-1. **Word Matching**: Uses regex patterns for whole-word matching
-2. **Dynamic Replacement**: Replaces offensive words with asterisks
-3. **DOM Walking**: Processes all text nodes while preserving structure
-4. **Real-time Updates**: Monitors DOM mutations for new content
+## Project Structure
 
-### Performance Optimizations
-- Lazy loading detection with Intersection Observer
-- Efficient DOM mutation handling
-- Throttled image analysis
-- Cached configuration for quick access
+```
+content-filter-extension/
+├── manifest.json          # Extension configuration
+├── content.js            # Main filtering logic + rewrite patterns
+├── content.css           # Filtered content styles
+├── popup.html            # Extension UI
+├── popup.js              # UI functionality
+├── popup.css             # UI styles
+├── background.js         # Service worker
+├── blocked.html          # Blocked site page
+├── profanity-data.js     # Profanity database
+├── ml-detector.js        # ML integration (future)
+├── test-rewriting.html   # Feature demonstration
+├── lib/                  # ML libraries (for Phase 2)
+│   ├── nsfwjs.min.js    # NSFW detection
+│   └── tf.min.js        # TensorFlow
+└── icons/               # Extension icons
+```
+
+## Technical Details
+
+### Key Code Locations
+
+- **Rewrite Patterns**: `content.js:310-408`
+- **Sentence Splitting**: `content.js:411-435`
+- **Rewrite Logic**: `content.js:438-486`
+- **Main Filter**: `content.js:620-683`
+
+### How It Works
+
+1. **Text node detection**: Walk through all text nodes in the page
+2. **Profanity check**: Identify nodes with filtered words
+3. **Sentence splitting**: Break text into sentences
+4. **Pattern matching**: Apply rewrite rules to each sentence
+5. **Fallback**: Remove unmatched words entirely
+6. **Clean up**: Fix spacing and capitalization
+
+### Adding New Patterns
+
+Edit the `rewritePatterns` array in `content.js`:
+
+```javascript
+{
+  pattern: /\byour\s+pattern\s+here\b/gi,
+  replacement: 'your replacement'
+}
+```
+
+**Pattern types**:
+- Use `\b` for word boundaries
+- Use `/gi` flags (global, case-insensitive)
+- Capture groups with `$1`, `$2`, etc.
+
+## Design System
+
+The extension uses a clean, professional color palette:
+
+```css
+--black: #08090a          /* Deep black */
+--rose-quartz: #a7a2a9   /* Muted gray-purple */
+--seasalt: #f4f7f5       /* Off-white background */
+--davys-gray: #575a5e    /* Medium gray */
+--eerie-black: #222823   /* Dark green-black */
+```
+
+Applied across:
+- Extension popup (`popup.css`)
+- Content overlays (`content.css`)
+- Blocked page (`blocked.html`)
+- Test page (`test-rewriting.html`)
 
 ## Privacy & Security
 
-- **No Data Collection**: All processing happens locally in your browser
-- **No External Servers**: No data is sent to external servers
-- **Secure Storage**: Settings stored in Chrome's secure sync storage
-- **Cross-Origin Safety**: Respects browser security policies
-
-## Customization
-
-### Adding More Blocked Words
-Edit the `offensiveWords` array in `content.js`:
-```javascript
-const offensiveWords = [
-  'word1', 'word2', 'word3',
-  // Add more words here
-];
-```
-
-### Adjusting Skin Detection Sensitivity
-Modify the threshold in `content.js`:
-```javascript
-// Change 40 to higher/lower value
-callback(skinPercentage > 40);
-```
-
-### Adding Blocked Domains
-Add domains to the `blockedDomains` array in `background.js`:
-```javascript
-const blockedDomains = [
-  '*://*.example.com/*',
-  // Add more domains here
-];
-```
-
-## Troubleshooting
-
-### Extension Not Working
-1. Ensure "Developer mode" is enabled
-2. Check if the extension is enabled in `chrome://extensions/`
-3. Refresh the page after enabling
-4. Check if the site is whitelisted
-
-### Images Not Being Blocked
-1. Verify "Filter Images & Videos" is enabled
-2. Some cross-origin images can't be analyzed due to security
-3. Try enabling "Strict Mode" for complete blocking
-
-### Performance Issues
-1. Disable filtering on trusted sites using whitelist
-2. Reduce blur level for better performance
-3. Consider disabling text filtering if not needed
+- ✅ **100% Local Processing**: All filtering happens in your browser
+- ✅ **No External Servers**: Zero data transmission
+- ✅ **No Tracking**: No analytics or telemetry
+- ✅ **Secure Storage**: Uses Chrome's encrypted sync storage
 
 ## Browser Compatibility
 
-- ✅ Chrome (version 88+)
-- ✅ Microsoft Edge (Chromium-based)
-- ✅ Brave Browser
-- ✅ Opera (with Chrome extension support)
-- ⚠️ Firefox (requires manifest.json modifications for Firefox compatibility)
+- ✅ Chrome (v88+)
+- ✅ Edge (Chromium)
+- ✅ Brave
+- ✅ Opera
+
+## Development
+
+### Running Tests
+Open `test-rewriting.html` in browser to see:
+- Side-by-side comparison of old vs new approach
+- Examples of pattern rewrites
+- Visual demonstration of benefits
+
+### Local Development
+1. Make changes to files
+2. Go to `chrome://extensions/`
+3. Click reload icon on extension
+4. Test on web pages
 
 ## Contributing
 
-Feel free to submit issues, feature requests, or pull requests to improve the extension!
+Contributions welcome! Focus areas:
+- Adding more rewrite patterns
+- Improving sentence detection
+- ML integration (Phase 2)
+- Performance optimization
+- UI/UX improvements
 
 ## License
 
-This extension is provided as-is for personal use. Modify and distribute as needed.
+MIT License
 
-## Disclaimer
+## Acknowledgments
 
-This extension uses heuristic methods for content detection and may not catch all inappropriate content. It may also occasionally flag appropriate content. Parents and organizations should use this as one layer of protection alongside other safety measures.
-
-## Support
-
-For issues, questions, or suggestions:
-- Open an issue in the repository
-- Check existing issues for solutions
-- Review the troubleshooting section above
+Built with the goal of making content filtering more effective by maintaining natural language instead of obvious censorship.
 
 ---
 
-**Safe Browse** - Browse the internet safely and confidently! 🛡️
+**Browse safely with intelligent filtering** 🛡️

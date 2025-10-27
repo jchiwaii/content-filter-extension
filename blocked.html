@@ -5,67 +5,76 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Site Blocked - Safe Browse</title>
   <style>
+    :root {
+      --black: #08090a;
+      --rose-quartz: #a7a2a9;
+      --seasalt: #f4f7f5;
+      --davys-gray: #575a5e;
+      --eerie-black: #222823;
+    }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--eerie-black);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
     }
-    
+
     .container {
-      background: white;
+      background: var(--seasalt);
       border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 20px 60px rgba(8, 9, 10, 0.5);
       padding: 48px;
       max-width: 500px;
       width: 100%;
       text-align: center;
     }
-    
+
     .shield-icon {
       font-size: 64px;
       margin-bottom: 24px;
     }
-    
+
     h1 {
-      color: #1f2937;
+      color: var(--eerie-black);
       font-size: 28px;
       margin-bottom: 16px;
     }
-    
+
     .message {
-      color: #6b7280;
+      color: var(--davys-gray);
       font-size: 16px;
       line-height: 1.6;
       margin-bottom: 32px;
     }
-    
+
     .url-display {
-      background: #f3f4f6;
+      background: white;
       padding: 12px;
       border-radius: 8px;
       margin-bottom: 32px;
       word-break: break-all;
-      color: #4b5563;
+      color: var(--davys-gray);
       font-size: 14px;
       font-family: monospace;
+      border: 1px solid var(--rose-quartz);
     }
-    
+
     .actions {
       display: flex;
       gap: 12px;
       justify-content: center;
     }
-    
+
     .btn {
       padding: 12px 24px;
       border-radius: 8px;
@@ -76,77 +85,77 @@
       text-decoration: none;
       display: inline-block;
     }
-    
+
     .btn-primary {
-      background: #667eea;
-      color: white;
+      background: var(--eerie-black);
+      color: var(--seasalt);
       border: none;
     }
-    
+
     .btn-primary:hover {
-      background: #5a67d8;
+      background: var(--black);
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 12px rgba(8, 9, 10, 0.3);
     }
-    
+
     .btn-secondary {
       background: white;
-      color: #6b7280;
-      border: 2px solid #e5e7eb;
+      color: var(--davys-gray);
+      border: 2px solid var(--rose-quartz);
     }
-    
+
     .btn-secondary:hover {
-      border-color: #9ca3af;
-      background: #f9fafb;
+      border-color: var(--davys-gray);
+      background: white;
     }
-    
+
     .info-box {
-      background: #fef3c7;
-      border: 1px solid #fcd34d;
+      background: white;
+      border: 1px solid var(--rose-quartz);
       border-radius: 8px;
       padding: 16px;
       margin-top: 32px;
       text-align: left;
     }
-    
+
     .info-box h3 {
-      color: #92400e;
+      color: var(--eerie-black);
       font-size: 14px;
       margin-bottom: 8px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    
+
     .info-box p {
-      color: #92400e;
+      color: var(--davys-gray);
       font-size: 13px;
       line-height: 1.5;
     }
-    
+
     .stats {
       display: flex;
       justify-content: space-around;
       margin-top: 32px;
       padding-top: 32px;
-      border-top: 1px solid #e5e7eb;
+      border-top: 1px solid var(--rose-quartz);
     }
-    
+
     .stat-item {
       text-align: center;
     }
-    
+
     .stat-number {
       display: block;
       font-size: 24px;
       font-weight: 700;
-      color: #667eea;
+      color: var(--eerie-black);
       margin-bottom: 4px;
     }
-    
+
     .stat-label {
       font-size: 11px;
-      color: #6b7280;
+      color: var(--davys-gray);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }

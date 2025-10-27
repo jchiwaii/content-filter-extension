@@ -1,5 +1,14 @@
 /* Content Filter Styles */
 
+/* Color Palette */
+:root {
+  --black: #08090a;
+  --rose-quartz: #a7a2a9;
+  --seasalt: #f4f7f5;
+  --davys-gray: #575a5e;
+  --eerie-black: #222823;
+}
+
 /* Filtered content styles */
 [data-filtered="true"] {
   position: relative;
@@ -8,17 +17,18 @@
 
 /* Warning overlay */
 .content-filter-overlay {
-  background: rgba(0, 0, 0, 0.9);
+  background: var(--eerie-black);
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
   z-index: 9999;
   border-radius: 8px;
+  opacity: 0.95;
 }
 
 .filter-message {
-  color: white;
+  color: var(--seasalt);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   font-size: 14px;
   font-weight: 600;
@@ -27,13 +37,25 @@
   align-items: center;
   gap: 8px;
   padding: 16px;
-  background: rgba(220, 38, 38, 0.9);
+  background: var(--black);
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(8, 9, 10, 0.3);
+  border: 2px solid var(--davys-gray);
 }
 
 .filter-icon {
   font-size: 24px;
+}
+
+.filter-category {
+  font-size: 12px;
+  color: var(--rose-quartz);
+  margin-top: 4px;
+}
+
+.filter-confidence {
+  font-size: 11px;
+  color: var(--davys-gray);
 }
 
 /* Blurred content hover effect */
@@ -47,14 +69,14 @@
 
 /* Blocked iframe styles */
 iframe[data-filtered="true"] {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--eerie-black);
   min-height: 300px;
 }
 
 /* Text replacement highlight */
 .filtered-text {
-  background-color: #000;
-  color: #000;
+  background-color: var(--rose-quartz);
+  color: var(--eerie-black);
   border-radius: 3px;
   padding: 0 2px;
 }
@@ -64,24 +86,26 @@ iframe[data-filtered="true"] {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--eerie-black);
+  color: var(--seasalt);
   padding: 8px 16px;
   border-radius: 20px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   font-size: 12px;
   font-weight: 600;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(8, 9, 10, 0.2);
   z-index: 10000;
   display: flex;
   align-items: center;
   gap: 6px;
   opacity: 0.9;
   transition: opacity 0.3s ease;
+  border: 1px solid var(--davys-gray);
 }
 
 .safe-mode-indicator:hover {
   opacity: 1;
+  background: var(--black);
 }
 
 .safe-mode-indicator::before {
@@ -112,8 +136,15 @@ iframe[data-filtered="true"] {
     font-size: 12px;
     padding: 12px;
   }
-  
+
   .filter-icon {
     font-size: 20px;
+  }
+
+  .safe-mode-indicator {
+    bottom: 10px;
+    right: 10px;
+    font-size: 11px;
+    padding: 6px 12px;
   }
 }
