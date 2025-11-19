@@ -20,8 +20,6 @@ chrome.runtime.onInstalled.addListener(() => {
       chrome.storage.sync.set({ config: defaultConfig });
     }
   });
-
-  console.log('Content Filter installed successfully');
 });
 
 // Listen for messages from content scripts
@@ -52,5 +50,3 @@ function updateStatistics(data) {
     chrome.storage.sync.set({ config });
   });
 }
-
-console.log('Background service worker initialized');

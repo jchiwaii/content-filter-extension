@@ -11,31 +11,22 @@ let config = {
 
 // Wait for both DOM and profanity database to be ready
 function initialize() {
-  console.log('[Content Filter] Initializing... readyState:', document.readyState);
+// Load configuration from storage
+chrome.storage.sync.get(['config'], function(result) {
 
-  // Load configuration from storage
-  chrome.storage.sync.get(['config'], function(result) {
-    console.log('[Content Filter] 📦 Storage result:', result);
-
-    if (result.config) {
-      config = { ...config, ...result.config };
-    }
-
-    console.log('[Content Filter] ✅ Config loaded:', config);
-    console.log('[Content Filter] 📝 Custom words from storage:', config.customWords);
+  if (result.config) {
+    config = { ...config, ...result.config };
+  }
 
     // Wait for profanity database to load before initializing
     waitForProfanityDB().then(() => {
       // Ensure DOM is ready before filtering
       if (document.readyState === 'loading') {
-        console.log('[Content Filter] DOM still loading, waiting...');
         document.addEventListener('DOMContentLoaded', () => {
-          console.log('[Content Filter] DOM ready (via event), starting filter');
-          initializeFilter();
-        });
+  initializeFilter();
+});
       } else {
         // DOM is already interactive or complete
-        console.log('[Content Filter] DOM already ready, starting filter immediately');
         initializeFilter();
       }
     });
@@ -50,7 +41,6 @@ function waitForProfanityDB() {
   return new Promise((resolve) => {
     // Check if already loaded
     if (window.containsProfanity && typeof window.containsProfanity === 'function') {
-      console.log('[Content Filter] Profanity DB already loaded');
       resolve();
       return;
     }
@@ -64,7 +54,6 @@ function waitForProfanityDB() {
 
       if (window.containsProfanity && typeof window.containsProfanity === 'function') {
         clearInterval(checkInterval);
-        console.log('[Content Filter] Profanity DB loaded after', attempts * 50, 'ms');
         resolve();
       } else if (attempts >= maxAttempts) {
         clearInterval(checkInterval);
@@ -84,10 +73,10 @@ let statistics = {
 // Initialize the filter
 function initializeFilter() {
   if (isWhitelisted()) return;
-
+  
   // Start filtering
   filterExistingContent();
-
+  
   // Listen for dynamic content changes
   setupMutationObserver();
 
@@ -98,8 +87,6 @@ function initializeFilter() {
 // Detect SPA route changes (for React, Vue, Angular, etc.)
 function setupSPADetection() {
   let lastUrl = location.href;
-
-  console.log('[Content Filter] Setting up SPA route detection for:', lastUrl);
 
   // Detect history pushState/replaceState (used by SPAs)
   const originalPushState = history.pushState;
@@ -121,7 +108,6 @@ function setupSPADetection() {
   // Fallback: Check URL every second
   setInterval(() => {
     if (location.href !== lastUrl) {
-      console.log('[Content Filter] URL changed (polling):', lastUrl, '→', location.href);
       lastUrl = location.href;
       handleRouteChange();
     }
@@ -130,7 +116,6 @@ function setupSPADetection() {
   function handleRouteChange() {
     const newUrl = location.href;
     if (newUrl !== lastUrl) {
-      console.log('[Content Filter] 🔄 Route changed:', lastUrl, '→', newUrl);
       lastUrl = newUrl;
 
       // Clear old filtered markers
@@ -138,7 +123,6 @@ function setupSPADetection() {
 
       // Wait a bit for new content to load, then re-filter
       setTimeout(() => {
-        console.log('[Content Filter] Re-filtering after route change...');
         filterExistingContent();
       }, 500);
     }
@@ -147,15 +131,11 @@ function setupSPADetection() {
 
 // Clear filtered markers from previous page
 function clearFilteredMarkers() {
-  console.log('[Content Filter] Clearing old filtered markers...');
-
   const filteredElements = document.querySelectorAll('[data-content-filtered="true"]');
   filteredElements.forEach(element => {
     delete element.dataset.contentFiltered;
     delete element.dataset.originalText;
   });
-
-  console.log('[Content Filter] Cleared', filteredElements.length, 'filtered markers');
 }
 
 // Check if current domain is whitelisted
@@ -391,7 +371,6 @@ function updateStatistics() {
 
 // Filter text content using ML-enhanced profanity detection
 function filterTextContent() {
-  console.log('[Content Filter] Starting text filtering...');
 
   // Check if profanity functions are available
   if (!window.containsProfanity || !window.censorProfanity) {
@@ -401,21 +380,17 @@ function filterTextContent() {
 
   // Check if document.body exists
   if (!document.body) {
-    console.error('[Content Filter] document.body is null! DOM not ready.');
     return;
   }
 
   // Use the profanity detection from profanity-data.js
   const filterLevel = config.strictMode ? 'all' : 'moderate';
-  console.log('[Content Filter] Filter level:', filterLevel);
-  console.log('[Content Filter] Config:', JSON.stringify(config));
 
   let nodesProcessed = 0;
   let wordsFiltered = 0;
 
   // Get custom words from config
   const customWords = config.customWords || [];
-  console.log('[Content Filter] Custom words:', customWords);
 
   // Walk through all text nodes
   walkTextNodes(document.body, (node) => {
@@ -457,11 +432,6 @@ function filterTextContent() {
       const rewrittenText = rewrittenSentences.join('');
 
       if (originalText !== rewrittenText) {
-        // Only log first 10 filtered items to avoid console spam
-        if (wordsFiltered < 10) {
-          console.log('[Content Filter] Rewriting:', originalText.substring(0, 100), '→', rewrittenText.substring(0, 100));
-        }
-
         // Only modify if change is valid
         if (rewrittenText && rewrittenText.length > 0) {
           node.textContent = rewrittenText;
@@ -482,7 +452,6 @@ function filterTextContent() {
     }
   });
 
-  console.log('[Content Filter] Text filtering complete:', nodesProcessed, 'nodes processed,', wordsFiltered, 'words filtered');
   updateStatistics();
 }
 
@@ -501,8 +470,8 @@ function walkTextNodes(element, callback) {
     if (!skipTags.includes(element.tagName)) {
       // Skip contenteditable elements
       if (!element.isContentEditable) {
-        for (let child of element.childNodes) {
-          walkTextNodes(child, callback);
+      for (let child of element.childNodes) {
+        walkTextNodes(child, callback);
         }
       }
     }
@@ -554,7 +523,7 @@ function setupMutationObserver() {
       });
     });
   });
-
+  
   observer.observe(document.body, {
     childList: true,
     subtree: true
@@ -564,14 +533,9 @@ function setupMutationObserver() {
 // Listen for configuration updates
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === 'sync' && changes.config) {
-    console.log('[Content Filter] ⚙️ Config updated!');
-    console.log('[Content Filter] Old config:', changes.config.oldValue);
-    console.log('[Content Filter] New config:', changes.config.newValue);
 
     config = { ...config, ...changes.config.newValue };
 
-    console.log('[Content Filter] Custom words updated:', config.customWords);
-    console.log('[Content Filter] Re-filtering page with new config...');
 
     // Refilter content with new config
     filterExistingContent();
@@ -582,13 +546,9 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // Handle config updates from popup
   if (request.action === 'configUpdate') {
-    console.log('[Content Filter] ⚙️ Received config update from popup');
-    console.log('[Content Filter] New config:', request.config);
 
     config = { ...config, ...request.config };
 
-    console.log('[Content Filter] Custom words:', config.customWords);
-    console.log('[Content Filter] Re-filtering page...');
 
     // Refilter content with new config
     filterExistingContent();
@@ -599,10 +559,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 // Log initialization complete
-setTimeout(() => {
-  console.log('═══════════════════════════════════════════');
-  console.log('✅ Content Filter: Active - Pattern-Based Text Rewriting');
-  console.log('✅ Profanity Detection:', window.containsProfanity ? 'Loaded and Ready' : '❌ NOT LOADED');
-  console.log('📊 Config:', JSON.stringify(config, null, 2));
-  console.log('═══════════════════════════════════════════');
-}, 1000);
+// setTimeout(() => {
+//   console.log('═══════════════════════════════════════════');
+//   console.log('✅ Content Filter: Active - Pattern-Based Text Rewriting');
+//   console.log('✅ Profanity Detection:', window.containsProfanity ? 'Loaded and Ready' : '❌ NOT LOADED');
+//   console.log('📊 Config:', JSON.stringify(config, null, 2));
+//   console.log('═══════════════════════════════════════════');
+// }, 1000);

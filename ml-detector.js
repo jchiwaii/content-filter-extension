@@ -12,8 +12,6 @@ class MLContentDetector {
       threshold: 0.5,
       strictThreshold: 0.3
     };
-
-    console.log('[ML Detector] Initialized in Keyword-Only Mode');
   }
 
   // Initialize - No-op for keyword detection
@@ -42,7 +40,6 @@ class MLContentDetector {
 
       for (const keyword of nsfwKeywords) {
         if (combined.includes(keyword)) {
-          console.log('[ML Detector] Blocked image:', keyword, src.substring(0, 50));
           return {
             safe: false,
             reason: `NSFW keyword detected: ${keyword}`,

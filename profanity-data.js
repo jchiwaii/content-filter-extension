@@ -393,5 +393,3 @@ window.PROFANITY_DATA = PROFANITY_DATA;
 window.containsProfanity = containsProfanity;
 window.findProfanity = findProfanity;
 window.censorProfanity = censorProfanity;
-
-console.log('[Profanity Database] Loaded:', PROFANITY_DATA.en.length, 'words');
