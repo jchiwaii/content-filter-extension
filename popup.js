@@ -32,11 +32,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load configuration from storage
 function loadConfiguration() {
-  chrome.storage.sync.get(['config'], (result) => {
-    if (result.config) {
-      config = { ...config, ...result.config };
-      updateUI();
+  // Load config from sync and stats from local
+  Promise.all([
+    chrome.storage.sync.get(['config']),
+    chrome.storage.local.get(['statistics'])
+  ]).then(([syncResult, localResult]) => {
+    if (syncResult.config) {
+      config = { ...config, ...syncResult.config };
     }
+    if (localResult.statistics) {
+      config.statistics = localResult.statistics;
+    }
+    updateUI();
   });
 }
 
@@ -210,14 +217,18 @@ function getCurrentTabInfo() {
 
 // Save configuration to storage
 function saveConfiguration() {
-  chrome.storage.sync.set({ config }, () => {
+  // Save only config to sync (exclude statistics)
+  const configToSave = { ...config };
+  delete configToSave.statistics; // Statistics are stored separately in local storage
+
+  chrome.storage.sync.set({ config: configToSave }, () => {
     // Notify content scripts of configuration change
     chrome.tabs.query({}, (tabs) => {
       tabs.forEach(tab => {
         if (tab.id) {
           chrome.tabs.sendMessage(tab.id, {
             action: 'configUpdate',
-            config: config
+            config: configToSave
           }).catch(() => {
             // Tab might not have content script
           });

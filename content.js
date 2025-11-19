@@ -557,12 +557,3 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 });
-
-// Log initialization complete
-// setTimeout(() => {
-//   console.log('═══════════════════════════════════════════');
-//   console.log('✅ Content Filter: Active - Pattern-Based Text Rewriting');
-//   console.log('✅ Profanity Detection:', window.containsProfanity ? 'Loaded and Ready' : '❌ NOT LOADED');
-//   console.log('📊 Config:', JSON.stringify(config, null, 2));
-//   console.log('═══════════════════════════════════════════');
-// }, 1000);

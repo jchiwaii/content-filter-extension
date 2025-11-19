@@ -6,10 +6,12 @@ const defaultConfig = {
   filterText: true,
   strictMode: true,
   customWords: [],
-  whitelistedDomains: [],
-  statistics: {
-    wordsFiltered: 0
-  }
+  whitelistedDomains: []
+};
+
+// Default statistics
+const defaultStats = {
+  wordsFiltered: 0
 };
 
 // Initialize extension on install
@@ -18,6 +20,13 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.get(['config'], (result) => {
     if (!result.config) {
       chrome.storage.sync.set({ config: defaultConfig });
+    }
+  });
+
+  // Initialize statistics in local storage (unlimited writes)
+  chrome.storage.local.get(['statistics'], (result) => {
+    if (!result.statistics) {
+      chrome.storage.local.set({ statistics: defaultStats });
     }
   });
 });
@@ -31,8 +40,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       break;
 
     case 'getConfig':
-      chrome.storage.sync.get(['config'], (result) => {
-        sendResponse(result.config || defaultConfig);
+      // Return both config and stats
+      Promise.all([
+        chrome.storage.sync.get(['config']),
+        chrome.storage.local.get(['statistics'])
+      ]).then(([syncResult, localResult]) => {
+        const config = syncResult.config || defaultConfig;
+        const stats = localResult.statistics || defaultStats;
+        // Merge stats into config object for backward compatibility with popup/content scripts
+        sendResponse({ ...config, statistics: stats });
       });
       return true; // Keep channel open for async response
   }
@@ -40,13 +56,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // Update statistics
 function updateStatistics(data) {
-  chrome.storage.sync.get(['config'], (result) => {
-    const config = result.config || defaultConfig;
+  chrome.storage.local.get(['statistics'], (result) => {
+    const stats = result.statistics || defaultStats;
 
     if (data.wordsFiltered) {
-      config.statistics.wordsFiltered += data.wordsFiltered;
+      stats.wordsFiltered = (stats.wordsFiltered || 0) + data.wordsFiltered;
     }
 
-    chrome.storage.sync.set({ config });
+    chrome.storage.local.set({ statistics: stats });
   });
 }
