@@ -208,16 +208,14 @@
     const blockedUrl = urlParams.get('url') || window.location.href;
     document.getElementById('blockedUrl').textContent = blockedUrl;
     
-    // Load and display statistics
-    chrome.storage.sync.get(['config'], (result) => {
-      if (result.config && result.config.statistics) {
-        const stats = result.config.statistics;
-        document.getElementById('totalBlocked').textContent = stats.sitesProtected || 0;
-        
-        // Update blocked count
-        stats.sitesProtected = (stats.sitesProtected || 0) + 1;
-        chrome.storage.sync.set({ config: result.config });
-      }
+    // Load and display statistics from local storage
+    chrome.storage.local.get(['statistics'], (result) => {
+      const stats = result.statistics || { wordsFiltered: 0, sitesProtected: 0 };
+      document.getElementById('totalBlocked').textContent = stats.sitesProtected || 0;
+      
+      // Update blocked count
+      stats.sitesProtected = (stats.sitesProtected || 0) + 1;
+      chrome.storage.local.set({ statistics: stats });
     });
     
     // Calculate blocked today
