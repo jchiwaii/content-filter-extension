@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safe Browse - Privacy Policy</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --primary: #2563eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      padding: 32px 16px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--card);
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.1);
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p.lead {
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      margin-top: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p, li {
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--primary);
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="badge">Updated: November 2025</div>
+    <h1>Safe Browse Privacy Policy</h1>
+    <p class="lead">
+      Safe Browse is designed to run 100% on your device. We do not collect, store, sell, or share any personal information or browsing history.
+    </p>
+
+    <h2>What Data We Collect</h2>
+    <p><strong>None.</strong> Safe Browse never transmits or stores your browsing data on external servers.</p>
+    <ul>
+      <li>No personal information</li>
+      <li>No browsing history or page URLs</li>
+      <li>No form data or credentials</li>
+      <li>No analytics or usage tracking</li>
+    </ul>
+
+    <h2>How Safe Browse Works</h2>
+    <p>
+      The extension filters words and detects inappropriate content locally using keyword detection. All processing happens inside your browser:
+    </p>
+    <ul>
+      <li>Profanity detection uses a built-in word list stored in the extension package.</li>
+      <li>Image blocking checks filenames, alt text, and surrounding words—never the actual image pixels.</li>
+      <li>Blocking statistics (e.g., number of words filtered) are stored locally via <code>chrome.storage.local</code> and never leave your device.</li>
+    </ul>
+
+    <h2>Permissions Explained</h2>
+    <ul>
+      <li><strong>activeTab / host permissions:</strong> Required to read the text on the pages you visit so profanity can be detected and filtered.</li>
+      <li><strong>storage:</strong> Saves your preferences (e.g., custom word list, whitelist) locally. This data never syncs outside your browser unless you explicitly enable browser sync.</li>
+      <li><strong>contextMenus, notifications:</strong> Provide optional UI shortcuts and feedback.</li>
+    </ul>
+
+    <h2>Third-Party Sharing</h2>
+    <p>Safe Browse does not share any data with third parties. There are no analytics SDKs, trackers, or external APIs involved.</p>
+
+    <h2>Children & Families</h2>
+    <p>
+      The extension was built to help families and educators maintain safe browsing environments. Because no data leaves the browser, Safe Browse complies with COPPA/GDPR requirements for local-only solutions.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Questions or concerns? Reach out via the GitHub repository listed in the extension description.
+    </p>
+  </main>
+</body>
+</html>
+
