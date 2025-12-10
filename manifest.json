@@ -1,20 +1,10 @@
 {
   "manifest_version": 3,
   "name": "Safe Browse - Content Filter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Automatically blocks inappropriate content including nudity, explicit images, and offensive language",
-  "permissions": [
-    "storage",
-    "activeTab",
-    "declarativeNetRequest",
-    "contextMenus",
-    "notifications",
-    "tabs",
-    "alarms"
-  ],
-  "host_permissions": [
-    "<all_urls>"
-  ],
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js"
   },
