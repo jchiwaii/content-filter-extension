@@ -1,12 +1,85 @@
 // Enhanced Background Service Worker
 // Handles extension initialization, site blocking, safe search, and messaging
 
-// Import modules (will be available in service worker context)
-importScripts(
-  'data/blocklist-data.js',
-  'modules/safe-search.js',
-  'modules/notifications.js'
-);
+// Note: In MV3 service workers, we inline the module code or use dynamic imports
+// For simplicity, we'll define stripped-down versions here
+
+// Minimal blocklist for critical adult sites (full list in data/blocklist-data.js for content scripts)
+const BlocklistData = {
+  isBlocked: async (url, categories = ['adult']) => {
+    try {
+      const urlObj = new URL(url);
+      const hostname = urlObj.hostname.replace('www.', '');
+
+      // Core adult domains to block
+      const adultDomains = [
+        'pornhub.com', 'xvideos.com', 'xnxx.com', 'xhamster.com', 'redtube.com',
+        'youporn.com', 'spankbang.com', 'beeg.com', 'porn.com', 'eporner.com',
+        'onlyfans.com', 'fansly.com', 'chaturbate.com', 'livejasmin.com',
+        'stripchat.com', 'brazzers.com', 'realitykings.com', 'bangbros.com',
+        'rule34.xxx', 'e621.net', 'nhentai.net', 'hentaihaven.xxx', 'literotica.com'
+      ];
+
+      if (categories.includes('adult')) {
+        for (const domain of adultDomains) {
+          if (hostname === domain || hostname.endsWith('.' + domain)) {
+            return { blocked: true, category: 'adult', reason: 'Adult content' };
+          }
+        }
+      }
+
+      // Check custom blocklist from storage
+      const result = await chrome.storage.sync.get(['config']);
+      const customBlocklist = result.config?.customBlocklist || [];
+      if (customBlocklist.includes(hostname)) {
+        return { blocked: true, category: 'custom', reason: 'Manually blocked' };
+      }
+
+      return { blocked: false };
+    } catch {
+      return { blocked: false };
+    }
+  }
+};
+
+// Minimal safe search enforcement
+const SafeSearch = {
+  processSearchUrl: (url) => {
+    try {
+      const urlObj = new URL(url);
+      const hostname = urlObj.hostname;
+      const params = urlObj.searchParams;
+
+      // Google
+      if (hostname.includes('google.') && urlObj.pathname.includes('/search')) {
+        if (params.get('safe') !== 'active') {
+          params.set('safe', 'active');
+          return { action: 'redirect', url: urlObj.toString() };
+        }
+      }
+
+      // Bing
+      if (hostname.includes('bing.com') && urlObj.pathname.includes('/search')) {
+        if (params.get('adlt') !== 'strict') {
+          params.set('adlt', 'strict');
+          return { action: 'redirect', url: urlObj.toString() };
+        }
+      }
+
+      // DuckDuckGo
+      if (hostname.includes('duckduckgo.com')) {
+        if (params.get('kp') !== '1') {
+          params.set('kp', '1');
+          return { action: 'redirect', url: urlObj.toString() };
+        }
+      }
+
+      return { action: 'none' };
+    } catch {
+      return { action: 'none' };
+    }
+  }
+};
 
 // Default configuration
 const defaultConfig = {
@@ -254,7 +327,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   }
 
   // Check site blocking
-  if (config.blockSites && typeof BlocklistData !== 'undefined') {
+  if (config.blockSites) {
     const blockResult = await BlocklistData.isBlocked(url, config.blockCategories || ['adult']);
 
     if (blockResult.blocked) {
@@ -274,7 +347,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   }
 
   // Check safe search
-  if (config.safeSearch && typeof SafeSearch !== 'undefined') {
+  if (config.safeSearch) {
     const searchResult = SafeSearch.processSearchUrl(url);
 
     if (searchResult.action === 'block') {
@@ -377,12 +450,8 @@ async function handleMessage(request, sender, sendResponse) {
       break;
 
     case 'checkSiteBlocked':
-      if (typeof BlocklistData !== 'undefined') {
-        const result = await BlocklistData.isBlocked(request.url, request.categories || ['adult']);
-        sendResponse(result);
-      } else {
-        sendResponse({ blocked: false });
-      }
+      const blockResult = await BlocklistData.isBlocked(request.url, request.categories || ['adult']);
+      sendResponse(blockResult);
       break;
 
     case 'openSettings':
