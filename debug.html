@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Tools - Safe Browse</title>
+  <style>
+    :root {
+      --black: #08090a;
+      --rose-quartz: #a7a2a9;
+      --seasalt: #f4f7f5;
+      --davys-gray: #575a5e;
+      --eerie-black: #222823;
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      background: var(--eerie-black);
+      color: var(--seasalt);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--davys-gray);
+    }
+
+    h1 {
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge {
+      background: var(--danger);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 20px;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid var(--davys-gray);
+    }
+
+    .panel h2 {
+      font-size: 14px;
+      color: var(--rose-quartz);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+
+    .stat-label {
+      color: var(--rose-quartz);
+    }
+
+    .stat-value {
+      font-weight: bold;
+    }
+
+    .stat-value.success { color: var(--success); }
+    .stat-value.danger { color: var(--danger); }
+
+    /* Filter Tester */
+    .tester-input {
+      width: 100%;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--davys-gray);
+      border-radius: 8px;
+      color: var(--seasalt);
+      font-family: inherit;
+      font-size: 14px;
+      margin-bottom: 12px;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .tester-input:focus {
+      outline: none;
+      border-color: var(--success);
+    }
+
+    .tester-result {
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      min-height: 80px;
+      font-size: 14px;
+      word-wrap: break-word;
+    }
+
+    .tester-result.has-profanity {
+      border: 1px solid var(--danger);
+    }
+
+    .tester-result.clean {
+      border: 1px solid var(--success);
+    }
+
+    .match-tag {
+      display: inline-block;
+      background: var(--danger);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin: 2px;
+    }
+
+    /* Storage Inspector */
+    .storage-tree {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 12px;
+      border-radius: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 12px;
+    }
+
+    .storage-key {
+      color: #f59e0b;
+    }
+
+    .storage-value {
+      color: var(--success);
+    }
+
+    .storage-string {
+      color: #10b981;
+    }
+
+    .storage-number {
+      color: #60a5fa;
+    }
+
+    .storage-boolean {
+      color: #f472b6;
+    }
+
+    /* Console Log */
+    .console-output {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 12px;
+      border-radius: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 12px;
+    }
+
+    .log-entry {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .log-entry.info { color: #60a5fa; }
+    .log-entry.warn { color: #f59e0b; }
+    .log-entry.error { color: var(--danger); }
+
+    .log-time {
+      color: var(--davys-gray);
+      margin-right: 8px;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #059669;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .btn-secondary {
+      background: var(--davys-gray);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #6b7280;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    /* Performance */
+    .perf-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      margin: 8px 0;
+      overflow: hidden;
+    }
+
+    .perf-fill {
+      height: 100%;
+      background: var(--success);
+      transition: width 0.3s;
+    }
+
+    .perf-fill.warn { background: #f59e0b; }
+    .perf-fill.danger { background: var(--danger); }
+
+    /* Config Editor */
+    .config-editor {
+      width: 100%;
+      min-height: 200px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--davys-gray);
+      border-radius: 8px;
+      color: var(--seasalt);
+      font-family: inherit;
+      font-size: 12px;
+      resize: vertical;
+    }
+
+    .config-editor:focus {
+      outline: none;
+      border-color: var(--success);
+    }
+
+    select {
+      padding: 8px 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--davys-gray);
+      border-radius: 6px;
+      color: var(--seasalt);
+      font-family: inherit;
+      font-size: 13px;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--success);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>
+        <span>🔧</span>
+        Safe Browse Debug Tools
+        <span class="badge">DEV</span>
+      </h1>
+      <div>
+        <button class="btn btn-secondary" onclick="location.reload()">Refresh</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Status Panel -->
+      <div class="panel">
+        <h2>Extension Status</h2>
+        <div class="stat-row">
+          <span class="stat-label">Protection</span>
+          <span class="stat-value" id="statusProtection">-</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Text Filtering</span>
+          <span class="stat-value" id="statusTextFilter">-</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Image Filtering</span>
+          <span class="stat-value" id="statusImageFilter">-</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Safe Search</span>
+          <span class="stat-value" id="statusSafeSearch">-</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Active Profile</span>
+          <span class="stat-value" id="statusProfile">-</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Filter Level</span>
+          <span class="stat-value" id="statusLevel">-</span>
+        </div>
+      </div>
+
+      <!-- Statistics Panel -->
+      <div class="panel">
+        <h2>Statistics</h2>
+        <div class="stat-row">
+          <span class="stat-label">Words Filtered (Total)</span>
+          <span class="stat-value" id="statWords">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Sites Blocked (Total)</span>
+          <span class="stat-value" id="statSites">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Images Blocked (Total)</span>
+          <span class="stat-value" id="statImages">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Activity Log Entries</span>
+          <span class="stat-value" id="statLogEntries">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Sync Storage Used</span>
+          <span class="stat-value" id="statSyncStorage">-</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Local Storage Used</span>
+          <span class="stat-value" id="statLocalStorage">-</span>
+        </div>
+      </div>
+
+      <!-- Filter Tester -->
+      <div class="panel">
+        <h2>Filter Tester</h2>
+        <textarea class="tester-input" id="testInput" placeholder="Enter text to test..."></textarea>
+        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+          <select id="testLevel">
+            <option value="mild">Mild</option>
+            <option value="moderate" selected>Moderate</option>
+            <option value="strong">Strong</option>
+            <option value="all">All</option>
+          </select>
+          <button class="btn btn-primary" onclick="runFilterTest()">Test</button>
+        </div>
+        <div class="tester-result" id="testResult">
+          Result will appear here...
+        </div>
+      </div>
+
+      <!-- Performance Panel -->
+      <div class="panel">
+        <h2>Performance</h2>
+        <div class="stat-row">
+          <span class="stat-label">Memory Usage</span>
+          <span class="stat-value" id="perfMemory">-</span>
+        </div>
+        <div class="perf-bar">
+          <div class="perf-fill" id="perfMemoryBar" style="width: 0%"></div>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Last Filter Time</span>
+          <span class="stat-value" id="perfFilterTime">-</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Nodes Processed</span>
+          <span class="stat-value" id="perfNodes">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Observer Mutations</span>
+          <span class="stat-value" id="perfMutations">0</span>
+        </div>
+      </div>
+
+      <!-- Storage Inspector -->
+      <div class="panel" style="grid-column: span 2;">
+        <h2>Storage Inspector</h2>
+        <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+          <select id="storageType">
+            <option value="sync">Sync Storage</option>
+            <option value="local">Local Storage</option>
+            <option value="session">Session Storage</option>
+          </select>
+          <button class="btn btn-primary" onclick="loadStorageData()">Load</button>
+          <button class="btn btn-danger" onclick="clearStorage()">Clear</button>
+        </div>
+        <div class="storage-tree" id="storageTree">
+          Click "Load" to view storage data...
+        </div>
+      </div>
+
+      <!-- Config Editor -->
+      <div class="panel" style="grid-column: span 2;">
+        <h2>Config Editor</h2>
+        <textarea class="config-editor" id="configEditor"></textarea>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="loadConfig()">Load Config</button>
+          <button class="btn btn-primary" onclick="saveConfig()">Save Config</button>
+          <button class="btn btn-danger" onclick="resetConfig()">Reset to Default</button>
+        </div>
+      </div>
+
+      <!-- Console Log -->
+      <div class="panel" style="grid-column: span 2;">
+        <h2>Console Log</h2>
+        <div class="console-output" id="consoleOutput">
+          <!-- Logs will appear here -->
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="clearConsole()">Clear</button>
+          <button class="btn btn-secondary" onclick="exportLogs()">Export</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="profanity-data.js"></script>
+  <script>
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadStatus();
+      loadStatistics();
+      loadConfig();
+      startPerformanceMonitor();
+      setupConsoleCapture();
+    });
+
+    // Load status
+    async function loadStatus() {
+      const result = await chrome.storage.sync.get(['config', 'activeProfile', 'safeSearchConfig', 'imageDetectorConfig']);
+      const config = result.config || {};
+
+      setStatus('statusProtection', config.enabled !== false);
+      setStatus('statusTextFilter', config.filterText !== false);
+      setStatus('statusImageFilter', result.imageDetectorConfig?.enabled !== false);
+      setStatus('statusSafeSearch', result.safeSearchConfig?.enabled !== false);
+      document.getElementById('statusProfile').textContent = result.activeProfile || 'teen-safe';
+      document.getElementById('statusLevel').textContent = config.filterLevel || 'moderate';
+    }
+
+    function setStatus(id, enabled) {
+      const el = document.getElementById(id);
+      el.textContent = enabled ? 'Enabled' : 'Disabled';
+      el.classList.toggle('success', enabled);
+      el.classList.toggle('danger', !enabled);
+    }
+
+    // Load statistics
+    async function loadStatistics() {
+      const result = await chrome.storage.local.get(['statistics', 'activityLog']);
+      const stats = result.statistics || {};
+      const log = result.activityLog || [];
+
+      document.getElementById('statWords').textContent = stats.wordsFiltered || 0;
+      document.getElementById('statSites').textContent = stats.sitesBlocked || 0;
+      document.getElementById('statImages').textContent = stats.imagesBlocked || 0;
+      document.getElementById('statLogEntries').textContent = log.length;
+
+      // Calculate storage usage
+      const syncUsed = await chrome.storage.sync.getBytesInUse(null);
+      const localUsed = await chrome.storage.local.getBytesInUse(null);
+
+      document.getElementById('statSyncStorage').textContent = formatBytes(syncUsed);
+      document.getElementById('statLocalStorage').textContent = formatBytes(localUsed);
+    }
+
+    // Filter tester
+    function runFilterTest() {
+      const input = document.getElementById('testInput').value;
+      const level = document.getElementById('testLevel').value;
+      const resultEl = document.getElementById('testResult');
+
+      if (!input) {
+        resultEl.textContent = 'Enter some text to test';
+        resultEl.className = 'tester-result';
+        return;
+      }
+
+      const hasProfanity = window.containsProfanity(input, level);
+      const matches = window.findProfanity(input, level);
+
+      if (hasProfanity) {
+        resultEl.className = 'tester-result has-profanity';
+        resultEl.innerHTML = `
+          <strong style="color: var(--danger);">Contains profanity!</strong><br><br>
+          <strong>Matches found:</strong><br>
+          ${matches.map(m => `<span class="match-tag">${m}</span>`).join(' ')}
+          <br><br>
+          <strong>Filtered result:</strong><br>
+          ${window.censorProfanity(input, level)}
+        `;
+      } else {
+        resultEl.className = 'tester-result clean';
+        resultEl.innerHTML = '<strong style="color: var(--success);">Clean - No profanity detected</strong>';
+      }
+
+      log('info', `Tested text (${level}): ${hasProfanity ? 'PROFANITY FOUND' : 'clean'}`);
+    }
+
+    // Storage inspector
+    async function loadStorageData() {
+      const type = document.getElementById('storageType').value;
+      let data;
+
+      switch (type) {
+        case 'sync':
+          data = await chrome.storage.sync.get(null);
+          break;
+        case 'local':
+          data = await chrome.storage.local.get(null);
+          break;
+        case 'session':
+          data = await chrome.storage.session.get(null);
+          break;
+      }
+
+      document.getElementById('storageTree').innerHTML = formatJSON(data);
+      log('info', `Loaded ${type} storage data`);
+    }
+
+    async function clearStorage() {
+      const type = document.getElementById('storageType').value;
+      if (!confirm(`Clear all ${type} storage data?`)) return;
+
+      switch (type) {
+        case 'sync':
+          await chrome.storage.sync.clear();
+          break;
+        case 'local':
+          await chrome.storage.local.clear();
+          break;
+        case 'session':
+          await chrome.storage.session.clear();
+          break;
+      }
+
+      log('warn', `Cleared ${type} storage`);
+      loadStorageData();
+    }
+
+    // Config editor
+    async function loadConfig() {
+      const result = await chrome.storage.sync.get(['config']);
+      const config = result.config || {};
+      document.getElementById('configEditor').value = JSON.stringify(config, null, 2);
+      log('info', 'Loaded config');
+    }
+
+    async function saveConfig() {
+      try {
+        const config = JSON.parse(document.getElementById('configEditor').value);
+        await chrome.storage.sync.set({ config });
+        log('info', 'Config saved successfully');
+        alert('Config saved!');
+      } catch (e) {
+        log('error', `Failed to save config: ${e.message}`);
+        alert('Invalid JSON!');
+      }
+    }
+
+    async function resetConfig() {
+      if (!confirm('Reset config to defaults?')) return;
+
+      const defaultConfig = {
+        enabled: true,
+        filterText: true,
+        strictMode: true,
+        customWords: [],
+        whitelistedDomains: []
+      };
+
+      await chrome.storage.sync.set({ config: defaultConfig });
+      loadConfig();
+      log('warn', 'Config reset to defaults');
+    }
+
+    // Performance monitor
+    function startPerformanceMonitor() {
+      updatePerformance();
+      setInterval(updatePerformance, 5000);
+    }
+
+    function updatePerformance() {
+      if (performance.memory) {
+        const used = performance.memory.usedJSHeapSize;
+        const total = performance.memory.jsHeapSizeLimit;
+        const percent = (used / total) * 100;
+
+        document.getElementById('perfMemory').textContent = `${formatBytes(used)} / ${formatBytes(total)}`;
+        const bar = document.getElementById('perfMemoryBar');
+        bar.style.width = `${percent}%`;
+        bar.classList.toggle('warn', percent > 50);
+        bar.classList.toggle('danger', percent > 80);
+      }
+    }
+
+    // Console capture
+    const logs = [];
+
+    function setupConsoleCapture() {
+      const originalLog = console.log;
+      const originalWarn = console.warn;
+      const originalError = console.error;
+
+      console.log = (...args) => {
+        log('info', args.join(' '));
+        originalLog.apply(console, args);
+      };
+
+      console.warn = (...args) => {
+        log('warn', args.join(' '));
+        originalWarn.apply(console, args);
+      };
+
+      console.error = (...args) => {
+        log('error', args.join(' '));
+        originalError.apply(console, args);
+      };
+    }
+
+    function log(level, message) {
+      const time = new Date().toLocaleTimeString();
+      logs.push({ time, level, message });
+
+      const output = document.getElementById('consoleOutput');
+      output.innerHTML += `<div class="log-entry ${level}"><span class="log-time">${time}</span>${escapeHtml(message)}</div>`;
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function clearConsole() {
+      logs.length = 0;
+      document.getElementById('consoleOutput').innerHTML = '';
+    }
+
+    function exportLogs() {
+      const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `debug-logs-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Helpers
+    function formatBytes(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function formatJSON(obj, indent = 0) {
+      const spaces = '  '.repeat(indent);
+
+      if (obj === null) return '<span class="storage-value">null</span>';
+      if (typeof obj === 'string') return `<span class="storage-string">"${escapeHtml(obj)}"</span>`;
+      if (typeof obj === 'number') return `<span class="storage-number">${obj}</span>`;
+      if (typeof obj === 'boolean') return `<span class="storage-boolean">${obj}</span>`;
+
+      if (Array.isArray(obj)) {
+        if (obj.length === 0) return '[]';
+        const items = obj.map(item => `${spaces}  ${formatJSON(item, indent + 1)}`).join(',\n');
+        return `[\n${items}\n${spaces}]`;
+      }
+
+      if (typeof obj === 'object') {
+        const keys = Object.keys(obj);
+        if (keys.length === 0) return '{}';
+        const items = keys.map(key =>
+          `${spaces}  <span class="storage-key">"${key}"</span>: ${formatJSON(obj[key], indent + 1)}`
+        ).join(',\n');
+        return `{\n${items}\n${spaces}}`;
+      }
+
+      return String(obj);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Initial log
+    log('info', 'Debug tools initialized');
+  </script>
+</body>
+</html>

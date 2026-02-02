@@ -1,41 +1,113 @@
 {
   "manifest_version": 3,
   "name": "Safe Browse - Content Filter",
-  "version": "1.0.1",
-  "description": "Automatically blocks inappropriate content including nudity, explicit images, and offensive language",
-  "permissions": ["storage", "tabs"],
-  "host_permissions": ["<all_urls>"],
+  "version": "2.0.0",
+  "description": "Privacy-focused content filtering extension that blocks inappropriate content including profanity, explicit images, and adult websites. All processing happens locally.",
+
+  "permissions": [
+    "storage",
+    "tabs",
+    "webNavigation",
+    "contextMenus",
+    "alarms",
+    "notifications"
+  ],
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
+
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["profanity-data.js", "content.js"],
+      "js": [
+        "profanity-data.js",
+        "modules/lang-detector.js",
+        "modules/image-detector.js",
+        "content.js"
+      ],
       "css": ["content.css"],
       "run_at": "document_end",
       "all_frames": true
+    },
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["platforms/youtube.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["*://*.twitter.com/*", "*://*.x.com/*"],
+      "js": ["platforms/twitter.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["*://*.reddit.com/*"],
+      "js": ["platforms/reddit.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["*://*.facebook.com/*", "*://*.instagram.com/*"],
+      "js": ["platforms/facebook.js"],
+      "run_at": "document_end"
     }
   ],
+
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
-    }
+    },
+    "default_title": "Safe Browse - Content Filter"
   },
+
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
+
+  "options_page": "settings.html",
+
   "web_accessible_resources": [
     {
-      "resources": ["blocked.html", "icons/*", "lib/*"],
+      "resources": [
+        "blocked.html",
+        "dashboard.html",
+        "settings.html",
+        "onboarding.html",
+        "debug.html",
+        "privacy.html",
+        "icons/*",
+        "lib/*"
+      ],
       "matches": ["<all_urls>"]
     }
   ],
+
+  "commands": {
+    "toggle-protection": {
+      "suggested_key": {
+        "default": "Alt+Shift+S",
+        "mac": "Alt+Shift+S"
+      },
+      "description": "Toggle content filtering on/off"
+    },
+    "open-dashboard": {
+      "suggested_key": {
+        "default": "Alt+Shift+D",
+        "mac": "Alt+Shift+D"
+      },
+      "description": "Open the statistics dashboard"
+    }
+  },
+
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   }

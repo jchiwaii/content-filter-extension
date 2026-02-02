@@ -11,6 +11,8 @@
       --seasalt: #f4f7f5;
       --davys-gray: #575a5e;
       --eerie-black: #222823;
+      --danger: #ef4444;
+      --warning: #f59e0b;
     }
 
     * {
@@ -21,7 +23,7 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: var(--eerie-black);
+      background: linear-gradient(135deg, var(--eerie-black) 0%, #1a1a2e 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -31,17 +33,23 @@
 
     .container {
       background: var(--seasalt);
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(8, 9, 10, 0.5);
+      border-radius: 24px;
+      box-shadow: 0 25px 80px rgba(8, 9, 10, 0.5);
       padding: 48px;
-      max-width: 500px;
+      max-width: 550px;
       width: 100%;
       text-align: center;
     }
 
     .shield-icon {
-      font-size: 64px;
+      font-size: 80px;
       margin-bottom: 24px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
 
     h1 {
@@ -54,48 +62,81 @@
       color: var(--davys-gray);
       font-size: 16px;
       line-height: 1.6;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
+    }
+
+    .category-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--danger);
+      border-radius: 24px;
+      color: var(--danger);
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 24px;
+    }
+
+    .category-icon {
+      font-size: 18px;
     }
 
     .url-display {
       background: white;
-      padding: 12px;
-      border-radius: 8px;
+      padding: 16px;
+      border-radius: 12px;
       margin-bottom: 32px;
       word-break: break-all;
       color: var(--davys-gray);
-      font-size: 14px;
-      font-family: monospace;
+      font-size: 13px;
+      font-family: 'Monaco', 'Menlo', monospace;
       border: 1px solid var(--rose-quartz);
+      text-align: left;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+
+    .url-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--rose-quartz);
+      margin-bottom: 8px;
+      display: block;
     }
 
     .actions {
       display: flex;
-      gap: 12px;
+      gap: 16px;
       justify-content: center;
+      flex-wrap: wrap;
     }
 
     .btn {
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 500;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
       text-decoration: none;
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
     }
 
     .btn-primary {
       background: var(--eerie-black);
       color: var(--seasalt);
-      border: none;
     }
 
     .btn-primary:hover {
       background: var(--black);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(8, 9, 10, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(8, 9, 10, 0.3);
     }
 
     .btn-secondary {
@@ -106,14 +147,24 @@
 
     .btn-secondary:hover {
       border-color: var(--davys-gray);
-      background: white;
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      border: 2px solid var(--danger);
+    }
+
+    .btn-danger:hover {
+      background: var(--danger);
+      color: white;
     }
 
     .info-box {
       background: white;
       border: 1px solid var(--rose-quartz);
-      border-radius: 8px;
-      padding: 16px;
+      border-radius: 12px;
+      padding: 20px;
       margin-top: 32px;
       text-align: left;
     }
@@ -121,7 +172,7 @@
     .info-box h3 {
       color: var(--eerie-black);
       font-size: 14px;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -130,7 +181,7 @@
     .info-box p {
       color: var(--davys-gray);
       font-size: 13px;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
     .stats {
@@ -147,7 +198,7 @@
 
     .stat-number {
       display: block;
-      font-size: 24px;
+      font-size: 28px;
       font-weight: 700;
       color: var(--eerie-black);
       margin-bottom: 4px;
@@ -159,33 +210,84 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
+
+    .warning-text {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid var(--warning);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 16px;
+      color: var(--warning);
+      font-size: 13px;
+    }
+
+    .bypass-section {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--rose-quartz);
+    }
+
+    .bypass-section h4 {
+      font-size: 13px;
+      color: var(--davys-gray);
+      margin-bottom: 12px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="shield-icon">🛡️</div>
     <h1>This Site Has Been Blocked</h1>
-    <p class="message">
-      Safe Browse has blocked access to this website because it may contain inappropriate or explicit content.
-    </p>
-    
-    <div class="url-display" id="blockedUrl"></div>
-    
-    <div class="actions">
-      <button class="btn btn-primary" onclick="goBack()">Go Back</button>
-      <button class="btn btn-secondary" onclick="requestAccess()">Request Access</button>
+
+    <div class="category-badge" id="categoryBadge">
+      <span class="category-icon">🔞</span>
+      <span id="categoryName">Adult Content</span>
     </div>
-    
+
+    <p class="message">
+      Safe Browse has blocked access to this website to protect you from potentially inappropriate or harmful content.
+    </p>
+
+    <div class="url-display">
+      <span class="url-label">Blocked URL</span>
+      <span id="blockedUrl"></span>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="goBack()">
+        <span>←</span> Go Back
+      </button>
+      <button class="btn btn-secondary" onclick="goHome()">
+        <span>🏠</span> Go Home
+      </button>
+    </div>
+
     <div class="info-box">
       <h3>
         <span>⚠️</span>
-        Why was this site blocked?
+        Why was this blocked?
       </h3>
-      <p>
-        This website was automatically blocked based on content filters designed to protect against inappropriate material including adult content, explicit images, and offensive language. If you believe this is a mistake, you can request access or whitelist the site in the extension settings.
+      <p id="blockReason">
+        This website was automatically blocked based on our content filters designed to protect against inappropriate material.
       </p>
+
+      <div class="warning-text" id="warningText" style="display: none;">
+        Bypassing this block may expose you to content that is not safe for all audiences.
+      </div>
     </div>
-    
+
+    <div class="bypass-section" id="bypassSection">
+      <h4>Need to access this site?</h4>
+      <div class="actions">
+        <button class="btn btn-danger" onclick="requestBypass()">
+          Request Access
+        </button>
+        <button class="btn btn-secondary" onclick="openSettings()">
+          Open Settings
+        </button>
+      </div>
+    </div>
+
     <div class="stats">
       <div class="stat-item">
         <span class="stat-number" id="totalBlocked">0</span>
@@ -201,61 +303,122 @@
       </div>
     </div>
   </div>
-  
+
   <script>
-    // Display blocked URL
+    // Category information
+    const categories = {
+      adult: { icon: '🔞', name: 'Adult Content', reason: 'This site contains adult or explicit content.' },
+      gambling: { icon: '🎰', name: 'Gambling', reason: 'This site contains gambling-related content.' },
+      violence: { icon: '⚠️', name: 'Violence', reason: 'This site may contain violent or disturbing content.' },
+      drugs: { icon: '💊', name: 'Drugs', reason: 'This site contains drug-related content.' },
+      weapons: { icon: '🔫', name: 'Weapons', reason: 'This site contains weapons-related content.' },
+      hate: { icon: '🚫', name: 'Hate Speech', reason: 'This site contains hate speech or extremist content.' },
+      phishing: { icon: '🎣', name: 'Phishing', reason: 'This site may be attempting to steal your information.' },
+      malware: { icon: '🦠', name: 'Malware', reason: 'This site may contain malicious software.' },
+      custom: { icon: '🚷', name: 'Custom Block', reason: 'This site was manually blocked.' },
+      blocked_search: { icon: '🔍', name: 'Blocked Search', reason: 'This search query was blocked for containing inappropriate terms.' }
+    };
+
+    // Parse URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const blockedUrl = urlParams.get('url') || window.location.href;
+    const blockedUrl = urlParams.get('url') || 'Unknown URL';
+    const category = urlParams.get('category') || 'adult';
+    const reason = urlParams.get('reason') || '';
+
+    // Display blocked URL
     document.getElementById('blockedUrl').textContent = blockedUrl;
-    
-    // Load and display statistics from local storage
-    chrome.storage.local.get(['statistics'], (result) => {
-      const stats = result.statistics || { wordsFiltered: 0, sitesProtected: 0 };
-      document.getElementById('totalBlocked').textContent = stats.sitesProtected || 0;
-      
-      // Update blocked count
-      stats.sitesProtected = (stats.sitesProtected || 0) + 1;
+
+    // Display category
+    const categoryInfo = categories[category] || categories.adult;
+    document.getElementById('categoryBadge').querySelector('.category-icon').textContent = categoryInfo.icon;
+    document.getElementById('categoryName').textContent = categoryInfo.name;
+    document.getElementById('blockReason').textContent = categoryInfo.reason;
+
+    // Load statistics
+    chrome.storage.local.get(['statistics', 'dailyStats', 'installTime'], (result) => {
+      const stats = result.statistics || { sitesBlocked: 0 };
+
+      // Update site blocked count
+      stats.sitesBlocked = (stats.sitesBlocked || 0) + 1;
       chrome.storage.local.set({ statistics: stats });
-    });
-    
-    // Calculate blocked today
-    chrome.storage.local.get(['dailyStats'], (result) => {
+
+      document.getElementById('totalBlocked').textContent = stats.sitesBlocked;
+
+      // Today's count
       const today = new Date().toDateString();
       const dailyStats = result.dailyStats || {};
-      
+
       if (dailyStats.date === today) {
-        dailyStats.count = (dailyStats.count || 0) + 1;
+        dailyStats.sitesBlocked = (dailyStats.sitesBlocked || 0) + 1;
       } else {
         dailyStats.date = today;
-        dailyStats.count = 1;
+        dailyStats.sitesBlocked = 1;
       }
-      
-      document.getElementById('blockedToday').textContent = dailyStats.count;
+
+      document.getElementById('blockedToday').textContent = dailyStats.sitesBlocked;
       chrome.storage.local.set({ dailyStats });
-    });
-    
-    // Calculate hours protected
-    chrome.storage.local.get(['installTime'], (result) => {
+
+      // Hours protected
       const installTime = result.installTime || Date.now();
       const hoursProtected = Math.floor((Date.now() - installTime) / (1000 * 60 * 60));
       document.getElementById('safeTime').textContent = hoursProtected;
     });
-    
-    // Go back function
+
+    // Navigation functions
     function goBack() {
       if (window.history.length > 1) {
         window.history.back();
       } else {
-        window.location.href = 'https://www.google.com';
+        goHome();
       }
     }
-    
-    // Request access function
-    function requestAccess() {
-      if (confirm('Are you sure you want to request access to this site? You can whitelist it in the extension settings.')) {
-        // Open extension popup
-        chrome.runtime.sendMessage({ action: 'openSettings' });
+
+    function goHome() {
+      window.location.href = 'https://www.google.com';
+    }
+
+    function requestBypass() {
+      document.getElementById('warningText').style.display = 'block';
+
+      if (confirm('Are you sure you want to request access to this site? An administrator password may be required.')) {
+        // Check if password protected
+        chrome.storage.local.get(['passwordEnabled'], (result) => {
+          if (result.passwordEnabled) {
+            const password = prompt('Enter administrator password:');
+            if (password) {
+              // Verify password (simplified - in real app would use PasswordManager)
+              alert('Password verification not available in this context. Please use the Settings page.');
+            }
+          } else {
+            // Add to whitelist
+            whitelistSite();
+          }
+        });
       }
+    }
+
+    async function whitelistSite() {
+      try {
+        const url = new URL(blockedUrl);
+        const hostname = url.hostname;
+
+        const result = await chrome.storage.sync.get(['config']);
+        const config = result.config || {};
+        config.whitelistedDomains = config.whitelistedDomains || [];
+
+        if (!config.whitelistedDomains.includes(hostname)) {
+          config.whitelistedDomains.push(hostname);
+          await chrome.storage.sync.set({ config });
+          alert('Site has been whitelisted. Redirecting...');
+          window.location.href = blockedUrl;
+        }
+      } catch (e) {
+        alert('Failed to whitelist site.');
+      }
+    }
+
+    function openSettings() {
+      chrome.runtime.sendMessage({ action: 'openSettings' });
     }
   </script>
 </body>

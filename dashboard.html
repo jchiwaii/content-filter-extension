@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistics Dashboard - Safe Browse</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Header -->
+    <header class="dashboard-header">
+      <div class="header-left">
+        <span class="logo-icon">🛡️</span>
+        <h1>Safe Browse Dashboard</h1>
+      </div>
+      <div class="header-right">
+        <button id="exportBtn" class="btn btn-secondary">Export Data</button>
+        <button id="settingsBtn" class="btn btn-primary">Settings</button>
+      </div>
+    </header>
+
+    <!-- Stats Overview -->
+    <section class="stats-overview">
+      <div class="stat-card">
+        <div class="stat-icon">🔤</div>
+        <div class="stat-content">
+          <span class="stat-value" id="totalWordsFiltered">0</span>
+          <span class="stat-label">Words Filtered</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🚫</div>
+        <div class="stat-content">
+          <span class="stat-value" id="totalSitesBlocked">0</span>
+          <span class="stat-label">Sites Blocked</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🖼️</div>
+        <div class="stat-content">
+          <span class="stat-value" id="totalImagesBlocked">0</span>
+          <span class="stat-label">Images Blocked</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⏱️</div>
+        <div class="stat-content">
+          <span class="stat-value" id="hoursProtected">0</span>
+          <span class="stat-label">Hours Protected</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts Section -->
+    <section class="charts-section">
+      <div class="chart-container">
+        <h2>Filtering Activity (Last 7 Days)</h2>
+        <canvas id="activityChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <h2>Content Types Filtered</h2>
+        <canvas id="typeChart"></canvas>
+      </div>
+    </section>
+
+    <!-- Today's Stats -->
+    <section class="today-section">
+      <h2>Today's Activity</h2>
+      <div class="today-stats">
+        <div class="today-stat">
+          <span class="today-value" id="todayWords">0</span>
+          <span class="today-label">Words Filtered</span>
+        </div>
+        <div class="today-stat">
+          <span class="today-value" id="todaySites">0</span>
+          <span class="today-label">Sites Blocked</span>
+        </div>
+        <div class="today-stat">
+          <span class="today-value" id="todayImages">0</span>
+          <span class="today-label">Images Blocked</span>
+        </div>
+        <div class="today-stat">
+          <span class="today-value" id="todaySearches">0</span>
+          <span class="today-label">Searches Filtered</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Top Sites Section -->
+    <section class="top-sites-section">
+      <h2>Most Filtered Sites</h2>
+      <div class="top-sites-list" id="topSitesList">
+        <div class="empty-state">No data yet</div>
+      </div>
+    </section>
+
+    <!-- Activity Log -->
+    <section class="activity-log-section">
+      <div class="section-header">
+        <h2>Recent Activity</h2>
+        <button id="clearLogBtn" class="btn btn-small btn-danger">Clear Log</button>
+      </div>
+      <div class="activity-log" id="activityLog">
+        <div class="empty-state">No activity recorded</div>
+      </div>
+    </section>
+
+    <!-- Usage Summary -->
+    <section class="usage-section">
+      <h2>Time Limits Usage</h2>
+      <div class="usage-bars" id="usageBars">
+        <div class="usage-item">
+          <span class="usage-label">Social Media</span>
+          <div class="usage-bar">
+            <div class="usage-fill" id="socialMediaUsage" style="width: 0%"></div>
+          </div>
+          <span class="usage-time" id="socialMediaTime">0 / 120 min</span>
+        </div>
+        <div class="usage-item">
+          <span class="usage-label">Gaming</span>
+          <div class="usage-bar">
+            <div class="usage-fill" id="gamingUsage" style="width: 0%"></div>
+          </div>
+          <span class="usage-time" id="gamingTime">0 / 60 min</span>
+        </div>
+        <div class="usage-item">
+          <span class="usage-label">Streaming</span>
+          <div class="usage-bar">
+            <div class="usage-fill" id="streamingUsage" style="width: 0%"></div>
+          </div>
+          <span class="usage-time" id="streamingTime">0 / 180 min</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="lib/chart.min.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Safe Browse</title>
+  <style>
+    :root {
+      --black: #08090a;
+      --rose-quartz: #a7a2a9;
+      --seasalt: #f4f7f5;
+      --davys-gray: #575a5e;
+      --eerie-black: #222823;
+      --success: #10b981;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, var(--eerie-black) 0%, #1a2a1a 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .onboarding-container {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+      max-width: 600px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      height: 4px;
+      background: var(--rose-quartz);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--success);
+      transition: width 0.3s ease;
+      width: 25%;
+    }
+
+    /* Steps */
+    .step {
+      display: none;
+      padding: 48px;
+      text-align: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-icon {
+      font-size: 72px;
+      margin-bottom: 24px;
+    }
+
+    .step h2 {
+      font-size: 28px;
+      color: var(--eerie-black);
+      margin-bottom: 16px;
+    }
+
+    .step p {
+      color: var(--davys-gray);
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+      max-width: 450px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Profile Cards */
+    .profile-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .profile-card {
+      background: var(--seasalt);
+      border: 2px solid transparent;
+      border-radius: 16px;
+      padding: 24px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .profile-card:hover {
+      border-color: var(--rose-quartz);
+    }
+
+    .profile-card.selected {
+      border-color: var(--success);
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    .profile-card .icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    .profile-card .name {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 4px;
+      color: var(--eerie-black);
+    }
+
+    .profile-card .description {
+      font-size: 12px;
+      color: var(--davys-gray);
+    }
+
+    /* Features List */
+    .features-list {
+      text-align: left;
+      margin-bottom: 32px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: var(--seasalt);
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    .feature-item .icon {
+      font-size: 28px;
+      width: 48px;
+      text-align: center;
+    }
+
+    .feature-item .text h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--eerie-black);
+      margin-bottom: 2px;
+    }
+
+    .feature-item .text p {
+      font-size: 13px;
+      color: var(--davys-gray);
+      margin: 0;
+    }
+
+    /* Privacy Points */
+    .privacy-points {
+      text-align: left;
+      background: var(--seasalt);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    .privacy-point {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .privacy-point:last-child {
+      margin-bottom: 0;
+    }
+
+    .privacy-point .check {
+      color: var(--success);
+      font-size: 20px;
+      line-height: 1.4;
+    }
+
+    .privacy-point .text {
+      font-size: 14px;
+      color: var(--davys-gray);
+      line-height: 1.5;
+    }
+
+    /* Buttons */
+    .buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--eerie-black);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--black);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--davys-gray);
+      border: 1px solid var(--rose-quartz);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--davys-gray);
+    }
+
+    /* Checkbox */
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 16px;
+      background: var(--seasalt);
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .checkbox-item input {
+      width: 20px;
+      height: 20px;
+    }
+
+    .checkbox-item label {
+      font-size: 14px;
+      color: var(--eerie-black);
+      cursor: pointer;
+    }
+
+    /* Final Step */
+    .success-animation {
+      font-size: 80px;
+      animation: bounce 0.5s ease;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    .final-message {
+      font-size: 18px;
+      color: var(--success);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="onboarding-container">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <!-- Step 1: Welcome -->
+    <div class="step active" id="step1">
+      <div class="step-icon">🛡️</div>
+      <h2>Welcome to Safe Browse</h2>
+      <p>Your privacy-focused content filter that helps protect you and your family from inappropriate content online.</p>
+
+      <div class="features-list">
+        <div class="feature-item">
+          <span class="icon">🔤</span>
+          <div class="text">
+            <h4>Text Filtering</h4>
+            <p>Automatically filters profanity and inappropriate language</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <span class="icon">🖼️</span>
+          <div class="text">
+            <h4>Image Protection</h4>
+            <p>Blocks inappropriate images based on metadata</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <span class="icon">🌐</span>
+          <div class="text">
+            <h4>Site Blocking</h4>
+            <p>Prevents access to adult and harmful websites</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="btn btn-primary" onclick="nextStep()">Get Started</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Choose Profile -->
+    <div class="step" id="step2">
+      <div class="step-icon">👤</div>
+      <h2>Choose Your Profile</h2>
+      <p>Select a filtering profile that best fits your needs. You can always change this later.</p>
+
+      <div class="profile-cards">
+        <div class="profile-card" data-profile="child-safe" onclick="selectProfile(this)">
+          <div class="icon">🧒</div>
+          <div class="name">Child Safe</div>
+          <div class="description">Maximum protection for young users</div>
+        </div>
+        <div class="profile-card selected" data-profile="teen-safe" onclick="selectProfile(this)">
+          <div class="icon">👦</div>
+          <div class="name">Teen Safe</div>
+          <div class="description">Balanced protection for teenagers</div>
+        </div>
+        <div class="profile-card" data-profile="work-safe" onclick="selectProfile(this)">
+          <div class="icon">💼</div>
+          <div class="name">Work Safe</div>
+          <div class="description">Professional environment filtering</div>
+        </div>
+        <div class="profile-card" data-profile="minimal" onclick="selectProfile(this)">
+          <div class="icon">🔓</div>
+          <div class="name">Minimal</div>
+          <div class="description">Light filtering, adults only</div>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Privacy -->
+    <div class="step" id="step3">
+      <div class="step-icon">🔒</div>
+      <h2>Your Privacy Matters</h2>
+      <p>Safe Browse is designed with your privacy as the top priority.</p>
+
+      <div class="privacy-points">
+        <div class="privacy-point">
+          <span class="check">✓</span>
+          <span class="text"><strong>100% Local Processing</strong> - All filtering happens on your device. No data is sent to external servers.</span>
+        </div>
+        <div class="privacy-point">
+          <span class="check">✓</span>
+          <span class="text"><strong>No Tracking</strong> - We don't collect browsing history, search queries, or any personal information.</span>
+        </div>
+        <div class="privacy-point">
+          <span class="check">✓</span>
+          <span class="text"><strong>No Accounts Required</strong> - Use the extension without signing up or creating an account.</span>
+        </div>
+        <div class="privacy-point">
+          <span class="check">✓</span>
+          <span class="text"><strong>Open Configuration</strong> - All settings are stored locally and you can export them anytime.</span>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Optional Settings -->
+    <div class="step" id="step4">
+      <div class="step-icon">⚙️</div>
+      <h2>Quick Settings</h2>
+      <p>Configure a few optional settings to get started.</p>
+
+      <div class="checkbox-item">
+        <input type="checkbox" id="enableSafeSearch" checked>
+        <label for="enableSafeSearch">Enable Safe Search on Google, Bing, etc.</label>
+      </div>
+
+      <div class="checkbox-item">
+        <input type="checkbox" id="enableBadge" checked>
+        <label for="enableBadge">Show badge counter on extension icon</label>
+      </div>
+
+      <div class="checkbox-item">
+        <input type="checkbox" id="enableNotifications">
+        <label for="enableNotifications">Show notifications when content is filtered</label>
+      </div>
+
+      <div class="buttons">
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn btn-primary" onclick="completeSetup()">Complete Setup</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Done -->
+    <div class="step" id="step5">
+      <div class="success-animation">🎉</div>
+      <h2>You're All Set!</h2>
+      <p class="final-message">Safe Browse is now protecting your browsing</p>
+      <p>The extension is active and will start filtering content immediately. You can access settings anytime by clicking the extension icon.</p>
+
+      <div class="buttons">
+        <button class="btn btn-secondary" onclick="openDashboard()">View Dashboard</button>
+        <button class="btn btn-primary" onclick="closeOnboarding()">Start Browsing</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentStep = 1;
+    const totalSteps = 5;
+    let selectedProfile = 'teen-safe';
+
+    function updateProgress() {
+      const progress = (currentStep / totalSteps) * 100;
+      document.getElementById('progressFill').style.width = `${progress}%`;
+    }
+
+    function showStep(step) {
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      document.getElementById(`step${step}`).classList.add('active');
+      updateProgress();
+    }
+
+    function nextStep() {
+      if (currentStep < totalSteps) {
+        currentStep++;
+        showStep(currentStep);
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    }
+
+    function selectProfile(card) {
+      document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedProfile = card.dataset.profile;
+    }
+
+    async function completeSetup() {
+      // Save configuration
+      const config = {
+        enabled: true,
+        filterText: true,
+        strictMode: selectedProfile === 'child-safe',
+        filterLevel: selectedProfile === 'minimal' ? 'nsfw' : 'moderate',
+        blockSites: true,
+        filterImages: true
+      };
+
+      const settings = {
+        safeSearch: document.getElementById('enableSafeSearch').checked,
+        showBadge: document.getElementById('enableBadge').checked
+      };
+
+      const notificationConfig = {
+        enabled: document.getElementById('enableNotifications').checked
+      };
+
+      await chrome.storage.sync.set({
+        config,
+        activeProfile: selectedProfile,
+        notificationConfig,
+        ...settings
+      });
+
+      // Mark onboarding as complete
+      await chrome.storage.local.set({
+        onboardingComplete: true,
+        installTime: Date.now()
+      });
+
+      currentStep = 5;
+      showStep(currentStep);
+    }
+
+    function openDashboard() {
+      chrome.tabs.create({ url: 'dashboard.html' });
+    }
+
+    function closeOnboarding() {
+      window.close();
+    }
+
+    // Initialize
+    updateProgress();
+  </script>
+</body>
+</html>

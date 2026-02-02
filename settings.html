@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Safe Browse</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <!-- Password Lock Overlay -->
+  <div id="passwordOverlay" class="password-overlay hidden">
+    <div class="password-dialog">
+      <div class="password-icon">🔒</div>
+      <h2>Settings Locked</h2>
+      <p>Enter your password to access settings</p>
+      <input type="password" id="passwordInput" placeholder="Enter password" autofocus>
+      <button id="unlockBtn" class="btn btn-primary">Unlock</button>
+      <p class="error-message hidden" id="passwordError">Incorrect password</p>
+    </div>
+  </div>
+
+  <div class="settings-container">
+    <!-- Sidebar -->
+    <nav class="settings-sidebar">
+      <div class="sidebar-header">
+        <span class="logo-icon">🛡️</span>
+        <h1>Safe Browse</h1>
+      </div>
+      <ul class="nav-menu">
+        <li class="nav-item active" data-section="general">
+          <span class="nav-icon">⚙️</span>
+          <span>General</span>
+        </li>
+        <li class="nav-item" data-section="profiles">
+          <span class="nav-icon">👤</span>
+          <span>Profiles</span>
+        </li>
+        <li class="nav-item" data-section="filtering">
+          <span class="nav-icon">🔤</span>
+          <span>Text Filtering</span>
+        </li>
+        <li class="nav-item" data-section="sites">
+          <span class="nav-icon">🌐</span>
+          <span>Site Blocking</span>
+        </li>
+        <li class="nav-item" data-section="images">
+          <span class="nav-icon">🖼️</span>
+          <span>Image Filtering</span>
+        </li>
+        <li class="nav-item" data-section="schedule">
+          <span class="nav-icon">⏰</span>
+          <span>Schedule</span>
+        </li>
+        <li class="nav-item" data-section="parental">
+          <span class="nav-icon">👨‍👩‍👧</span>
+          <span>Parental Controls</span>
+        </li>
+        <li class="nav-item" data-section="notifications">
+          <span class="nav-icon">🔔</span>
+          <span>Notifications</span>
+        </li>
+        <li class="nav-item" data-section="backup">
+          <span class="nav-icon">💾</span>
+          <span>Backup & Restore</span>
+        </li>
+        <li class="nav-item" data-section="about">
+          <span class="nav-icon">ℹ️</span>
+          <span>About</span>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="settings-main">
+      <!-- General Section -->
+      <section id="section-general" class="settings-section active">
+        <h2>General Settings</h2>
+
+        <div class="setting-group">
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Enable Protection</label>
+              <p>Master toggle for all filtering features</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="enableProtection" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Dark Mode</label>
+              <p>Use dark theme for extension pages</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="darkMode">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Show Badge Counter</label>
+              <p>Display filtered content count on extension icon</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="showBadge" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <h3>Language</h3>
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Filter Language</label>
+              <p>Select which language profanity to filter</p>
+            </div>
+            <select id="filterLanguage" class="select-input">
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="pt">Portuguese</option>
+              <option value="auto">Auto-detect</option>
+              <option value="all">All Languages</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Profiles Section -->
+      <section id="section-profiles" class="settings-section">
+        <h2>Filter Profiles</h2>
+        <p class="section-description">Choose a pre-configured filtering profile or create your own.</p>
+
+        <div class="profiles-grid" id="profilesGrid">
+          <!-- Profiles will be loaded here -->
+        </div>
+
+        <div class="setting-group">
+          <h3>Create Custom Profile</h3>
+          <div class="setting-item">
+            <input type="text" id="customProfileName" class="text-input" placeholder="Profile name">
+            <button id="createProfileBtn" class="btn btn-secondary">Create Profile</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Text Filtering Section -->
+      <section id="section-filtering" class="settings-section">
+        <h2>Text Filtering</h2>
+
+        <div class="setting-group">
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Enable Text Filtering</label>
+              <p>Filter profanity and inappropriate text</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="filterText" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Strict Mode</label>
+              <p>Filter more words including mild profanity</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="strictMode" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Filter Level</label>
+              <p>Choose how aggressive the filtering should be</p>
+            </div>
+            <select id="filterLevel" class="select-input">
+              <option value="mild">Mild - Only strong profanity</option>
+              <option value="moderate" selected>Moderate - Most profanity</option>
+              <option value="strong">Strong - All profanity</option>
+              <option value="all">All - Including slurs and NSFW</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <h3>Custom Words</h3>
+          <p class="setting-description">Add your own words to filter</p>
+          <div class="input-with-button">
+            <input type="text" id="customWordInput" class="text-input" placeholder="Enter a word">
+            <button id="addWordBtn" class="btn btn-primary">Add</button>
+          </div>
+          <div class="tags-container" id="customWordsList"></div>
+        </div>
+      </section>
+
+      <!-- Site Blocking Section -->
+      <section id="section-sites" class="settings-section">
+        <h2>Site Blocking</h2>
+
+        <div class="setting-group">
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Enable Site Blocking</label>
+              <p>Block access to inappropriate websites</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="blockSites" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Enforce Safe Search</label>
+              <p>Force safe search on Google, Bing, etc.</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="safeSearch" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <h3>Blocked Categories</h3>
+          <div class="categories-grid" id="categoriesGrid">
+            <label class="category-item">
+              <input type="checkbox" value="adult" checked>
+              <span class="category-icon">🔞</span>
+              <span class="category-name">Adult Content</span>
+            </label>
+            <label class="category-item">
+              <input type="checkbox" value="gambling">
+              <span class="category-icon">🎰</span>
+              <span class="category-name">Gambling</span>
+            </label>
+            <label class="category-item">
+              <input type="checkbox" value="violence">
+              <span class="category-icon">⚠️</span>
+              <span class="category-name">Violence</span>
+            </label>
+            <label class="category-item">
+              <input type="checkbox" value="drugs">
+              <span class="category-icon">💊</span>
+              <span class="category-name">Drugs</span>
+            </label>
+            <label class="category-item">
+              <input type="checkbox" value="weapons">
+              <span class="category-icon">🔫</span>
+              <span class="category-name">Weapons</span>
+            </label>
+            <label class="category-item">
+              <input type="checkbox" value="hate">
+              <span class="category-icon">🚫</span>
+              <span class="category-name">Hate Speech</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <h3>Whitelist</h3>
+          <p class="setting-description">Sites that bypass all filtering</p>
+          <div class="input-with-button">
+            <input type="text" id="whitelistInput" class="text-input" placeholder="example.com">
+            <button id="addWhitelistBtn" class="btn btn-primary">Add</button>
+          </div>
+          <div class="list-container" id="whitelistList"></div>
+        </div>
+
+        <div class="setting-group">
+          <h3>Custom Blocklist</h3>
+          <p class="setting-description">Additional sites to block</p>
+          <div class="input-with-button">
+            <input type="text" id="blocklistInput" class="text-input" placeholder="example.com">
+            <button id="addBlocklistBtn" class="btn btn-primary">Add</button>
+          </div>
+          <div class="list-container" id="blocklistList"></div>
+        </div>
+      </section>
+
+      <!-- Image Filtering Section -->
+      <section id="section-images" class="settings-section">
+        <h2>Image Filtering</h2>
+
+        <div class="setting-group">
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Enable Image Filtering</label>
+              <p>Block inappropriate images based on metadata</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="filterImages" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Show Placeholder</label>
+              <p>Show a placeholder instead of hiding images</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="imagePlaceholder" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Check URL Patterns</label>
+              <p>Block images from NSFW URL patterns</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="checkUrlPatterns" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Schedule Section -->
+      <section id="section-schedule" class="settings-section">
+        <h2>Schedule</h2>
+
+        <div class="setting-group">
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Enable Scheduling</label>
+              <p>Set specific times for filtering to be active</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="scheduleEnabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-group" id="scheduleSettings">
+          <h3>Weekly Schedule</h3>
+          <div class="schedule-grid" id="scheduleGrid">
+            <!-- Schedule will be generated here -->
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <h3>Bedtime Mode</h3>
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Enable Bedtime Mode</label>
+              <p>Extra restrictions during bedtime hours</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="bedtimeEnabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="time-range" id="bedtimeSettings">
+            <div class="time-input">
+              <label>Start</label>
+              <input type="time" id="bedtimeStart" value="22:00">
+            </div>
+            <div class="time-input">
+              <label>End</label>
+              <input type="time" id="bedtimeEnd" value="07:00">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Parental Controls Section -->
+      <section id="section-parental" class="settings-section">
+        <h2>Parental Controls</h2>
+
+        <div class="setting-group">
+          <h3>Password Protection</h3>
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Lock Settings</label>
+              <p>Require password to change settings</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="passwordEnabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div id="passwordSettings" class="hidden">
+            <div class="setting-item">
+              <input type="password" id="newPassword" class="text-input" placeholder="New password (min 4 characters)">
+            </div>
+            <div class="setting-item">
+              <input type="password" id="confirmPassword" class="text-input" placeholder="Confirm password">
+            </div>
+            <button id="setPasswordBtn" class="btn btn-primary">Set Password</button>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <h3>Time Limits</h3>
+          <div class="time-limits" id="timeLimits">
+            <div class="limit-item">
+              <span class="limit-label">Social Media</span>
+              <input type="number" id="limitSocialMedia" value="120" min="0" max="1440"> min/day
+            </div>
+            <div class="limit-item">
+              <span class="limit-label">Gaming</span>
+              <input type="number" id="limitGaming" value="60" min="0" max="1440"> min/day
+            </div>
+            <div class="limit-item">
+              <span class="limit-label">Streaming</span>
+              <input type="number" id="limitStreaming" value="180" min="0" max="1440"> min/day
+            </div>
+          </div>
+          <p class="setting-description">Set to 0 for no limit</p>
+        </div>
+      </section>
+
+      <!-- Notifications Section -->
+      <section id="section-notifications" class="settings-section">
+        <h2>Notifications</h2>
+
+        <div class="setting-group">
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Enable Notifications</label>
+              <p>Show notifications when content is filtered</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="notificationsEnabled" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>Daily Summary</label>
+              <p>Receive a daily summary of filtered content</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="dailySummary">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Backup Section -->
+      <section id="section-backup" class="settings-section">
+        <h2>Backup & Restore</h2>
+
+        <div class="setting-group">
+          <h3>Export Settings</h3>
+          <p class="setting-description">Download your settings as a JSON file</p>
+          <button id="exportSettingsBtn" class="btn btn-primary">Export Settings</button>
+        </div>
+
+        <div class="setting-group">
+          <h3>Import Settings</h3>
+          <p class="setting-description">Restore settings from a backup file</p>
+          <input type="file" id="importFile" accept=".json" class="file-input">
+          <label for="importFile" class="btn btn-secondary">Choose File</label>
+          <button id="importSettingsBtn" class="btn btn-primary" disabled>Import</button>
+        </div>
+
+        <div class="setting-group">
+          <h3>Reset</h3>
+          <p class="setting-description">Reset all settings to defaults</p>
+          <button id="resetSettingsBtn" class="btn btn-danger">Reset All Settings</button>
+        </div>
+      </section>
+
+      <!-- About Section -->
+      <section id="section-about" class="settings-section">
+        <h2>About Safe Browse</h2>
+
+        <div class="about-content">
+          <div class="about-logo">🛡️</div>
+          <h3>Safe Browse - Content Filter</h3>
+          <p class="version">Version 2.0.0</p>
+
+          <div class="about-description">
+            <p>Safe Browse is a privacy-focused content filtering extension that helps protect you and your family from inappropriate content online.</p>
+            <p>All filtering happens locally on your device - no data is sent to external servers.</p>
+          </div>
+
+          <div class="about-links">
+            <a href="dashboard.html" class="btn btn-secondary">View Dashboard</a>
+            <a href="privacy.html" class="btn btn-secondary">Privacy Policy</a>
+          </div>
+
+          <div class="about-footer">
+            <p>Made with ❤️ for a safer internet</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="modules/password.js"></script>
+  <script src="data/profiles.js"></script>
+  <script src="settings.js"></script>
+</body>
+</html>
