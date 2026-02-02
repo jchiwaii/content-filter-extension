@@ -5,8 +5,8 @@
   <title>Safe Browse - ML Processing</title>
 </head>
 <body>
-  <script src="lib/tf.min.js"></script>
-  <script src="lib/nsfwjs.min.js"></script>
+  <!-- Sandbox iframe for TensorFlow (allows unsafe-eval) -->
+  <iframe id="ml-sandbox" src="sandbox.html" style="display:none;"></iframe>
   <script src="offscreen.js"></script>
 </body>
 </html>
