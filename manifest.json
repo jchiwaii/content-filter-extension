@@ -10,7 +10,8 @@
     "webNavigation",
     "contextMenus",
     "alarms",
-    "notifications"
+    "notifications",
+    "offscreen"
   ],
 
   "host_permissions": [
@@ -18,8 +19,7 @@
   ],
 
   "background": {
-    "service_worker": "background.js",
-    "type": "module"
+    "service_worker": "background.js"
   },
 
   "content_scripts": [
@@ -29,6 +29,7 @@
         "profanity-data.js",
         "modules/lang-detector.js",
         "modules/image-detector.js",
+        "modules/ml-image-detector.js",
         "content.js"
       ],
       "css": ["content.css"],
@@ -84,6 +85,7 @@
         "onboarding.html",
         "debug.html",
         "privacy.html",
+        "offscreen.html",
         "icons/*",
         "lib/*"
       ],

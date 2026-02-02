@@ -299,9 +299,55 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 
 // Listen for messages from content scripts and popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // Forward messages to offscreen document for ML processing
+  if (request.target === 'offscreen') {
+    handleOffscreenMessage(request, sendResponse);
+    return true;
+  }
+
   handleMessage(request, sender, sendResponse);
   return true; // Keep channel open for async response
 });
+
+// Handle offscreen document messages (ML image classification)
+async function handleOffscreenMessage(request, sendResponse) {
+  try {
+    // Ensure offscreen document exists
+    await ensureOffscreenDocument();
+
+    // Forward message to offscreen document
+    const response = await chrome.runtime.sendMessage(request);
+    sendResponse(response);
+  } catch (error) {
+    console.error('[Safe Browse] Offscreen message error:', error);
+    sendResponse({ safe: true, error: error.message });
+  }
+}
+
+// Ensure offscreen document exists for ML processing
+async function ensureOffscreenDocument() {
+  const existingContexts = await chrome.runtime.getContexts({
+    contextTypes: ['OFFSCREEN_DOCUMENT']
+  });
+
+  if (existingContexts.length > 0) {
+    return;
+  }
+
+  try {
+    await chrome.offscreen.createDocument({
+      url: 'offscreen.html',
+      reasons: ['DOM_PARSER', 'BLOBS'],
+      justification: 'ML image classification using TensorFlow.js'
+    });
+    console.log('[Safe Browse] Offscreen document created for ML processing');
+  } catch (error) {
+    if (!error.message.includes('already exists')) {
+      console.error('[Safe Browse] Failed to create offscreen document:', error);
+      throw error;
+    }
+  }
+}
 
 // Message handler
 async function handleMessage(request, sender, sendResponse) {
@@ -349,8 +395,52 @@ async function handleMessage(request, sender, sendResponse) {
       sendResponse({ success: true });
       break;
 
+    case 'ensureOffscreenDocument':
+      ensureOffscreenDocument()
+        .then(() => sendResponse({ success: true }))
+        .catch(err => sendResponse({ success: false, error: err.message }));
+      break;
+
+    case 'mlClassifyImage':
+      handleMLClassification(request, sendResponse);
+      break;
+
     default:
       sendResponse({ error: 'Unknown action' });
+  }
+}
+
+// Handle ML image classification by forwarding to offscreen document
+async function handleMLClassification(request, sendResponse) {
+  try {
+    await ensureOffscreenDocument();
+
+    // The offscreen document will receive this message via runtime.onMessage
+    // We need to send it in a way that the offscreen document can respond
+    const response = await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('ML classification timeout'));
+      }, 15000);
+
+      chrome.runtime.sendMessage({
+        target: 'offscreen',
+        action: request.mlAction,
+        imageUrl: request.imageUrl,
+        base64Data: request.base64Data
+      }, (result) => {
+        clearTimeout(timeout);
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+        } else {
+          resolve(result);
+        }
+      });
+    });
+
+    sendResponse(response);
+  } catch (error) {
+    console.error('[Safe Browse] ML classification error:', error);
+    sendResponse({ safe: true, error: error.message });
   }
 }
 

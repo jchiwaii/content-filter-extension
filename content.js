@@ -93,11 +93,25 @@ function initializeFilter() {
   // Setup SPA detection
   setupSPADetection();
 
-  // Initialize image detector if available
-  if (config.filterImages && window.ImageDetector) {
-    window.ImageDetector.init();
-    window.ImageDetector.setupObserver();
-    window.ImageDetector.scanPage();
+  // Initialize image detectors
+  if (config.filterImages) {
+    // First initialize heuristic detector
+    if (window.ImageDetector) {
+      window.ImageDetector.init();
+      window.ImageDetector.setupObserver();
+      window.ImageDetector.scanPage();
+    }
+
+    // Then initialize ML detector (uses TensorFlow.js via offscreen document)
+    if (window.MLImageDetector) {
+      window.MLImageDetector.init().then(() => {
+        console.log('[Safe Browse] ML Image Detector initialized');
+        window.MLImageDetector.setupObserver();
+        window.MLImageDetector.scanPage();
+      }).catch(err => {
+        console.warn('[Safe Browse] ML Image Detector failed to initialize:', err);
+      });
+    }
   }
 }
 
@@ -157,8 +171,13 @@ function filterExistingContent() {
     filterTextContent();
   }
 
-  if (config.filterImages && window.ImageDetector) {
-    window.ImageDetector.scanPage();
+  if (config.filterImages) {
+    if (window.ImageDetector) {
+      window.ImageDetector.scanPage();
+    }
+    if (window.MLImageDetector) {
+      window.MLImageDetector.scanPage();
+    }
   }
 }
 
