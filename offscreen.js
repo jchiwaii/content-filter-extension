@@ -17,8 +17,13 @@ function initSandbox() {
       return;
     }
 
-    // Listen for messages from sandbox
+    // Listen for messages from sandbox.
+    // Sandboxed extension pages have a null origin, so we accept both the
+    // extension's own origin and 'null' (the string Chrome uses for sandboxed pages).
+    const extensionOrigin = window.location.origin;
     window.addEventListener('message', (event) => {
+      if (event.origin !== extensionOrigin && event.origin !== 'null') return;
+
       const { id, response } = event.data;
 
       if (id && pendingRequests.has(id)) {
@@ -66,6 +71,8 @@ function sendToSandbox(action, data = {}) {
       }
     });
 
+    // Sandboxed pages have a null origin — must use '*' as targetOrigin.
+    // This is safe because we're posting to a specific contentWindow, not broadcasting.
     sandboxFrame.contentWindow.postMessage({
       id,
       action,

@@ -314,7 +314,7 @@ const TwitterFilter = {
     if (!text) return false;
 
     if (typeof window.containsProfanity === 'function') {
-      return window.containsProfanity(text, 'moderate');
+      return window.containsProfanity(text);
     }
 
     const basicWords = ['fuck', 'shit', 'porn', 'xxx', 'nsfw', 'nude', 'naked'];
@@ -330,19 +330,20 @@ const TwitterFilter = {
     return keywords.some(k => lower.includes(k));
   },
 
-  // Filter text
+  // Remove profanity from text
   filterText(text) {
-    if (typeof window.censorProfanity === 'function') {
-      return window.censorProfanity(text, 'moderate');
+    if (typeof window.removeProfanity === 'function') {
+      return window.removeProfanity(text);
     }
 
+    // Basic fallback: remove known words
     const words = ['fuck', 'shit', 'damn', 'ass', 'bitch'];
     let filtered = text;
     words.forEach(word => {
       const regex = new RegExp(`\\b${word}\\b`, 'gi');
-      filtered = filtered.replace(regex, '*'.repeat(word.length));
+      filtered = filtered.replace(regex, '');
     });
-    return filtered;
+    return filtered.replace(/[ \t]{2,}/g, ' ').trim();
   },
 
   // Get stats

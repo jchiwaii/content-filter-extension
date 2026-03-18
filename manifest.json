@@ -10,7 +10,6 @@
     "webNavigation",
     "contextMenus",
     "alarms",
-    "notifications",
     "offscreen"
   ],
 
@@ -81,7 +80,6 @@
         "dashboard.html",
         "settings.html",
         "onboarding.html",
-        "debug.html",
         "privacy.html",
         "offscreen.html",
         "sandbox.html",

@@ -1,395 +1,483 @@
-// Comprehensive Profanity Database
-// For content filtering and parental control purposes
-// Sources: Common profanity filtering standards, content moderation best practices
-// Note: This is a professional content filtering database used for blocking inappropriate content
+// Profanity Database
+// Word list sourced from the open-source 'cuss' project (MIT License)
+// https://github.com/words/cuss — words rated >= 1 (ambiguous or definitely profane)
+// Supplemented with regex patterns for leetspeak, censored variants, and spaced-out letters
 
 const PROFANITY_DATA = {
-  // English profanity - organized by severity
-  en: [
-    // MILD - Common informal language (may be acceptable in some contexts)
-    'damn', 'damnit', 'damned', 'dammit',
-    'hell', 'heck', 'hellish',
-    'crap', 'crappy', 'crapped', 'crapping',
-    'piss', 'pissed', 'pissing',
-    'suck', 'sucks', 'sucked', 'sucker', 'sucking',
-    'stupid', 'idiot', 'idiotic', 'moron', 'moronic', 'dumb', 'dumbass',
-    'jerk', 'jerky', 'jackass',
-    'screw', 'screwed', 'screwing',
-    'butt', 'butthead',
-    'fart', 'farting', 'farted',
-    'boob', 'boobs', 'booby',
-
-    // MODERATE - Common profanity (generally inappropriate)
-    'ass', 'arse', 'arsehole', 'asshole', 'assholes', 'asshat', 'asswipe',
-    'bastard', 'bastards',
-    'bitch', 'bitches', 'bitching', 'bitchy', 'biotch',
-    'bollocks', 'bollock',
-    'bugger', 'buggered', 'buggering',
-    'cock', 'cocks', 'cocky', 'cocksucker',
-    'cunt', 'cunts', 'cunty',
-    'dick', 'dicks', 'dickhead', 'dickwad',
-    'douche', 'douchebag', 'douchey',
-    'fag', 'faggot', 'fags',
-    'prick', 'pricks',
-    'pussy', 'pussies',
-    'shit', 'shitty', 'shite', 'shitting', 'shitted', 'shithead', 'shitstorm',
-    'slut', 'slutty', 'sluts',
-    'tit', 'tits', 'titties', 'titty',
-    'twat', 'twats',
-    'whore', 'whores', 'whorish',
-
-    // STRONG - Severe profanity (always inappropriate)
-    'fuck', 'fucked', 'fucker', 'fucking', 'fuckers', 'fucks', 'fuckface', 'fuckhead',
-    'motherfucker', 'motherfucking', 'motherfuckers',
-    'bullshit',
-    'shitface',
-    'assfuck', 'assfucker',
-    'clusterfuck',
-    'fuckwit', 'fuckwad', 'fuckstick',
-
-    // SEXUAL CONTENT - Explicit sexual terms
-    'porn', 'porno', 'pornography', 'pornographic', 'porns',
-    'xxx', 'xxxx',
-    'nsfw',
-    'nude', 'nudes', 'nudity', 'naked', 'nakedness',
-    'sex', 'sexy', 'sexual', 'sexually',
-    'erotic', 'erotica',
-    'explicit',
-    'adult', 'adults',
-    'hentai',
-    'r34', 'rule34',
-    'milf', 'dilf',
-    'anal',
-    'blowjob', 'bj',
-    'handjob',
-    'orgasm', 'cumming',
-    'fetish', 'kinky', 'kink',
-    'bdsm',
-    'bondage',
-    'masturbate', 'masturbation', 'masturbating',
-    'penis', 'vagina', 'vulva',
-    'dildo', 'vibrator',
-    'horny',
-    'arousal', 'aroused',
-
-    // SLURS AND HATE SPEECH (racial, homophobic, etc.)
-    // Note: Including for filtering purposes only
-    'nigger', 'nigga', 'negro',
-    'chink', 'gook',
-    'spic', 'wetback',
-    'kike',
-    'retard', 'retarded', 'retards',
-    'tranny',
-    'dyke',
-    'homo', 'homos', 'homosexual',
-
-    // BODY PARTS (vulgar terms)
-    'penis', 'cock', 'dick', 'prick', 'schlong',
-    'vagina', 'pussy', 'cunt', 'twat',
-    'testicles', 'balls', 'nuts',
-    'breast', 'tit', 'boob', 'tits', 'boobs',
-    'ass', 'butt', 'arse',
-    'anus', 'asshole',
-
-    // DRUG REFERENCES
-    'cocaine', 'coke',
-    'heroin', 'smack',
-    'meth', 'methamphetamine',
-    'weed', 'marijuana', 'pot', 'ganja',
-    'crack',
-    'ecstasy', 'molly',
-    'lsd', 'acid',
-
-    // VIOLENCE AND THREATS
-    'kill', 'killing', 'killed', 'killer',
-    'murder', 'murderer', 'murdered',
-    'rape', 'raped', 'raping', 'rapist',
-    'torture', 'tortured', 'torturing',
-    'die', 'dying', 'death',
-
-    // MEDICAL/GROSS (context-dependent)
-    'poop', 'shit', 'crap', 'feces',
-    'pee', 'piss', 'urine',
-    'vomit', 'puke',
-    'snot',
-    'blood',
-    'gore', 'gory',
-
-    // INTERNET SLANG (often inappropriate)
-    'fml',
-    'wtf', 'wth',
-    'stfu',
-    'milf', 'dilf',
-    'thot',
-    'simp',
-    'fap', 'fapping',
-
-    // ALTERNATIVE SPELLINGS AND CENSORED VERSIONS
-    'fuk', 'fuc', 'fck', 'phuck', 'phuk',
-    'sht', 'shyt', 'chit',
-    'cnt',
-    'btch', 'b1tch', 'biatch',
-    'azz', 'asz',
-    'dik', 'dck',
-    'pron',
-    'pr0n',
-    'bewbs',
+  words: [
+"abbo", "abeed", "abid", "abo", "abortion",
+"abuse", "addict", "addicts", "africoon", "alla",
+"alligator bait", "alligatorbait", "anal", "analannie", "analsex",
+"anus", "arabush", "arabushs", "areola", "argie",
+"armo", "armos", "arse", "arse bandit", "arsehole",
+"ass", "assbagger", "assblaster", "assclown", "asscowboy",
+"asses", "assfuck", "assfucker", "asshat", "asshole",
+"assholes", "asshore", "assjockey", "asskiss", "asskisser",
+"assklown", "asslick", "asslicker", "asslover", "assman",
+"assmonkey", "assmunch", "assmuncher", "asspacker", "asspirate",
+"asspuppies", "assranger", "asswhore", "asswipe", "athletesfoot",
+"babe", "backdoorman", "badfuck", "balllicker", "balls",
+"ballsack", "banging", "barelylegal", "barf", "barface",
+"barfface", "bastard", "batty boy", "bazongas", "bazooms",
+"beanbag", "beanbags", "beaner", "beaners", "beaney",
+"beaneys", "beastality", "beastial", "beastiality", "beatoff",
+"beatyourmeat", "bestial", "bestiality", "biatch", "bicurious",
+"bigass", "bigbastard", "bigbutt", "bitch", "bitcher",
+"bitches", "bitchez", "bitchin", "bitching", "bitchslap",
+"bitchy", "biteme", "blackman", "blacks", "blowjob",
+"bluegum", "bluegums", "boang", "boche", "boches",
+"bogan", "bohunk", "bollick", "bollock", "bollocks",
+"bondage", "boner", "bong", "boob", "boobies",
+"boobs", "booby", "boody", "boong", "boonga",
+"boongas", "boongs", "boonie", "boonies", "bootlip",
+"bootlips", "booty", "bootycall", "bosche", "bosches",
+"boschs", "bounty bar", "bounty bars", "bountybar", "brea5t",
+"breastjob", "breastlover", "breastman", "brothel", "buddhahead",
+"buddhaheads", "buffies", "bufter", "bufty", "bugger",
+"buggered", "buggery", "bule", "bules", "bullcrap",
+"bulldike", "bulldyke", "bullshit", "bum boy", "bum chum",
+"bum robber", "bumblefuck", "bumfuck", "bung", "bunga",
+"bungas", "bunghole", "burr head", "burr heads", "burrhead",
+"burrheads", "butchbabes", "butchdike", "butchdyke", "buttbang",
+"buttface", "buttfuck", "buttfucker", "buttfuckers", "butthead",
+"buttman", "buttmunch", "buttmuncher", "buttpirate", "buttplug",
+"buttstain", "byatch", "cacker", "camel jockey", "camel jockeys",
+"cameljockey", "cameltoe", "carpetmuncher", "carruth", "chav",
+"cheese eating surrender monkey", "cheese eating surrender monkies", "cheeseeating surrender monkey", "cheeseeating surrender monkies", "cheesehead",
+"cheeseheads", "cherrypopper", "chi chi man", "chickslick", "china swede",
+"china swedes", "chinaman", "chinamen", "chinaswede", "chinaswedes",
+"ching chong", "ching chongs", "chingchong", "chingchongs", "chink",
+"chinks", "chinky", "choad", "chode", "chonkies",
+"chonky", "chonkys", "christ killer", "christ killers", "chug",
+"chugs", "chunger", "chungers", "chunkies", "chunky",
+"chunkys", "clamdigger", "clamdiver", "clansman", "clansmen",
+"clanswoman", "clanswomen", "clit", "clitoris", "clogwog",
+"cocaine", "cock", "cockblock", "cockblocker", "cockcowboy",
+"cockfight", "cockhead", "cockknob", "cocklicker", "cocklover",
+"cocknob", "cockqueen", "cockrider", "cocksman", "cocksmith",
+"cocksmoker", "cocksucer", "cocksuck", "cocksucked", "cocksucker",
+"cocksucking", "cocktease", "cocky", "cohee", "coitus",
+"commie", "condom", "coolie", "coolies", "cooly",
+"coon", "coon ass", "coon asses", "coonass", "coonasses",
+"coondog", "coons", "copulate", "cornhole", "cra5h",
+"crack", "cracka", "cracker", "crackpipe", "crackwhore",
+"crap", "crapola", "crapper", "crappy", "crotch",
+"crotchjockey", "crotchmonkey", "crotchrot", "cum", "cumbubble",
+"cumfest", "cumjockey", "cumm", "cummer", "cumming",
+"cummings", "cumquat", "cumqueen", "cumshot", "cunilingus",
+"cunillingus", "cunn", "cunnilingus", "cunntt", "cunt",
+"cunteyed", "cuntfuck", "cuntfucker", "cuntlick", "cuntlicker",
+"cuntlicking", "cuntsucker", "curry muncher", "curry munchers", "currymuncher",
+"currymunchers", "cushi", "cushis", "cybersex", "cyberslimer",
+"dago", "dagos", "dahmer", "dammit", "damn",
+"damnation", "damnit", "darkey", "darkeys", "darkie",
+"darkies", "darky", "datnigga", "deapthroat", "deepthroat",
+"defecate", "dego", "degos", "demon", "devil",
+"devilworshipper", "diaper head", "diaper heads", "diaperhead", "diaperheads",
+"dick", "dickbrain", "dickforbrains", "dickhead", "dickless",
+"dicklick", "dicklicker", "dickman", "dickwad", "dickweed",
+"diddle", "dike", "dildo", "dingleberry", "dink",
+"dinks", "dipshit", "dipstick", "dix", "dixiedike",
+"dixiedyke", "doggiestyle", "doggystyle", "dong", "doodoo",
+"dope", "dot head", "dot heads", "dothead", "dotheads",
+"dragqueen", "dragqween", "dripdick", "drug", "drunk",
+"drunken", "dumb", "dumbass", "dumbbitch", "dumbfuck",
+"dune coon", "dune coons", "dyefly", "dyke", "easyslut",
+"eatballs", "eatme", "eatpussy", "eight ball", "eight balls",
+"ejaculate", "ejaculated", "ejaculating", "ejaculation", "enema",
+"erection", "ero", "esqua", "evl", "excrement",
+"exkwew", "facefucker", "faeces", "fag", "fagging",
+"faggot", "fagot", "fannyfucker", "fart", "farted",
+"farting", "farty", "fastfuck", "fatah", "fatass",
+"fatfuck", "fatfucker", "fatso", "fckcum", "feces",
+"felatio", "felch", "felcher", "felching", "fellatio",
+"feltch", "feltcher", "feltching", "fetish", "fingerfood",
+"fingerfuck", "fingerfucked", "fingerfucker", "fingerfuckers", "fingerfucking",
+"fister", "fistfuck", "fistfucked", "fistfucker", "fistfucking",
+"fisting", "flamer", "flange", "flasher", "flatulence",
+"floo", "flydie", "flydye", "fok", "fondle",
+"footaction", "footfuck", "footfucker", "footlicker", "footstar",
+"foreskin", "forni", "fornicate", "foursome", "fourtwenty",
+"freakfuck", "freakyfucker", "freefuck", "fruitcake", "fu",
+"fubar", "fuc", "fucck", "fuck", "fucka",
+"fuckable", "fuckbag", "fuckbook", "fuckbuddy", "fucked",
+"fuckedup", "fucker", "fuckers", "fuckface", "fuckfest",
+"fuckfreak", "fuckfriend", "fuckhead", "fuckher", "fuckin",
+"fuckina", "fucking", "fuckingbitch", "fuckinnuts", "fuckinright",
+"fuckit", "fuckknob", "fuckme", "fuckmehard", "fuckmonkey",
+"fuckoff", "fuckpig", "fucks", "fucktard", "fuckwhore",
+"fuckyou", "fudge packer", "fudgepacker", "fugly", "fuk",
+"fuks", "funfuck", "fuuck", "gable", "gables",
+"gangbang", "gangbanged", "gangbanger", "gangsta", "gator bait",
+"gatorbait", "gaymuthafuckinwhore", "gaysex", "geez", "geezer",
+"geni", "genital", "getiton", "ginzo", "ginzos",
+"gipp", "gippo", "gippos", "gipps", "givehead",
+"glazeddonut", "gob", "god", "godammit", "goddamit",
+"goddammit", "goddamn", "goddamned", "goddamnes", "goddamnit",
+"goddamnmuthafucker", "goldenshower", "golliwog", "golliwogs", "gonorrehea",
+"gonzagas", "gook", "gook eye", "gook eyes", "gookeye",
+"gookeyes", "gookies", "gooks", "gooky", "gora",
+"goras", "gotohell", "goy", "goyim", "greaseball",
+"greaseballs", "greaser", "greasers", "gringo", "gringos",
+"groe", "groid", "groids", "gross", "grostulation",
+"gub", "gubba", "gubbas", "gubs", "guinea",
+"guineas", "guizi", "gummer", "gwailo", "gwailos",
+"gweilo", "gweilos", "gyopo", "gyopos", "gyp",
+"gyped", "gypo", "gypos", "gypp", "gypped",
+"gyppie", "gyppies", "gyppo", "gyppos", "gyppy",
+"gyppys", "gypsies", "gypsy", "gypsys", "hadji",
+"hadjis", "hairyback", "hairybacks", "haji", "hajis",
+"hajji", "hajjis", "half breed", "half caste", "halfbreed",
+"halfcaste", "hamas", "handjob", "haole", "haoles",
+"hapa", "hardon", "headfuck", "hebe", "hebephila",
+"hebephile", "hebephiles", "hebephilia", "hebephilic", "hebes",
+"heeb", "heebs", "heroin", "herpes", "hillbillies",
+"hillbilly", "hindoo", "hiscock", "hitler", "hitlerism",
+"hitlerist", "hiv", "ho", "hobo", "hodgie",
+"hoes", "holestuffer", "homicide", "homo", "homobangers",
+"homosexual", "honger", "honkers", "honkey", "honkeys",
+"honkie", "honkies", "honky", "hooker", "hookers",
+"hooters", "hore", "hori", "horis", "hork",
+"horney", "horniest", "horny", "horseshit", "hosejob",
+"hoser", "hotdamn", "hotpussy", "hottotrot", "hussy",
+"hymen", "hymie", "hymies", "iblowu", "idiot",
+"ike", "ikes", "ikey", "ikeymo", "ikeymos",
+"ikwe", "illegals", "incest", "indon", "indons",
+"injun", "injuns", "insest", "intercourse", "interracial",
+"intheass", "inthebuff", "italiano", "jackass", "jackoff",
+"jackshit", "jacktheripper", "jap", "japcrap", "japie",
+"japies", "japs", "jebus", "jeez", "jerkoff",
+"jerries", "jesus", "jesuschrist", "jewboy", "jewed",
+"jewess", "jig", "jiga", "jigaboo", "jigaboos",
+"jigarooni", "jigaroonis", "jigg", "jigga", "jiggabo",
+"jiggabos", "jiggas", "jigger", "jiggers", "jiggs",
+"jiggy", "jigs", "jihad", "jijjiboo", "jijjiboos",
+"jimfish", "jism", "jiz", "jizim", "jizjuice",
+"jizm", "jizz", "jizzim", "jizzum", "juggalo",
+"jungle bunnies", "jungle bunny", "junglebunny", "kacap", "kacapas",
+"kacaps", "kaffer", "kaffir", "kaffre", "kafir",
+"kanake", "katsap", "katsaps", "khokhol", "khokhols",
+"kigger", "kike", "kikes", "kimchis", "kink",
+"kinky", "kissass", "kkk", "klansman", "klansmen",
+"klanswoman", "klanswomen", "knockers", "kock", "kondum",
+"koon", "kotex", "krap", "krappy", "kraut",
+"krauts", "kuffar", "kum", "kumbubble", "kumbullbe",
+"kummer", "kumming", "kumquat", "kums", "kunilingus",
+"kunnilingus", "kunt", "kushi", "kushis", "kwa",
+"kwai lo", "kwai los", "ky", "kyke", "kykes",
+"kyopo", "kyopos", "lactate", "lapdance", "lebo",
+"lebos", "lesbain", "lesbayn", "lesbin", "lesbo",
+"lez", "lezbe", "lezbefriends", "lezbo", "lezz",
+"lezzo", "libido", "licker", "lickme", "limey",
+"limpdick", "limy", "liquor", "livesex", "loadedgun",
+"lolita", "looser", "loser", "lovebone", "lovegoo",
+"lovegun", "lovejuice", "lovemuscle", "lovepistol", "loverocket",
+"lowlife", "lsd", "lubejob", "lubra", "luckycammeltoe",
+"lugan", "lugans", "lynch", "mabuno", "mabunos",
+"macaca", "macacas", "mafia", "magicwand", "mahbuno",
+"mahbunos", "mams", "manhater", "manpaste", "marijuana",
+"mastabate", "mastabater", "masterbate", "masterblaster", "mastrabator",
+"masturbate", "masturbating", "mattressprincess", "mau mau", "mau maus",
+"maumau", "maumaus", "meatbeatter", "meatrack", "meth",
+"mgger", "mggor", "mick", "mickeyfinn", "milf",
+"mockey", "mockie", "mocky", "mofo", "moky",
+"molest", "molestation", "molester", "molestor", "moneyshot",
+"moon cricket", "moon crickets", "mooncricket", "mooncrickets", "moron",
+"moskal", "moskals", "moslem", "mosshead", "mothafuck",
+"mothafucka", "mothafuckaz", "mothafucked", "mothafucker", "mothafuckin",
+"mothafucking", "mothafuckings", "motherfuck", "motherfucked", "motherfucker",
+"motherfuckin", "motherfucking", "motherfuckings", "motherlovebone", "muff",
+"muffdive", "muffdiver", "muffindiver", "mufflikcer", "mulatto",
+"muncher", "munt", "murder", "murderer", "mzungu",
+"mzungus", "narcotic", "nastybitch", "nastyho", "nastyslut",
+"nastywhore", "nazi", "necro", "negres", "negress",
+"negro", "negroes", "negroid", "negros", "nig",
+"nigar", "nigars", "nigerian", "nigerians", "nigers",
+"nigette", "nigettes", "nigg", "nigga", "niggah",
+"niggahs", "niggar", "niggaracci", "niggard", "niggarded",
+"niggarding", "niggardliness", "niggardlinesss", "niggards", "niggars",
+"niggas", "niggaz", "nigger", "niggerhead", "niggerhole",
+"niggers", "niggle", "niggled", "niggles", "niggling",
+"nigglings", "niggor", "niggress", "niggresses", "nigguh",
+"nigguhs", "niggur", "niggurs", "niglet", "nignog",
+"nigor", "nigors", "nigr", "nigra", "nigras",
+"nigre", "nigres", "nigress", "nigs", "nip",
+"nipple", "nipplering", "nittit", "nlgger", "nlggor",
+"nofuckingway", "nook", "nookey", "nookie", "noonan",
+"nooner", "nude", "nudger", "nuke", "nutfucker",
+"nymph", "ontherag", "oral", "orga", "orgasim",
+"orgasm", "orgies", "orgy", "paddy", "paederastic",
+"paederasts", "paederasty", "paki", "pakis", "palesimian",
+"pancake face", "pancake faces", "pansies", "pansy", "panti",
+"payo", "pearlnecklace", "peck", "pecker", "peckerwood",
+"pederastic", "pederasts", "pederasty", "pedo", "pedophile",
+"pedophiles", "pedophilia", "pedophilic", "pee", "peehole",
+"peepee", "peepshow", "peepshpw", "pendy", "penetration",
+"peni5", "penile", "penis", "penises", "perv",
+"phonesex", "phuk", "phuked", "phuking", "phukked",
+"phukking", "phungky", "phuq", "pi55", "picaninny",
+"piccaninny", "pickaninnies", "pickaninny", "piefke", "piefkes",
+"piker", "pikey", "piky", "pillow biter", "pimp",
+"pimped", "pimper", "pimpjuic", "pimpjuice", "pimpsimp",
+"pindick", "piss", "pissed", "pisser", "pisses",
+"pisshead", "pissin", "pissing", "pissoff", "pistol",
+"pixie", "pixy", "playboy", "playgirl", "pocha",
+"pochas", "pocho", "pochos", "pocketpool", "pohm",
+"pohms", "polack", "polacks", "pollock", "pollocks",
+"pom", "pommie", "pommie grant", "pommie grants", "pommies",
+"pommy", "poms", "poo", "poof", "poofta",
+"poofter", "poon", "poontang", "poop", "pooper",
+"pooperscooper", "pooping", "poorwhitetrash", "popimp", "porch monkey",
+"porch monkies", "porchmonkey", "porn", "pornflick", "pornking",
+"porno", "pornography", "pornprincess", "prairie nigger", "prairie niggers",
+"pric", "prick", "prickhead", "prostitute", "protestant",
+"pu55i", "pu55y", "pube", "pubic", "pubiclice",
+"pud", "pudboy", "pudd", "puddboy", "puke",
+"puntang", "purinapricness", "puss", "pussie", "pussies",
+"pussy", "pussycat", "pussyeater", "pussyfucker", "pussylicker",
+"pussylips", "pussylover", "pussypounder", "pusy", "quashie",
+"queef", "queer", "quickie", "quim", "ra8s",
+"racist", "radical", "radicals", "raghead", "ragheads",
+"randy", "rape", "raped", "raper", "rapist",
+"rearend", "rearentry", "rectum", "redleg", "redlegs",
+"redneck", "rednecks", "redskin", "redskins", "reefer",
+"reestie", "rentafuck", "rere", "retard", "retarded",
+"ribbed", "rigger", "rimjob", "rimming", "round eyes",
+"roundeye", "russki", "russkie", "sadis", "sadom",
+"sambo", "sambos", "samckdaddy", "sand nigger", "sand niggers",
+"sandm", "sandnigger", "satan", "scag", "scallywag",
+"scat", "schlong", "schvartse", "schvartsen", "schwartze",
+"schwartzen", "screw", "screwyou", "scrotum", "scum",
+"semen", "seppo", "seppos", "septic", "septics",
+"sex", "sexed", "sexfarm", "sexhound", "sexhouse",
+"sexing", "sexkitten", "sexpot", "sexslave", "sextogo",
+"sextoy", "sextoys", "sexual", "sexually", "sexwhore",
+"sexy", "sexymoma", "sexyslim", "shag", "shaggin",
+"shagging", "shat", "shav", "shawtypimp", "sheeney",
+"shhit", "shiksa", "shinola", "shit", "shitcan",
+"shitdick", "shite", "shiteater", "shited", "shitface",
+"shitfaced", "shitfit", "shitforbrains", "shitfuck", "shitfucker",
+"shitfull", "shithapens", "shithappens", "shithead", "shithouse",
+"shiting", "shitlist", "shitola", "shitoutofluck", "shits",
+"shitstain", "shitted", "shitter", "shitting", "shitty",
+"shortfuck", "shylock", "shylocks", "sissy", "sixsixsix",
+"sixtynine", "sixtyniner", "skank", "skankbitch", "skankfuck",
+"skankwhore", "skanky", "skankybitch", "skankywhore", "skinflute",
+"skum", "skumbag", "skwa", "skwe", "slanteye",
+"slanty", "slapper", "slaughter", "slave", "slavedriver",
+"sleezebag", "sleezeball", "slideitin", "slimeball", "slimebucket",
+"slopehead", "slopeheads", "sloper", "slopers", "slopey",
+"slopeys", "slopies", "slopy", "slut", "sluts",
+"slutt", "slutting", "slutty", "slutwear", "slutwhore",
+"smack", "smackthemonkey", "smut", "snatch", "snatchpatch",
+"sniggers", "snowback", "snownigger", "sodom", "sodomise",
+"sodomite", "sodomize", "sodomy", "sonofabitch", "sonofbitch",
+"sooties", "sooty", "spade", "spades", "spaghettibender",
+"spaghettinigger", "spank", "spankthemonkey", "spearchucker", "spearchuckers",
+"sperm", "spermacide", "spermbag", "spermhearder", "spermherder",
+"spic", "spick", "spicks", "spics", "spig",
+"spigotty", "spik", "spit", "spitter", "splittail",
+"spooge", "spreadeagle", "spunk", "spunky", "sqeh",
+"squa", "squarehead", "squareheads", "squaw", "squinty",
+"stagg", "stiffy", "strapon", "stringer", "stripclub",
+"stroking", "stuinties", "stupid", "stupidfuck", "stupidfucker",
+"suck", "suckdick", "sucker", "suckme", "suckmyass",
+"suckmydick", "suckmytit", "suckoff", "suicide", "swallow",
+"swallower", "swalow", "swamp guinea", "swamp guineas", "swastika",
+"syphilis", "tacohead", "tacoheads", "taff", "tang",
+"tantra", "tar babies", "tar baby", "tarbaby", "tard",
+"teat", "terrorist", "teste", "testicle", "testicles",
+"thicklip", "thicklips", "thirdeye", "thirdleg", "threesome",
+"threeway", "timber nigger", "timber niggers", "timbernigger", "tinker",
+"tinkers", "tinkle", "tit", "titbitnipply", "titfuck",
+"titfucker", "titfuckin", "titjob", "titlicker", "titlover",
+"tits", "tittie", "titties", "titty", "tnt",
+"tongethruster", "tonguethrust", "tonguetramp", "tortur", "torture",
+"tosser", "towel head", "towel heads", "towelhead", "trailertrash",
+"tramp", "trannie", "tranny", "transvestite", "trap",
+"triplex", "trisexual", "trots", "tuckahoe", "tunneloflove",
+"turd", "turnon", "twat", "twink", "twinkie",
+"twobitwhore", "uck", "ukrop", "uncle tom", "unfuckable",
+"upskirt", "uptheass", "upthebutt", "usama", "uterus",
+"vagina", "vaginal", "vibr", "vibrater", "vibrator",
+"virginbreaker", "vomit", "vulva", "wab", "wank",
+"wanker", "wanking", "waysted", "weenie", "weewee",
+"welcher", "welfare", "wetb", "wetback", "wetbacks",
+"wetspot", "whacker", "whash", "whigger", "whiggers",
+"whiskeydick", "whiskydick", "whit", "white trash", "whitenigger",
+"whites", "whitetrash", "whitey", "whiteys", "whities",
+"whiz", "whop", "whore", "whorefucker", "whorehouse",
+"wigga", "wiggas", "wigger", "wiggers", "willie",
+"williewanker", "willy", "wn", "wog", "wogs",
+"wop", "wtf", "wuss", "wuzzie", "xkwe",
+"xtc", "xxx", "yank", "yankee", "yankees",
+"yanks", "yarpie", "yarpies", "yellowman", "yid",
+"yids", "zigabo", "zigabos", "zipperhead", "zipperheads"
   ],
 
-  // Pattern-based detection for variations
+  // Regex patterns for evasion techniques not covered by the word list
   patterns: [
-    // Leetspeak and character substitutions
-    /f[u@#0]c?k/gi,
-    /sh[i!1]t/gi,
-    /[a@4]ss/gi,
-    /[a@4]ssh[o0]le/gi,
-    /b[i!1]tc?h/gi,
-    /d[i!1]c?k/gi,
-    /s[e3]x/gi,
-    /[ck][o0][ck]k/gi,
-    /p[u0]ss[yi]/gi,
-    /tw[a@4]t/gi,
-    /wh[o0]r[e3]/gi,
-    /sl[u0]t/gi,
+    // Leetspeak substitutions (word-boundary safe)
+    /\bf[u@#0]c?k(ing|ed|er|s|face|head|wit|wad|stick)?\b/gi,
+    /\bsh[i!1]t(ty|head|face|storm)?\b/gi,
+    /\b[a@4]ss(hole|hat|wipe|clown|face)?\b/gi,
+    /\bb[i!1]tc?h(es|ing|y)?\b/gi,
+    /\bd[i!1]c?k(head|wad|face)?\b/gi,
+    /\b[ck][o0][ck]k(sucker|s)?\b/gi,
+    /\bp[u0]ss[yi](es)?\b/gi,
+    /\btw[a@4]t(s)?\b/gi,
+    /\bwh[o0]r[e3](s)?\b/gi,
+    /\bsl[u0]t(s|ty)?\b/gi,
+    /\bp[o0]rn(o|ography|ographic)?\b/gi,
 
-    // Common censoring patterns (properly escaped)
-    /f\*\*k/gi,
-    /f\*ck/gi,
-    /s\*\*t/gi,
-    /sh\*t/gi,
-    /c\*\*t/gi,
-    /b\*tch/gi,
-    /d\*ck/gi,
-    /p\*rn/gi,
-    /a\*\*hole/gi,
+    // Censored versions (f**k, s**t, etc.)
+    /\bf[\*_#]{1,3}k\b/gi,
+    /\bs[\*_#]{1,2}t\b/gi,
+    /\bc[\*_#]{1,2}t\b/gi,
+    /\bb[\*_]tch\b/gi,
+    /\bd[\*_]ck\b/gi,
+    /\bp[\*_]rn\b/gi,
+    /\ba[\*_]{2}hole\b/gi,
 
-    // Separated/spaced letters
-    /f\s*u\s*c\s*k/gi,
-    /s\s*h\s*i\s*t/gi,
-    /b\s*i\s*t\s*c\s*h/gi,
-    /d\s*i\s*c\s*k/gi,
-
-    // NSFW image patterns
-    /n\s*s\s*f\s*w/gi,
-    /p\s*o\s*r\s*n/gi,
-    /x\s*x\s*x/gi,
-    /x{3,}/gi,
-
-    // Combined patterns
-    /fuc?k(ing|ed|er|s)?/gi,
-    /sh[i!]t(ty|head|face)?/gi,
-    /b[i!]tc?h(y|ing|es)?/gi,
-
-    // Sexual patterns
-    /sex(y|ual|ually)?/gi,
-    /porn(o|ography|ographic)?/gi,
-    /nude(s|ity)?/gi,
-    /naked(ness)?/gi,
-
-    // Multiple consecutive special characters (often used to evade filters)
-    /(.)\1{4,}/gi, // Same character repeated 5+ times (e.g., "aaaaa")
+    // Spaced-out letters (f u c k, s h i t, etc.)
+    /\bf\s+u\s+c\s+k\b/gi,
+    /\bs\s+h\s+i\s+t\b/gi,
+    /\bb\s+i\s+t\s+c\s+h\b/gi,
+    /\bd\s+i\s+c\s+k\b/gi,
   ],
 
-  // Context-aware exceptions (words that might be legitimate in some contexts)
-  exceptions: [
-    // Common words that contain profanity substrings
+  // Words that appear in the word list above but are legitimate in most contexts.
+  // These are excluded when building the filter regex.
+  exceptions: new Set([
+    // "ass" substring words
     'assumption', 'assumptions',
     'assessment', 'assessments', 'assess', 'assessing',
     'assign', 'assignment', 'assigned', 'assigns',
     'assistance', 'assistant', 'assist', 'assisting',
     'associate', 'associated', 'association',
-    'class', 'classes', 'classic', 'classical', 'classify',
-    'mass', 'masses', 'massive',
-    'pass', 'passed', 'passing', 'passenger', 'passport',
-    'grass', 'grassland',
-    'bass', 'bassist',
-    'brass',
-    'glass', 'glasses',
-    'dickens', 'dickinson',
-    'sussex', 'essex', 'middlesex', 'wessex',
-    'cassette', 'cassettes',
-    'harass', 'harassment', 'harassing',
-    'embarrass', 'embarrassed', 'embarrassing',
-    'compass',
-    'trespass', 'trespassing',
-    'surpass', 'surpassing',
-    'bypass',
-    'assassin', 'assassination',
-    'massacre',
-    'message', 'messages', 'messaging',
-    'passage', 'passages',
     'assemble', 'assembled', 'assembly',
     'assert', 'assertion', 'assertive',
     'asset', 'assets',
     'assume', 'assumed', 'assuming',
     'assure', 'assured', 'assurance',
-    'cassava',
-    'sassafras',
-    'scunthorpe', // Famous false positive example
-    'penistone', // UK place name
-    'lightwater', // Contains "twat"
-  ],
-
-  // Severity levels for graduated filtering
-  severity: {
-    mild: [
-      'damn', 'damnit', 'hell', 'crap', 'piss', 'suck', 'stupid', 'idiot',
-      'moron', 'dumb', 'jerk', 'screw', 'butt', 'fart', 'boob', 'heck'
-    ],
-    moderate: [
-      'ass', 'arse', 'asshole', 'bastard', 'bitch', 'bollocks', 'bugger',
-      'cock', 'dick', 'douche', 'prick', 'shit', 'slut', 'tit', 'twat', 'whore'
-    ],
-    strong: [
-      'fuck', 'fucked', 'fucker', 'fucking', 'motherfucker', 'cunt',
-      'bullshit', 'clusterfuck', 'fuckwit'
-    ],
-    nsfw: [
-      'porn', 'porno', 'xxx', 'nsfw', 'nude', 'naked', 'sex', 'sexy',
-      'erotic', 'explicit', 'adult', 'hentai', 'milf', 'anal', 'blowjob',
-      'orgasm', 'fetish', 'bdsm', 'masturbate', 'dildo', 'horny'
-    ],
-    slurs: [
-      'nigger', 'nigga', 'chink', 'gook', 'spic', 'kike', 'retard', 'tranny',
-      'dyke', 'fag', 'faggot'
-    ]
-  }
+    'class', 'classes', 'classic', 'classical', 'classify',
+    'mass', 'masses', 'massive',
+    'pass', 'passed', 'passing', 'passenger', 'passport',
+    'grass', 'grassland',
+    'bass', 'bassist',
+    'brass', 'glass', 'glasses',
+    'harass', 'harassment', 'harassing',
+    'embarrass', 'embarrassed', 'embarrassing',
+    'compass', 'trespass', 'trespassing',
+    'surpass', 'surpassing', 'bypass',
+    'assassin', 'assassination',
+    'massacre',
+    'message', 'messages', 'messaging',
+    'passage', 'passages',
+    'cassette', 'cassettes',
+    // "dick" substring words
+    'dickens', 'dickinson',
+    // Place names that famously trigger filters (Scunthorpe problem)
+    'scunthorpe', 'penistone',
+    'sussex', 'essex', 'middlesex', 'wessex',
+    // Proper names in the cuss word list
+    'cummings',          // e.e. cummings, Alan Cumming
+    // Legitimate English words rated ambiguous by cuss
+    'niggard', 'niggards', 'niggardly', 'niggarded', 'niggarding',
+    'niggardliness',
+    // Common words that appear in the cuss list at rating 1
+    'babe',              // colloquial, not typically censored
+    'pixie', 'pixy',     // fairy creatures
+    'gob',               // British for mouth
+    'gross',             // messy/disgusting (common English)
+    'geez', 'jeez',      // mild exclamations
+    'nymph',             // mythology
+    'tantra',            // spiritual practice
+    'snatch',            // to grab quickly
+    'tramp',             // a hike; homeless person
+    'hooters',           // restaurant chain (though vulgar slang too)
+    'tinkle',            // gentle sound; child's word for urinate
+  ])
 };
 
-// Utility function to check if text contains profanity
-function containsProfanity(text, level = 'moderate', customWords = []) {
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// ── Pre-compile regex at module load — avoids creating thousands of RegExp
+//    objects on every text node check (major performance fix) ─────────────────
+
+// Build filtered, deduplicated word list (longest first so multi-word phrases
+// are tried before their component words in the alternation)
+const _filteredWords = [...new Set(PROFANITY_DATA.words)]
+  .filter(w => w && !PROFANITY_DATA.exceptions.has(w.toLowerCase()))
+  .sort((a, b) => b.length - a.length);
+
+// Single combined regex: one pass replaces all matches
+const _wordRegex = new RegExp(
+  `\\b(${_filteredWords.map(escapeRegExp).join('|')})\\b`,
+  'gi'
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Returns true if text contains any profanity
+function containsProfanity(text, customWords) {
   if (!text) return false;
 
-  const lowerText = text.toLowerCase();
+  _wordRegex.lastIndex = 0;
+  if (_wordRegex.test(text)) return true;
 
-  // Check exceptions first - if it's an exception, remove it for checking
-  const processedText = PROFANITY_DATA.exceptions.reduce((acc, exception) => {
-    return acc.replace(new RegExp(exception, 'gi'), '');
-  }, lowerText);
-
-  // Build word list based on severity level
-  const wordsToCheck = [];
-
-  switch (level) {
-    case 'mild':
-      wordsToCheck.push(...PROFANITY_DATA.severity.mild);
-      break;
-    case 'moderate':
-      wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate);
-      break;
-    case 'strong':
-      wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate, ...PROFANITY_DATA.severity.strong);
-      break;
-    case 'all':
-      wordsToCheck.push(...PROFANITY_DATA.en);
-      break;
-    default:
-      wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate);
-  }
-
-  // Add custom words to the check list
-  if (customWords && customWords.length > 0) {
-    wordsToCheck.push(...customWords);
-  }
-
-  // Check word boundaries to avoid false positives
-  for (const word of wordsToCheck) {
-    // Use word boundaries for exact matches
-    const regex = new RegExp(`\\b${escapeRegExp(word)}\\b`, 'i');
-    if (regex.test(processedText)) {
-      return true;
+  // Check custom words (not in pre-compiled regex)
+  if (customWords && customWords.length) {
+    for (const word of customWords) {
+      if (!word) continue;
+      if (new RegExp(`\\b${escapeRegExp(word)}\\b`, 'i').test(text)) return true;
     }
   }
 
-  // Check patterns
   for (const pattern of PROFANITY_DATA.patterns) {
-    if (pattern.test(text)) {
-      return true;
-    }
+    pattern.lastIndex = 0;
+    if (pattern.test(text)) return true;
   }
 
   return false;
 }
 
-// Function to get all profanity matches in text
-function findProfanity(text, level = 'moderate', customWords = []) {
-  if (!text) return [];
-
-  const matches = new Set();
-  const lowerText = text.toLowerCase();
-
-  // Build word list based on level
-  const wordsToCheck = [];
-
-  switch (level) {
-    case 'mild':
-      wordsToCheck.push(...PROFANITY_DATA.severity.mild);
-      break;
-    case 'moderate':
-      wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate);
-      break;
-    case 'strong':
-      wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate, ...PROFANITY_DATA.severity.strong);
-      break;
-    case 'all':
-      wordsToCheck.push(...PROFANITY_DATA.en);
-      break;
-    default:
-      wordsToCheck.push(...PROFANITY_DATA.severity.mild, ...PROFANITY_DATA.severity.moderate);
-  }
-
-  // Add custom words to the check list
-  if (customWords && customWords.length > 0) {
-    wordsToCheck.push(...customWords);
-  }
-
-  // Check each word with word boundaries
-  for (const word of wordsToCheck) {
-    const regex = new RegExp(`\\b${escapeRegExp(word)}\\b`, 'gi');
-    const wordMatches = text.match(regex);
-    if (wordMatches) {
-      wordMatches.forEach(match => matches.add(match));
-    }
-  }
-
-  // Check patterns
-  for (const pattern of PROFANITY_DATA.patterns) {
-    const patternMatches = text.match(pattern);
-    if (patternMatches) {
-      patternMatches.forEach(match => matches.add(match));
-    }
-  }
-
-  return Array.from(matches);
-}
-
-// Helper function to escape regex special characters
-function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-// Function to censor profanity in text
-function censorProfanity(text, level = 'moderate', replacement = '*', customWords = []) {
+// Removes all profanity from text, returns cleaned string.
+// Returns the original string reference unchanged if nothing was removed.
+function removeProfanity(text, customWords) {
   if (!text) return text;
 
-  let censored = text;
-  const matches = findProfanity(text, level, customWords);
+  // replace() resets lastIndex internally for non-sticky global regexes,
+  // but we reset explicitly here for clarity
+  _wordRegex.lastIndex = 0;
+  let result = text.replace(_wordRegex, '');
 
-  // Sort by length (longest first) to handle overlapping matches
-  matches.sort((a, b) => b.length - a.length);
-
-  for (const match of matches) {
-    const censor = replacement.repeat(match.length);
-    // Escape special regex characters in the match
-    const escapedMatch = escapeRegExp(match);
-    censored = censored.replace(new RegExp(escapedMatch, 'gi'), censor);
+  if (customWords && customWords.length) {
+    for (const word of customWords) {
+      if (!word) continue;
+      result = result.replace(new RegExp(`\\b${escapeRegExp(word)}\\b`, 'gi'), '');
+    }
   }
 
-  return censored;
+  for (const pattern of PROFANITY_DATA.patterns) {
+    pattern.lastIndex = 0;
+    result = result.replace(pattern, '');
+  }
+
+  // Return original if nothing changed — avoids triggering unnecessary DOM
+  // writes and preserves whitespace-only text nodes exactly as-is
+  if (result === text) return text;
+
+  // Collapse runs of spaces/tabs left by removed words (preserve newlines)
+  return result.replace(/[ \t]{2,}/g, ' ');
 }
 
-// Export for use in content script
+// Backward-compat alias: lang-detector.js reads PROFANITY_DATA.en
+PROFANITY_DATA.en = PROFANITY_DATA.words;
+
+// Export to window for use by content.js
 window.PROFANITY_DATA = PROFANITY_DATA;
 window.containsProfanity = containsProfanity;
-window.findProfanity = findProfanity;
-window.censorProfanity = censorProfanity;
+window.removeProfanity = removeProfanity;

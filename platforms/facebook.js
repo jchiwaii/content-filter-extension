@@ -136,36 +136,41 @@ const FacebookFilter = {
     if (!article.querySelector('.fb-filter-overlay')) {
       const overlay = document.createElement('div');
       overlay.className = 'fb-filter-overlay';
-      overlay.innerHTML = `
-        <div style="
-          position: absolute;
-          top: 8px;
-          right: 8px;
-          background: rgba(239, 68, 68, 0.95);
-          color: white;
-          padding: 6px 12px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 600;
-          z-index: 10;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        ">
-          <span>🛡️</span>
-          <span>Content Filtered</span>
-          <button style="
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 14px;
-            padding: 0 4px;
-            margin-left: 4px;
-          " onclick="this.closest('[role=article], article, [data-pagelet*=FeedUnit]').style.opacity='1'; this.closest('.fb-filter-overlay').remove();">✕</button>
-        </div>
+
+      const inner = document.createElement('div');
+      inner.style.cssText = `
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(239, 68, 68, 0.95);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       `;
+
+      const icon = document.createElement('span');
+      icon.textContent = '🛡️';
+      const label = document.createElement('span');
+      label.textContent = 'Content Filtered';
+      const btn = document.createElement('button');
+      btn.textContent = '✕';
+      btn.style.cssText = 'background: none; border: none; color: white; cursor: pointer; font-size: 14px; padding: 0 4px; margin-left: 4px;';
+      btn.addEventListener('click', () => {
+        article.style.opacity = '1';
+        overlay.remove();
+      });
+
+      inner.appendChild(icon);
+      inner.appendChild(label);
+      inner.appendChild(btn);
+      overlay.appendChild(inner);
       article.appendChild(overlay);
     }
   },
@@ -317,7 +322,7 @@ const FacebookFilter = {
     if (!text) return false;
 
     if (typeof window.containsProfanity === 'function') {
-      return window.containsProfanity(text, 'moderate');
+      return window.containsProfanity(text);
     }
 
     const basicWords = ['fuck', 'shit', 'porn', 'xxx', 'nsfw', 'nude'];
@@ -333,19 +338,20 @@ const FacebookFilter = {
     return keywords.some(k => lower.includes(k));
   },
 
-  // Filter text
+  // Remove profanity from text
   filterText(text) {
-    if (typeof window.censorProfanity === 'function') {
-      return window.censorProfanity(text, 'moderate');
+    if (typeof window.removeProfanity === 'function') {
+      return window.removeProfanity(text);
     }
 
+    // Basic fallback: remove known words
     const words = ['fuck', 'shit', 'damn', 'ass', 'bitch'];
     let filtered = text;
     words.forEach(word => {
       const regex = new RegExp(`\\b${word}\\b`, 'gi');
-      filtered = filtered.replace(regex, '*'.repeat(word.length));
+      filtered = filtered.replace(regex, '');
     });
-    return filtered;
+    return filtered.replace(/[ \t]{2,}/g, ' ').trim();
   },
 
   // Get stats

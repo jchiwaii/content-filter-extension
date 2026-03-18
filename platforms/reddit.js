@@ -173,33 +173,39 @@ const RedditFilter = {
     if (!post.querySelector('.reddit-filter-overlay')) {
       const overlay = document.createElement('div');
       overlay.className = 'reddit-filter-overlay';
-      overlay.innerHTML = `
-        <div style="
-          position: absolute;
-          top: 8px;
-          left: 8px;
-          background: #ef4444;
-          color: white;
-          padding: 4px 12px;
-          border-radius: 4px;
-          font-size: 12px;
-          z-index: 100;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        ">
-          <span>🛡️</span>
-          <span>Content Filtered</span>
-          <button style="
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            padding: 0 4px;
-            font-size: 14px;
-          " onclick="this.closest('.thing, [data-testid=post-container]').style.opacity='1'; this.closest('.reddit-filter-overlay').remove();">✕</button>
-        </div>
+
+      const inner = document.createElement('div');
+      inner.style.cssText = `
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        background: #ef4444;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 6px;
       `;
+
+      const icon = document.createElement('span');
+      icon.textContent = '🛡️';
+      const label = document.createElement('span');
+      label.textContent = 'Content Filtered';
+      const btn = document.createElement('button');
+      btn.textContent = '✕';
+      btn.style.cssText = 'background: none; border: none; color: white; cursor: pointer; padding: 0 4px; font-size: 14px;';
+      btn.addEventListener('click', () => {
+        post.style.opacity = '1';
+        overlay.remove();
+      });
+
+      inner.appendChild(icon);
+      inner.appendChild(label);
+      inner.appendChild(btn);
+      overlay.appendChild(inner);
       post.appendChild(overlay);
     }
   },
@@ -425,43 +431,40 @@ const RedditFilter = {
 
     const overlay = document.createElement('div');
     overlay.className = 'subreddit-blocked-overlay';
-    overlay.innerHTML = `
-      <div style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: #222823;
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      ">
-        <div style="
-          background: white;
-          padding: 40px;
-          border-radius: 16px;
-          text-align: center;
-          max-width: 400px;
-        ">
-          <div style="font-size: 48px; margin-bottom: 16px;">🛡️</div>
-          <h1 style="color: #222823; margin-bottom: 16px;">Subreddit Blocked</h1>
-          <p style="color: #666; margin-bottom: 24px;">
-            <strong>${subreddit}</strong> has been identified as containing adult content and is blocked.
-          </p>
-          <button onclick="history.back()" style="
-            background: #222823;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-          ">Go Back</button>
-        </div>
-      </div>
+    overlay.style.cssText = `
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: #222823; z-index: 10000;
+      display: flex; align-items: center; justify-content: center;
     `;
+
+    const card = document.createElement('div');
+    card.style.cssText = 'background: white; padding: 40px; border-radius: 16px; text-align: center; max-width: 400px;';
+
+    const icon = document.createElement('div');
+    icon.style.cssText = 'font-size: 48px; margin-bottom: 16px;';
+    icon.textContent = '🛡️';
+
+    const title = document.createElement('h1');
+    title.style.cssText = 'color: #222823; margin-bottom: 16px;';
+    title.textContent = 'Subreddit Blocked';
+
+    const desc = document.createElement('p');
+    desc.style.cssText = 'color: #666; margin-bottom: 24px;';
+    const strong = document.createElement('strong');
+    strong.textContent = subreddit;  // textContent prevents XSS
+    desc.appendChild(strong);
+    desc.append(' has been identified as containing adult content and is blocked.');
+
+    const btn = document.createElement('button');
+    btn.textContent = 'Go Back';
+    btn.style.cssText = 'background: #222823; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 14px;';
+    btn.addEventListener('click', () => history.back());
+
+    card.appendChild(icon);
+    card.appendChild(title);
+    card.appendChild(desc);
+    card.appendChild(btn);
+    overlay.appendChild(card);
     document.body.appendChild(overlay);
   },
 
@@ -470,7 +473,7 @@ const RedditFilter = {
     if (!text) return false;
 
     if (typeof window.containsProfanity === 'function') {
-      return window.containsProfanity(text, 'moderate');
+      return window.containsProfanity(text);
     }
 
     const basicWords = ['fuck', 'shit', 'porn', 'xxx', 'nsfw'];
@@ -478,19 +481,20 @@ const RedditFilter = {
     return basicWords.some(word => lowerText.includes(word));
   },
 
-  // Filter text
+  // Remove profanity from text
   filterText(text) {
-    if (typeof window.censorProfanity === 'function') {
-      return window.censorProfanity(text, 'moderate');
+    if (typeof window.removeProfanity === 'function') {
+      return window.removeProfanity(text);
     }
 
+    // Basic fallback: remove known words
     const words = ['fuck', 'shit', 'damn', 'ass', 'bitch'];
     let filtered = text;
     words.forEach(word => {
       const regex = new RegExp(`\\b${word}\\b`, 'gi');
-      filtered = filtered.replace(regex, '*'.repeat(word.length));
+      filtered = filtered.replace(regex, '');
     });
-    return filtered;
+    return filtered.replace(/[ \t]{2,}/g, ' ').trim();
   },
 
   // Get stats
