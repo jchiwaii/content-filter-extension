@@ -23,15 +23,15 @@ All filtering happens locally on your device. No data ever leaves your browser.
 ## How it works
 
 When you visit a page:
-1. The word list loads (600+ English terms from two open-source lists merged together)
+1. The word list loads (1,600+ English terms from two open-source lists merged together)
 2. Every text node on the page is scanned with a pre-compiled regex — one pass, fast
 3. Matched words are removed and adjacent extra spaces are collapsed
 4. A MutationObserver watches for new content and filters it as it appears
 5. Your custom words (if any) are checked on every scan too
 
 The word list comes from two sources merged at startup:
-- **cuss** project (MIT) — ~500 words with leetspeak/censored variants handled via regex patterns
-- **LDNOOBW** (CC-BY-4.0) — ~600 additional terms including multi-word phrases like "blow job", "gang bang", "barely legal"
+- **cuss** project (MIT) — ~1,500 words including leetspeak and censored variants
+- **LDNOOBW** (CC-BY-4.0) — ~120 additional terms including multi-word phrases like "blow job", "gang bang", "barely legal"
 
 ---
 
