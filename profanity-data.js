@@ -400,6 +400,40 @@ const PROFANITY_DATA = {
   ])
 };
 
+// ── Supplemental word list from LDNOOBW (List of Dirty, Naughty, Obscene, and
+//    Otherwise Bad Words) — CC-BY-4.0, github.com/LDNOOBW
+// ─────────────────────────────────────────────────────────────────────────────
+const _ldnoobwWords = [
+  "2g1c", "2 girls 1 cup", "acrotomophilia", "anilingus",
+  "ball gag", "ball gravy", "ball sack", "barely legal", "barenaked", "bareback",
+  "bdsm", "bbw", "beastiality", "bestiality",
+  "big tits", "bimbos", "blow job", "blow your load", "blue waffle",
+  "bung hole", "busty", "buttcheeks", "butthole",
+  "camel toe", "camgirl", "camslut", "camwhore", "carpet muncher",
+  "circlejerk", "cleveland steamer", "coprolagnia", "coprophilia", "creampie",
+  "deep throat", "dendrophilia", "dirty sanchez", "doggie style", "doggiestyle",
+  "doggy style", "doggystyle", "domination",
+  "donkey punch", "double penetration", "dry hump", "dvda",
+  "ecchi", "erotism",
+  "female squirting", "femdom", "fingerbang", "fingering",
+  "foot fetish", "footjob", "frotting", "fuck buttons",
+  "futanari", "gang bang", "gay sex", "genitals",
+  "goatse", "golden shower", "gokkun",
+  "hand job", "handjob", "hardcore", "hard core",
+  "jack off", "jailbait", "jail bait", "jerk off",
+  "jiggerboo", "juggs",
+  "kinbaku", "kinkster", "lemon party",
+  "male squirting", "muff diver", "muffdiving",
+  "neonazi", "nig nog", "nipples", "nsfw", "nudity", "nympho", "nymphomania",
+  "paedophile", "panties", "panty", "pegging", "phone sex", "piece of shit",
+  "pissing", "queef", "rusty trombone",
+  "sadism", "scissoring", "sexcam", "shemale", "shibari", "shota",
+  "skeet", "splooge", "spooge", "strap on", "strip club",
+  "threesome", "throating", "titties", "topless", "tribadism", "twink",
+  "upskirt", "voyeur", "voyeurweb",
+  "wetback", "yaoi", "zoophilia"
+];
+
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -407,9 +441,9 @@ function escapeRegExp(str) {
 // ── Pre-compile regex at module load — avoids creating thousands of RegExp
 //    objects on every text node check (major performance fix) ─────────────────
 
-// Build filtered, deduplicated word list (longest first so multi-word phrases
-// are tried before their component words in the alternation)
-const _filteredWords = [...new Set(PROFANITY_DATA.words)]
+// Merge all word sources first, then build the filtered deduplicated list
+// (longest first so multi-word phrases are matched before component words)
+const _filteredWords = [...new Set([...PROFANITY_DATA.words, ..._ldnoobwWords])]
   .filter(w => w && !PROFANITY_DATA.exceptions.has(w.toLowerCase()))
   .sort((a, b) => b.length - a.length);
 
@@ -474,10 +508,7 @@ function removeProfanity(text, customWords) {
   return result.replace(/[ \t]{2,}/g, ' ');
 }
 
-// Backward-compat alias: lang-detector.js reads PROFANITY_DATA.en
-PROFANITY_DATA.en = PROFANITY_DATA.words;
-
-// Export to window for use by content.js
+// Export to window for use by content.js and platform scripts
 window.PROFANITY_DATA = PROFANITY_DATA;
 window.containsProfanity = containsProfanity;
 window.removeProfanity = removeProfanity;

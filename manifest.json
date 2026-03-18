@@ -9,8 +9,7 @@
     "tabs",
     "webNavigation",
     "contextMenus",
-    "alarms",
-    "offscreen"
+    "alarms"
   ],
 
   "host_permissions": ["<all_urls>"],
@@ -24,9 +23,7 @@
       "matches": ["<all_urls>"],
       "js": [
         "profanity-data.js",
-        "modules/lang-detector.js",
         "modules/image-detector.js",
-        "modules/ml-image-detector.js",
         "content.js"
       ],
       "css": ["content.css"],
@@ -79,10 +76,6 @@
         "blocked.html",
         "dashboard.html",
         "settings.html",
-        "onboarding.html",
-        "privacy.html",
-        "offscreen.html",
-        "sandbox.html",
         "icons/*",
         "lib/*"
       ],
@@ -108,11 +101,6 @@
   },
 
   "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
-    "sandbox": "sandbox allow-scripts allow-forms; script-src 'self' 'unsafe-eval'; object-src 'self'"
-  },
-
-  "sandbox": {
-    "pages": ["sandbox.html"]
+    "extension_pages": "script-src 'self'; object-src 'self'"
   }
 }

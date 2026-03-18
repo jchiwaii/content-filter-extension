@@ -34,43 +34,16 @@ function initialize() {
         return;
       }
 
-      waitForProfanityDB().then(() => {
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', initializeFilter);
-        } else {
-          initializeFilter();
-        }
-      });
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeFilter);
+      } else {
+        initializeFilter();
+      }
     });
   });
 }
 
 initialize();
-
-// Wait for profanity database to be ready (checks for removeProfanity)
-function waitForProfanityDB() {
-  return new Promise((resolve) => {
-    if (window.removeProfanity && typeof window.removeProfanity === 'function') {
-      resolve();
-      return;
-    }
-
-    let attempts = 0;
-    const maxAttempts = 100;
-
-    const checkInterval = setInterval(() => {
-      attempts++;
-      if (window.removeProfanity && typeof window.removeProfanity === 'function') {
-        clearInterval(checkInterval);
-        resolve();
-      } else if (attempts >= maxAttempts) {
-        clearInterval(checkInterval);
-        console.error('[Safe Browse] Profanity DB failed to load');
-        resolve();
-      }
-    }, 50);
-  });
-}
 
 // Initialize the filter
 function initializeFilter() {
@@ -90,23 +63,11 @@ function initializeFilter() {
   // Setup SPA detection
   setupSPADetection();
 
-  // Initialize image detectors
-  if (config.filterImages) {
-    if (window.ImageDetector) {
-      window.ImageDetector.init();
-      window.ImageDetector.setupObserver();
-      window.ImageDetector.scanPage();
-    }
-
-    if (window.MLImageDetector) {
-      window.MLImageDetector.init().then(() => {
-        console.log('[Safe Browse] ML Image Detector initialized');
-        window.MLImageDetector.setupObserver();
-        window.MLImageDetector.scanPage();
-      }).catch(err => {
-        console.warn('[Safe Browse] ML Image Detector failed to initialize:', err);
-      });
-    }
+  // Initialize image detector
+  if (config.filterImages && window.ImageDetector) {
+    window.ImageDetector.init();
+    window.ImageDetector.setupObserver();
+    window.ImageDetector.scanPage();
   }
 }
 
@@ -156,32 +117,21 @@ function filterExistingContent() {
     filterTextContent();
   }
 
-  if (config.filterImages) {
-    if (window.ImageDetector) {
-      window.ImageDetector.scanPage();
-    }
-    if (window.MLImageDetector) {
-      window.MLImageDetector.scanPage();
-    }
+  if (config.filterImages && window.ImageDetector) {
+    window.ImageDetector.scanPage();
   }
 }
 
-// Check for profanity using language detector if available, otherwise use direct function
+// Check if text contains profanity
 function checkProfanity(text) {
-  if (window.LangDetector && typeof window.LangDetector.containsProfanity === 'function') {
-    return window.LangDetector.containsProfanity(text, config.customWords);
-  }
   if (window.containsProfanity) {
     return window.containsProfanity(text, config.customWords);
   }
   return false;
 }
 
-// Remove profanity using language detector if available, otherwise use direct function
+// Remove all profanity from text
 function cleanProfanity(text) {
-  if (window.LangDetector && typeof window.LangDetector.removeProfanity === 'function') {
-    return window.LangDetector.removeProfanity(text, config.customWords);
-  }
   if (window.removeProfanity) {
     return window.removeProfanity(text, config.customWords);
   }
