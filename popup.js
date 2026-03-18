@@ -201,7 +201,7 @@ function setupEventListeners() {
   });
 
   elements.helpLink.addEventListener('click', () => {
-    chrome.tabs.create({ url: 'https://github.com/anthropics/claude-code/issues' });
+    chrome.tabs.create({ url: 'settings.html' });
   });
 
   // Collapsible sections

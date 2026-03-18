@@ -96,10 +96,11 @@ function setupSPADetection() {
 
   window.addEventListener('popstate', handleRouteChange);
 
+  // Polling fallback for any SPAs that bypass the history API hooks
   setInterval(() => {
     if (location.href !== lastUrl) {
       lastUrl = location.href;
-      handleRouteChange();
+      setTimeout(filterExistingContent, 500);
     }
   }, 1000);
 

@@ -461,8 +461,6 @@ const ImageDetector = {
 // Export
 if (typeof window !== 'undefined') {
   window.ImageDetector = ImageDetector;
-  // Also expose as mlDetector for backward compatibility
-  window.mlDetector = ImageDetector;
 }
 if (typeof module !== 'undefined') {
   module.exports = ImageDetector;

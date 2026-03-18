@@ -280,7 +280,7 @@
       <h4>Need to access this site?</h4>
       <div class="actions">
         <button class="btn btn-danger" onclick="requestBypass()">
-          Request Access
+          Whitelist This Site
         </button>
         <button class="btn btn-secondary" onclick="openSettings()">
           Open Settings
@@ -334,29 +334,15 @@
     document.getElementById('categoryName').textContent = categoryInfo.name;
     document.getElementById('blockReason').textContent = categoryInfo.reason;
 
-    // Load statistics
+    // Load statistics (background.js already incremented the counter when blocking)
     chrome.storage.local.get(['statistics', 'dailyStats', 'installTime'], (result) => {
       const stats = result.statistics || { sitesBlocked: 0 };
+      document.getElementById('totalBlocked').textContent = stats.sitesBlocked || 0;
 
-      // Update site blocked count
-      stats.sitesBlocked = (stats.sitesBlocked || 0) + 1;
-      chrome.storage.local.set({ statistics: stats });
-
-      document.getElementById('totalBlocked').textContent = stats.sitesBlocked;
-
-      // Today's count
       const today = new Date().toDateString();
       const dailyStats = result.dailyStats || {};
-
-      if (dailyStats.date === today) {
-        dailyStats.sitesBlocked = (dailyStats.sitesBlocked || 0) + 1;
-      } else {
-        dailyStats.date = today;
-        dailyStats.sitesBlocked = 1;
-      }
-
-      document.getElementById('blockedToday').textContent = dailyStats.sitesBlocked;
-      chrome.storage.local.set({ dailyStats });
+      document.getElementById('blockedToday').textContent =
+        dailyStats.date === today ? (dailyStats.sitesBlocked || 0) : 0;
 
       // Hours protected
       const installTime = result.installTime || Date.now();
@@ -378,22 +364,8 @@
     }
 
     function requestBypass() {
-      document.getElementById('warningText').style.display = 'block';
-
-      if (confirm('Are you sure you want to request access to this site? An administrator password may be required.')) {
-        // Check if password protected
-        chrome.storage.local.get(['passwordEnabled'], (result) => {
-          if (result.passwordEnabled) {
-            const password = prompt('Enter administrator password:');
-            if (password) {
-              // Verify password (simplified - in real app would use PasswordManager)
-              alert('Password verification not available in this context. Please use the Settings page.');
-            }
-          } else {
-            // Add to whitelist
-            whitelistSite();
-          }
-        });
+      if (confirm('Add this site to your whitelist? Safe Browse will no longer filter it.')) {
+        whitelistSite();
       }
     }
 

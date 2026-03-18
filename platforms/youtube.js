@@ -34,7 +34,6 @@ const YouTubeFilter = {
     this.loadConfig().then(() => {
       this.setupObserver();
       this.filterExistingContent();
-      this.enforceRestrictedMode();
       this.setupNavigationHandler();
     });
   },
@@ -106,7 +105,6 @@ const YouTubeFilter = {
   // Handle navigation
   onNavigate() {
     this.filterExistingContent();
-    this.enforceRestrictedMode();
   },
 
   // Filter existing content on page
@@ -149,10 +147,8 @@ const YouTubeFilter = {
 
       const text = title.textContent;
       if (this.containsProfanity(text)) {
-        // Mark for visibility - don't hide, just mark
-        title.dataset.hasProfanity = 'true';
-        title.style.opacity = '0.5';
-        title.title = 'This title may contain inappropriate content';
+        this.filterTextNode(title);
+        title.dataset.filtered = 'true';
       }
     });
   },
@@ -303,9 +299,7 @@ const YouTubeFilter = {
 
       const text = msg.textContent;
       if (this.containsProfanity(text)) {
-        msg.textContent = '[Message filtered]';
-        msg.style.color = '#999';
-        msg.style.fontStyle = 'italic';
+        this.filterTextNode(msg);
         msg.dataset.chatFiltered = 'true';
       }
     });
@@ -373,35 +367,6 @@ const YouTubeFilter = {
     return filtered.replace(/[ \t]{2,}/g, ' ').trim();
   },
 
-  // Enforce restricted mode
-  enforceRestrictedMode() {
-    if (!this.config.enforceRestrictedMode) return;
-
-    // Check if restricted mode is off
-    const url = new URL(window.location.href);
-
-    // YouTube uses cookies for restricted mode
-    // We can't directly set it, but we can warn
-    this.checkRestrictedMode();
-  },
-
-  // Check restricted mode status
-  checkRestrictedMode() {
-    // Look for restricted mode indicator in page
-    const settingsMenu = document.querySelector('ytd-popup-container');
-
-    // Add periodic check for restricted mode toggle
-    const observer = new MutationObserver(() => {
-      const restrictedToggle = document.querySelector('[data-restricted-mode]');
-      if (restrictedToggle) {
-        // Could add warning here if restricted mode is off
-      }
-    });
-
-    if (document.body) {
-      observer.observe(document.body, { childList: true, subtree: true });
-    }
-  },
 
   // Get filtered content stats
   getStats() {
