@@ -4,12 +4,34 @@
 // Note: In MV3 service workers, we inline the module code or use dynamic imports
 // For simplicity, we'll define stripped-down versions here
 
+function normalizeHostname(input) {
+  if (!input) return '';
+
+  let value = String(input).trim().toLowerCase();
+  if (!value) return '';
+
+  try {
+    const url = value.includes('://') ? new URL(value) : new URL(`https://${value}`);
+    value = url.hostname;
+  } catch {
+    value = value.split('/')[0].split(':')[0];
+  }
+
+  return value.replace(/^\.+/, '').replace(/^www\./, '');
+}
+
+function domainMatches(hostname, configuredDomain) {
+  const host = normalizeHostname(hostname);
+  const domain = normalizeHostname(configuredDomain);
+  return Boolean(domain && (host === domain || host.endsWith(`.${domain}`)));
+}
+
 // Blocklist for adult sites (checked on navigation events)
 const BlocklistData = {
   isBlocked: async (url, categories = ['adult']) => {
     try {
       const urlObj = new URL(url);
-      const hostname = urlObj.hostname.replace('www.', '');
+      const hostname = normalizeHostname(urlObj.hostname);
 
       // Core adult domains to block
       const adultDomains = [
@@ -22,7 +44,7 @@ const BlocklistData = {
 
       if (categories.includes('adult')) {
         for (const domain of adultDomains) {
-          if (hostname === domain || hostname.endsWith('.' + domain)) {
+          if (domainMatches(hostname, domain)) {
             return { blocked: true, category: 'adult', reason: 'Adult content' };
           }
         }
@@ -31,7 +53,7 @@ const BlocklistData = {
       // Check custom blocklist from storage
       const result = await chrome.storage.sync.get(['config']);
       const customBlocklist = result.config?.customBlocklist || [];
-      if (customBlocklist.includes(hostname)) {
+      if (customBlocklist.some(domain => domainMatches(hostname, domain))) {
         return { blocked: true, category: 'custom', reason: 'Manually blocked' };
       }
 
@@ -44,14 +66,41 @@ const BlocklistData = {
 
 // Minimal safe search enforcement
 const SafeSearch = {
+  blockedTerms: [
+    'porn', 'xxx', 'nude', 'naked', 'nsfw', 'hentai', 'sex video',
+    'adult video', 'explicit', 'pornhub', 'xvideos', 'xnxx',
+    'onlyfans leak', 'nude leak'
+  ],
+
+  getSearchQuery: (urlObj) => {
+    return urlObj.searchParams.get('q') ||
+           urlObj.searchParams.get('query') ||
+           urlObj.searchParams.get('p') ||
+           urlObj.searchParams.get('search_query') ||
+           '';
+  },
+
   processSearchUrl: (url) => {
     try {
       const urlObj = new URL(url);
       const hostname = urlObj.hostname;
       const params = urlObj.searchParams;
+      const isGoogleSearch = /(^|\.)google\./.test(hostname) && urlObj.pathname.includes('/search');
+      const isBingSearch = /(^|\.)bing\.com$/.test(hostname) && urlObj.pathname.includes('/search');
+      const isDuckDuckGoSearch = /(^|\.)duckduckgo\.com$/.test(hostname);
+
+      if (!isGoogleSearch && !isBingSearch && !isDuckDuckGoSearch) {
+        return { action: 'none' };
+      }
+
+      const query = SafeSearch.getSearchQuery(urlObj).toLowerCase();
+
+      if (query && SafeSearch.blockedTerms.some(term => query.includes(term))) {
+        return { action: 'block', reason: 'blocked_search' };
+      }
 
       // Google
-      if (hostname.includes('google.') && urlObj.pathname.includes('/search')) {
+      if (isGoogleSearch) {
         if (params.get('safe') !== 'active') {
           params.set('safe', 'active');
           return { action: 'redirect', url: urlObj.toString() };
@@ -59,7 +108,7 @@ const SafeSearch = {
       }
 
       // Bing
-      if (hostname.includes('bing.com') && urlObj.pathname.includes('/search')) {
+      if (isBingSearch) {
         if (params.get('adlt') !== 'strict') {
           params.set('adlt', 'strict');
           return { action: 'redirect', url: urlObj.toString() };
@@ -67,7 +116,7 @@ const SafeSearch = {
       }
 
       // DuckDuckGo
-      if (hostname.includes('duckduckgo.com')) {
+      if (isDuckDuckGoSearch) {
         if (params.get('kp') !== '1') {
           params.set('kp', '1');
           return { action: 'redirect', url: urlObj.toString() };
@@ -92,6 +141,7 @@ const defaultConfig = {
   filterLevel: 'moderate',
   customWords: [],
   whitelistedDomains: [],
+  customBlocklist: [],
   blockCategories: ['adult']
 };
 
@@ -172,15 +222,20 @@ function setupContextMenus() {
 
 // Handle context menu clicks
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  const url = tab?.url ? new URL(tab.url) : null;
-  const hostname = url?.hostname;
+  let hostname = '';
+  try {
+    hostname = tab?.url ? normalizeHostname(new URL(tab.url).hostname) : '';
+  } catch {
+    hostname = '';
+  }
 
   switch (info.menuItemId) {
     case 'whitelist-site':
       if (hostname) {
         const result = await chrome.storage.sync.get(['config']);
-        const config = result.config || defaultConfig;
-        if (!config.whitelistedDomains.includes(hostname)) {
+        const config = { ...defaultConfig, ...(result.config || {}) };
+        config.whitelistedDomains = config.whitelistedDomains || [];
+        if (!config.whitelistedDomains.some(domain => domainMatches(hostname, domain))) {
           config.whitelistedDomains.push(hostname);
           await chrome.storage.sync.set({ config });
           chrome.tabs.reload(tab.id);
@@ -191,13 +246,13 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     case 'block-site':
       if (hostname) {
         const result = await chrome.storage.sync.get(['config']);
-        const config = result.config || defaultConfig;
+        const config = { ...defaultConfig, ...(result.config || {}) };
         config.customBlocklist = config.customBlocklist || [];
-        if (!config.customBlocklist.includes(hostname)) {
+        if (!config.customBlocklist.some(domain => domainMatches(hostname, domain))) {
           config.customBlocklist.push(hostname);
           await chrome.storage.sync.set({ config });
           chrome.tabs.update(tab.id, {
-            url: chrome.runtime.getURL(`blocked.html?url=${encodeURIComponent(tab.url)}&reason=manual`)
+            url: chrome.runtime.getURL(`blocked.html?url=${encodeURIComponent(tab.url)}&category=custom&reason=manual`)
           });
         }
       }
@@ -303,7 +358,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 
   // Get configuration
   const syncResult = await chrome.storage.sync.get(['config']);
-  const config = syncResult.config || defaultConfig;
+  const config = { ...defaultConfig, ...(syncResult.config || {}) };
 
   if (!config.enabled) return;
 
@@ -312,7 +367,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   // Check whitelist first
   try {
     const urlObj = new URL(url);
-    if (config.whitelistedDomains.includes(urlObj.hostname)) {
+    if ((config.whitelistedDomains || []).some(domain => domainMatches(urlObj.hostname, domain))) {
       return;
     }
   } catch {
@@ -326,7 +381,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     if (blockResult.blocked) {
       // Redirect to blocked page
       chrome.tabs.update(details.tabId, {
-        url: chrome.runtime.getURL(`blocked.html?url=${encodeURIComponent(url)}&category=${blockResult.category}&reason=${blockResult.reason}`)
+        url: chrome.runtime.getURL(`blocked.html?url=${encodeURIComponent(url)}&category=${encodeURIComponent(blockResult.category)}&reason=${encodeURIComponent(blockResult.reason)}`)
       });
 
       // Update statistics
@@ -346,7 +401,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     if (searchResult.action === 'block') {
       // Block inappropriate search
       chrome.tabs.update(details.tabId, {
-        url: chrome.runtime.getURL(`blocked.html?url=${encodeURIComponent(url)}&reason=blocked_search`)
+        url: chrome.runtime.getURL(`blocked.html?url=${encodeURIComponent(url)}&category=blocked_search&reason=blocked_search`)
       });
 
       await updateStatistics({ searchesFiltered: 1 });

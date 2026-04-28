@@ -322,8 +322,8 @@
     // Parse URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const blockedUrl = urlParams.get('url') || 'Unknown URL';
-    const category = urlParams.get('category') || 'adult';
     const reason = urlParams.get('reason') || '';
+    const category = urlParams.get('category') || categoryFromReason(reason);
 
     // Display blocked URL
     document.getElementById('blockedUrl').textContent = blockedUrl;
@@ -372,13 +372,13 @@
     async function whitelistSite() {
       try {
         const url = new URL(blockedUrl);
-        const hostname = url.hostname;
+        const hostname = normalizeHostname(url.hostname);
 
         const result = await chrome.storage.sync.get(['config']);
         const config = result.config || {};
         config.whitelistedDomains = config.whitelistedDomains || [];
 
-        if (!config.whitelistedDomains.includes(hostname)) {
+        if (!config.whitelistedDomains.some(domain => domainMatches(hostname, domain))) {
           config.whitelistedDomains.push(hostname);
           await chrome.storage.sync.set({ config });
           alert('Site has been whitelisted. Redirecting...');
@@ -391,6 +391,34 @@
 
     function openSettings() {
       chrome.runtime.sendMessage({ action: 'openSettings' });
+    }
+
+    function categoryFromReason(reason) {
+      if (reason === 'manual') return 'custom';
+      if (reason === 'blocked_search') return 'blocked_search';
+      return 'adult';
+    }
+
+    function normalizeHostname(input) {
+      if (!input) return '';
+
+      let value = String(input).trim().toLowerCase();
+      if (!value) return '';
+
+      try {
+        const url = value.includes('://') ? new URL(value) : new URL(`https://${value}`);
+        value = url.hostname;
+      } catch {
+        value = value.split('/')[0].split(':')[0];
+      }
+
+      return value.replace(/^\.+/, '').replace(/^www\./, '');
+    }
+
+    function domainMatches(hostname, configuredDomain) {
+      const host = normalizeHostname(hostname);
+      const domain = normalizeHostname(configuredDomain);
+      return Boolean(domain && (host === domain || host.endsWith(`.${domain}`)));
     }
   </script>
 </body>

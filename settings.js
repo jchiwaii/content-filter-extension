@@ -123,6 +123,9 @@ function applyConfigToUI(cfg) {
   if (cfg.whitelistedDomains && cfg.whitelistedDomains.length > 0) {
     displayWhitelist(cfg.whitelistedDomains);
   }
+  if (cfg.customBlocklist && cfg.customBlocklist.length > 0) {
+    displayBlocklist(cfg.customBlocklist);
+  }
 
   // Image filtering
   if (cfg.filterImages !== undefined) {
@@ -274,7 +277,9 @@ async function saveImageSettings() {
     checkUrlPatterns: document.getElementById('checkUrlPatterns').checked
   };
 
-  await chrome.storage.sync.set({ imageDetectorConfig: imageConfig });
+  config.filterImages = imageConfig.enabled;
+  await chrome.storage.sync.set({ config, imageDetectorConfig: imageConfig });
+  notifyContentScripts();
 }
 
 async function saveScheduleSettings() {
@@ -320,10 +325,16 @@ async function toggleDarkMode() {
 }
 
 // Password settings
-function togglePasswordSettings() {
+async function togglePasswordSettings() {
   const enabled = document.getElementById('passwordEnabled').checked;
   const settings = document.getElementById('passwordSettings');
   settings.classList.toggle('hidden', !enabled);
+
+  if (!enabled && passwordStatus.enabled) {
+    await chrome.storage.local.remove(['passwordHash', 'passwordEnabled', 'passwordSetAt']);
+    await PasswordManager.clearSession();
+    passwordStatus = await PasswordManager.getStatus();
+  }
 }
 
 async function setPassword() {
@@ -342,6 +353,8 @@ async function setPassword() {
 
   try {
     await PasswordManager.setPassword(newPassword);
+    passwordStatus = await PasswordManager.getStatus();
+    document.getElementById('passwordEnabled').checked = true;
     alert('Password set successfully');
     document.getElementById('newPassword').value = '';
     document.getElementById('confirmPassword').value = '';
@@ -370,29 +383,38 @@ function addCustomWord() {
 
 function displayCustomWords(words) {
   const container = document.getElementById('customWordsList');
+  if (!words || words.length === 0) {
+    container.innerHTML = '<div class="empty-state">No custom words added</div>';
+    return;
+  }
+
   container.innerHTML = words.map(word => `
     <span class="tag">
       ${escapeHtml(word)}
-      <button onclick="removeCustomWord('${escapeHtml(word)}')">&times;</button>
+      <button data-word="${escapeHtml(word)}">&times;</button>
     </span>
   `).join('');
+
+  container.querySelectorAll('button[data-word]').forEach(btn => {
+    btn.addEventListener('click', () => removeCustomWord(btn.dataset.word));
+  });
 }
 
-window.removeCustomWord = function(word) {
+function removeCustomWord(word) {
   config.customWords = config.customWords.filter(w => w !== word);
   chrome.storage.sync.set({ config });
   displayCustomWords(config.customWords);
-};
+}
 
 // Whitelist
 function addWhitelistDomain() {
   const input = document.getElementById('whitelistInput');
-  const domain = input.value.trim().toLowerCase();
+  const domain = normalizeDomainInput(input.value);
 
   if (!domain) return;
 
   config.whitelistedDomains = config.whitelistedDomains || [];
-  if (!config.whitelistedDomains.includes(domain)) {
+  if (!config.whitelistedDomains.some(existing => domainMatches(domain, existing))) {
     config.whitelistedDomains.push(domain);
     chrome.storage.sync.set({ config });
     displayWhitelist(config.whitelistedDomains);
@@ -403,29 +425,38 @@ function addWhitelistDomain() {
 
 function displayWhitelist(domains) {
   const container = document.getElementById('whitelistList');
+  if (!domains || domains.length === 0) {
+    container.innerHTML = '<div class="empty-state">No whitelisted sites</div>';
+    return;
+  }
+
   container.innerHTML = domains.map(domain => `
     <div class="list-item">
       <span>${escapeHtml(domain)}</span>
-      <button onclick="removeWhitelistDomain('${escapeHtml(domain)}')">&times;</button>
+      <button data-domain="${escapeHtml(domain)}">&times;</button>
     </div>
   `).join('');
+
+  container.querySelectorAll('button[data-domain]').forEach(btn => {
+    btn.addEventListener('click', () => removeWhitelistDomain(btn.dataset.domain));
+  });
 }
 
-window.removeWhitelistDomain = function(domain) {
+function removeWhitelistDomain(domain) {
   config.whitelistedDomains = config.whitelistedDomains.filter(d => d !== domain);
   chrome.storage.sync.set({ config });
   displayWhitelist(config.whitelistedDomains);
-};
+}
 
 // Blocklist
 function addBlocklistDomain() {
   const input = document.getElementById('blocklistInput');
-  const domain = input.value.trim().toLowerCase();
+  const domain = normalizeDomainInput(input.value);
 
   if (!domain) return;
 
   config.customBlocklist = config.customBlocklist || [];
-  if (!config.customBlocklist.includes(domain)) {
+  if (!config.customBlocklist.some(existing => domainMatches(domain, existing))) {
     config.customBlocklist.push(domain);
     chrome.storage.sync.set({ config });
     displayBlocklist(config.customBlocklist);
@@ -437,20 +468,28 @@ function addBlocklistDomain() {
 function displayBlocklist(domains) {
   const container = document.getElementById('blocklistList');
   if (!container) return;
+  if (!domains || domains.length === 0) {
+    container.innerHTML = '<div class="empty-state">No blocked sites</div>';
+    return;
+  }
 
   container.innerHTML = (domains || []).map(domain => `
     <div class="list-item">
       <span>${escapeHtml(domain)}</span>
-      <button onclick="removeBlocklistDomain('${escapeHtml(domain)}')">&times;</button>
+      <button data-domain="${escapeHtml(domain)}">&times;</button>
     </div>
   `).join('');
+
+  container.querySelectorAll('button[data-domain]').forEach(btn => {
+    btn.addEventListener('click', () => removeBlocklistDomain(btn.dataset.domain));
+  });
 }
 
-window.removeBlocklistDomain = function(domain) {
+function removeBlocklistDomain(domain) {
   config.customBlocklist = config.customBlocklist.filter(d => d !== domain);
   chrome.storage.sync.set({ config });
   displayBlocklist(config.customBlocklist);
-};
+}
 
 // Profiles
 async function loadProfiles() {
@@ -607,4 +646,26 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+function normalizeDomainInput(input) {
+  if (!input) return '';
+
+  let value = String(input).trim().toLowerCase();
+  if (!value) return '';
+
+  try {
+    const url = value.includes('://') ? new URL(value) : new URL(`https://${value}`);
+    value = url.hostname;
+  } catch {
+    value = value.split('/')[0].split(':')[0];
+  }
+
+  return value.replace(/^\.+/, '').replace(/^www\./, '');
+}
+
+function domainMatches(hostname, configuredDomain) {
+  const host = normalizeDomainInput(hostname);
+  const domain = normalizeDomainInput(configuredDomain);
+  return Boolean(domain && (host === domain || host.endsWith(`.${domain}`)));
 }

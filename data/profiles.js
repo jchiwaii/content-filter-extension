@@ -225,6 +225,9 @@ const FilterProfiles = {
     const updatedConfig = {
       ...config,
       filterText: settings.filterText,
+      filterImages: settings.filterImages,
+      blockSites: settings.blockSites,
+      safeSearch: settings.safeSearch,
       strictMode: settings.strictMode,
       filterLevel: settings.filterLevel,
       blockCategories: settings.blockCategories,
@@ -240,7 +243,7 @@ const FilterProfiles = {
         blockTerms: true,
         enforceStrict: settings.strictMode
       },
-      imageFilterConfig: {
+      imageDetectorConfig: {
         enabled: settings.filterImages
       },
       siteBlockConfig: {

@@ -27,8 +27,8 @@
     }
   },
   "scripts": {
-    "build": "zip -r safe-browse.zip . -x '*.git*' '*.py' 'node_modules/*' '*.zip'",
-    "test": "echo 'No tests configured'",
+    "build": "zip -r safe-browse.zip . -x '*.git*' '.claude/*' 'node_modules/*' 'tests/*' '*.py' '*.zip' '.DS_Store'",
+    "test": "node tests/smoke-tests.mjs",
     "icons": "python3 generate_icons.py"
   },
   "devDependencies": {},
