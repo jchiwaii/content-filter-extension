@@ -15,69 +15,69 @@
   "host_permissions": ["<all_urls>"],
 
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "src/background/background.js"
   },
 
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
       "js": [
-        "profanity-data.js",
-        "modules/image-detector.js",
-        "content.js"
+        "src/content/profanity-data.js",
+        "src/modules/image-detector.js",
+        "src/content/content.js"
       ],
-      "css": ["content.css"],
+      "css": ["src/content/content.css"],
       "run_at": "document_end",
       "all_frames": true
     },
     {
       "matches": ["*://*.youtube.com/*"],
-      "js": ["platforms/youtube.js"],
+      "js": ["src/platforms/youtube.js"],
       "run_at": "document_end"
     },
     {
       "matches": ["*://*.twitter.com/*", "*://*.x.com/*"],
-      "js": ["platforms/twitter.js"],
+      "js": ["src/platforms/twitter.js"],
       "run_at": "document_end"
     },
     {
       "matches": ["*://*.reddit.com/*"],
-      "js": ["platforms/reddit.js"],
+      "js": ["src/platforms/reddit.js"],
       "run_at": "document_end"
     },
     {
       "matches": ["*://*.facebook.com/*", "*://*.instagram.com/*"],
-      "js": ["platforms/facebook.js"],
+      "js": ["src/platforms/facebook.js"],
       "run_at": "document_end"
     }
   ],
 
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "pages/popup/popup.html",
     "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+      "16": "assets/icons/icon16.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
     },
     "default_title": "Safe Browse - Content Filter"
   },
 
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "assets/icons/icon16.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
   },
 
-  "options_page": "settings.html",
+  "options_page": "pages/settings/settings.html",
 
   "web_accessible_resources": [
     {
       "resources": [
-        "blocked.html",
-        "dashboard.html",
-        "settings.html",
-        "icons/*",
-        "lib/*"
+        "pages/blocked/blocked.html",
+        "pages/dashboard/dashboard.html",
+        "pages/settings/settings.html",
+        "assets/icons/*",
+        "assets/vendor/*"
       ],
       "matches": ["<all_urls>"]
     }

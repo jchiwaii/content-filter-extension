@@ -110,7 +110,7 @@ async function runManifestChecks() {
 
 async function runProfanityChecks() {
   const context = vm.createContext({ window: {} });
-  vm.runInContext(await read('profanity-data.js'), context);
+  vm.runInContext(await read('src/content/profanity-data.js'), context);
 
   assert.equal(context.window.containsProfanity('clean sentence'), false);
   assert.equal(context.window.containsProfanity('that was shit'), true);
@@ -137,7 +137,7 @@ async function runSafeSearchAndBlocklistChecks() {
     setTimeout,
     clearTimeout
   });
-  vm.runInContext(`${await read('background.js')}\nglobalThis.__background = { BlocklistData, SafeSearch, domainMatches, normalizeHostname };`, context);
+  vm.runInContext(`${await read('src/background/background.js')}\nglobalThis.__background = { BlocklistData, SafeSearch, domainMatches, normalizeHostname };`, context);
 
   assert.equal(context.__background.normalizeHostname('https://www.Example.com/path'), 'example.com');
   assert.equal(context.__background.domainMatches('sub.example.com', 'example.com'), true);
@@ -166,7 +166,7 @@ async function runSafeSearchAndBlocklistChecks() {
 async function runProfileChecks() {
   const chrome = createChromeMock({ sync: { config: { customWords: ['pineapple'] } } });
   const context = vm.createContext({ chrome, window: {}, Date });
-  vm.runInContext(`${await read('data/profiles.js')}\nglobalThis.__profiles = FilterProfiles;`, context);
+  vm.runInContext(`${await read('src/data/profiles.js')}\nglobalThis.__profiles = FilterProfiles;`, context);
 
   await context.__profiles.applyProfileSettings({
     filterText: false,
@@ -189,12 +189,13 @@ async function runProfileChecks() {
 }
 
 async function runStaticRegressionChecks() {
-  const settings = await read('settings.js');
+  const settings = await read('pages/settings/settings.js');
   const pkg = JSON.parse(await read('package.json'));
 
   assert.match(settings, /displayBlocklist\(cfg\.customBlocklist\)/);
   assert.doesNotMatch(settings, /onclick="remove(?:CustomWord|WhitelistDomain|BlocklistDomain)/);
-  assert.match(pkg.scripts.build, /\.claude\/\*/);
+  assert.match(pkg.scripts.build, /manifest\.json package\.json README\.md src pages assets/);
+  assert.doesNotMatch(pkg.scripts.build, /zip -r safe-browse\.zip \./);
 }
 
 await runManifestChecks();

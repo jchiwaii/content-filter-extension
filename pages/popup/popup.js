@@ -189,7 +189,7 @@ function setupEventListeners() {
   elements.pauseBtn.addEventListener('click', togglePause);
   elements.whitelistBtn.addEventListener('click', whitelistCurrentSite);
   elements.dashboardBtn.addEventListener('click', () => {
-    chrome.tabs.create({ url: 'dashboard.html' });
+    chrome.tabs.create({ url: chrome.runtime.getURL('pages/dashboard/dashboard.html') });
   });
 
   // Dark mode
@@ -197,11 +197,11 @@ function setupEventListeners() {
 
   // Footer links
   elements.settingsLink.addEventListener('click', () => {
-    chrome.tabs.create({ url: 'settings.html' });
+    chrome.tabs.create({ url: chrome.runtime.getURL('pages/settings/settings.html') });
   });
 
   elements.helpLink.addEventListener('click', () => {
-    chrome.tabs.create({ url: 'settings.html' });
+    chrome.tabs.create({ url: chrome.runtime.getURL('pages/settings/settings.html') });
   });
 
   // Collapsible sections

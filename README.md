@@ -35,6 +35,26 @@ The word list comes from two sources merged at startup:
 
 ---
 
+## Project structure
+
+```text
+manifest.json              Chrome extension manifest
+src/background/            Service worker and navigation blocking logic
+src/content/               Main content script, CSS, and profanity data
+src/modules/               Shared extension modules
+src/platforms/             YouTube, Twitter/X, Reddit, Facebook/Instagram filters
+src/data/                  Filter profile data
+pages/popup/               Toolbar popup UI
+pages/settings/            Options/settings UI
+pages/dashboard/           Statistics dashboard UI
+pages/blocked/             Blocked-site interstitial page
+assets/icons/              Extension icons
+assets/vendor/             Bundled third-party browser assets
+tests/                     Local smoke tests with mocked Chrome APIs
+```
+
+---
+
 ## Installation (unpacked / developer mode)
 
 1. Go to `chrome://extensions/`
@@ -111,6 +131,8 @@ Open via the popup footer or right-click → *Open Settings*. Covers:
 - **No tracking.** Your browsing history, the content you visit, and what gets filtered is never recorded or sent anywhere.
 - **Local storage only.** Configuration and statistics stay in your browser's `chrome.storage`.
 - **Open source word lists.** Both word lists used (cuss/MIT and LDNOOBW/CC-BY-4.0) are public and auditable.
+
+This repository does not currently include a standalone public website or a dedicated privacy-policy page. The privacy summary above is README documentation, not a hosted policy URL for store submission.
 
 ---
 

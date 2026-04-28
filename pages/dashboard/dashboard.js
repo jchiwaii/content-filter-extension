@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupEventListeners() {
   document.getElementById('exportBtn').addEventListener('click', exportData);
   document.getElementById('settingsBtn').addEventListener('click', () => {
-    chrome.runtime.openOptionsPage?.() || window.open('settings.html');
+    chrome.runtime.openOptionsPage?.() || window.open('../settings/settings.html');
   });
   document.getElementById('clearLogBtn').addEventListener('click', clearActivityLog);
 }

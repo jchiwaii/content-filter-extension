@@ -252,7 +252,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
           config.customBlocklist.push(hostname);
           await chrome.storage.sync.set({ config });
           chrome.tabs.update(tab.id, {
-            url: chrome.runtime.getURL(`blocked.html?url=${encodeURIComponent(tab.url)}&category=custom&reason=manual`)
+            url: chrome.runtime.getURL(`pages/blocked/blocked.html?url=${encodeURIComponent(tab.url)}&category=custom&reason=manual`)
           });
         }
       }
@@ -266,11 +266,11 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       break;
 
     case 'open-dashboard':
-      chrome.tabs.create({ url: 'dashboard.html' });
+      chrome.tabs.create({ url: chrome.runtime.getURL('pages/dashboard/dashboard.html') });
       break;
 
     case 'open-settings':
-      chrome.tabs.create({ url: 'settings.html' });
+      chrome.tabs.create({ url: chrome.runtime.getURL('pages/settings/settings.html') });
       break;
   }
 });
@@ -381,7 +381,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     if (blockResult.blocked) {
       // Redirect to blocked page
       chrome.tabs.update(details.tabId, {
-        url: chrome.runtime.getURL(`blocked.html?url=${encodeURIComponent(url)}&category=${encodeURIComponent(blockResult.category)}&reason=${encodeURIComponent(blockResult.reason)}`)
+        url: chrome.runtime.getURL(`pages/blocked/blocked.html?url=${encodeURIComponent(url)}&category=${encodeURIComponent(blockResult.category)}&reason=${encodeURIComponent(blockResult.reason)}`)
       });
 
       // Update statistics
@@ -401,7 +401,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     if (searchResult.action === 'block') {
       // Block inappropriate search
       chrome.tabs.update(details.tabId, {
-        url: chrome.runtime.getURL(`blocked.html?url=${encodeURIComponent(url)}&category=blocked_search&reason=blocked_search`)
+        url: chrome.runtime.getURL(`pages/blocked/blocked.html?url=${encodeURIComponent(url)}&category=blocked_search&reason=blocked_search`)
       });
 
       await updateStatistics({ searchesFiltered: 1 });
@@ -457,12 +457,12 @@ async function handleMessage(request, sender, sendResponse) {
       break;
 
     case 'openSettings':
-      chrome.tabs.create({ url: 'settings.html' });
+      chrome.tabs.create({ url: chrome.runtime.getURL('pages/settings/settings.html') });
       sendResponse({ success: true });
       break;
 
     case 'openDashboard':
-      chrome.tabs.create({ url: 'dashboard.html' });
+      chrome.tabs.create({ url: chrome.runtime.getURL('pages/dashboard/dashboard.html') });
       sendResponse({ success: true });
       break;
 
@@ -545,7 +545,7 @@ chrome.commands.onCommand.addListener(async (command) => {
       break;
 
     case 'open-dashboard':
-      chrome.tabs.create({ url: 'dashboard.html' });
+      chrome.tabs.create({ url: chrome.runtime.getURL('pages/dashboard/dashboard.html') });
       break;
   }
 });
