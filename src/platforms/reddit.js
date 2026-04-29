@@ -190,8 +190,12 @@ const RedditFilter = {
         gap: 6px;
       `;
 
-      const icon = document.createElement('span');
-      icon.textContent = '🛡️';
+      const icon = document.createElement('img');
+      icon.src = chrome.runtime.getURL('assets/icons/safe-browse-logo.svg');
+      icon.alt = '';
+      icon.width = 14;
+      icon.height = 18;
+      icon.style.cssText = 'width: 14px; height: 18px; object-fit: contain;';
       const label = document.createElement('span');
       label.textContent = 'Content Filtered';
       const btn = document.createElement('button');
@@ -440,9 +444,12 @@ const RedditFilter = {
     const card = document.createElement('div');
     card.style.cssText = 'background: white; padding: 40px; border-radius: 16px; text-align: center; max-width: 400px;';
 
-    const icon = document.createElement('div');
-    icon.style.cssText = 'font-size: 48px; margin-bottom: 16px;';
-    icon.textContent = '🛡️';
+    const icon = document.createElement('img');
+    icon.src = chrome.runtime.getURL('assets/icons/safe-browse-logo.svg');
+    icon.alt = '';
+    icon.width = 56;
+    icon.height = 74;
+    icon.style.cssText = 'width: 56px; height: 74px; object-fit: contain; margin-bottom: 16px;';
 
     const title = document.createElement('h1');
     title.style.cssText = 'color: #222823; margin-bottom: 16px;';

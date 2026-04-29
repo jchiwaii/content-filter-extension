@@ -152,7 +152,7 @@ const TwitterFilter = {
           align-items: center;
           gap: 4px;
         ">
-          <span>🛡️</span>
+          <img src="${chrome.runtime.getURL('assets/icons/safe-browse-logo.svg')}" alt="" width="12" height="16" style="width: 12px; height: 16px; object-fit: contain;">
           <span>Filtered</span>
         </div>
       `;
@@ -274,7 +274,7 @@ const TwitterFilter = {
           text-align: center;
           z-index: 10;
         ">
-          <div style="font-size: 24px; margin-bottom: 8px;">🛡️</div>
+          <img src="${chrome.runtime.getURL('assets/icons/safe-browse-logo.svg')}" alt="" width="28" height="37" style="width: 28px; height: 37px; object-fit: contain; margin-bottom: 8px;">
           <div style="font-size: 14px;">Media Hidden</div>
           <div style="font-size: 11px; color: #999; margin-top: 4px;">Click to reveal</div>
         </div>

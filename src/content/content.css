@@ -109,8 +109,14 @@ iframe[data-filtered="true"] {
 }
 
 .safe-mode-indicator::before {
-  content: "🛡️";
-  font-size: 14px;
+  content: "";
+  width: 14px;
+  height: 18px;
+  display: inline-block;
+  background-image: url("../../assets/icons/safe-browse-logo.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
 }
 
 /* Animation for newly blocked content */

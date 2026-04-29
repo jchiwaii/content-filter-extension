@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Safe Browse - Content Filter",
   "version": "2.0.0",
-  "description": "Privacy-focused content filtering extension that blocks inappropriate content including profanity, explicit images, and adult websites. All processing happens locally.",
+  "description": "Privacy-focused content filtering extension that blocks inappropriate content including profanity, explicit images, and adult websites.",
 
   "permissions": [
     "storage",

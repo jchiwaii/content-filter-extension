@@ -155,8 +155,12 @@ const FacebookFilter = {
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       `;
 
-      const icon = document.createElement('span');
-      icon.textContent = '🛡️';
+      const icon = document.createElement('img');
+      icon.src = chrome.runtime.getURL('assets/icons/safe-browse-logo.svg');
+      icon.alt = '';
+      icon.width = 14;
+      icon.height = 18;
+      icon.style.cssText = 'width: 14px; height: 18px; object-fit: contain;';
       const label = document.createElement('span');
       label.textContent = 'Content Filtered';
       const btn = document.createElement('button');
@@ -281,7 +285,7 @@ const FacebookFilter = {
           text-align: center;
           z-index: 10;
         ">
-          <div style="font-size: 28px; margin-bottom: 8px;">🛡️</div>
+          <img src="${chrome.runtime.getURL('assets/icons/safe-browse-logo.svg')}" alt="" width="32" height="42" style="width: 32px; height: 42px; object-fit: contain; margin-bottom: 8px;">
           <div style="font-size: 14px; font-weight: 600;">Image Hidden</div>
           <button style="
             margin-top: 12px;

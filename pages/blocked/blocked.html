@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Site Blocked - Safe Browse</title>
+  <link rel="icon" href="../../assets/icons/safe-browse-logo.svg" type="image/svg+xml">
   <style>
     :root {
       --black: #08090a;
@@ -41,8 +42,10 @@
       text-align: center;
     }
 
-    .shield-icon {
-      font-size: 80px;
+    .shield-logo {
+      width: 76px;
+      height: 100px;
+      object-fit: contain;
       margin-bottom: 24px;
       animation: pulse 2s infinite;
     }
@@ -236,7 +239,7 @@
 </head>
 <body>
   <div class="container">
-    <div class="shield-icon">🛡️</div>
+    <img class="shield-logo" src="../../assets/icons/safe-browse-logo.svg" alt="" width="76" height="100">
     <h1>This Site Has Been Blocked</h1>
 
     <div class="category-badge" id="categoryBadge">
