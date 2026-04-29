@@ -210,13 +210,18 @@ const YouTubeFilter = {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          background: rgba(0,0,0,0.8);
+          background: rgba(4, 4, 4, 0.92);
           color: white;
           padding: 8px 12px;
-          border-radius: 4px;
+          border: 1px solid rgba(217, 217, 217, 0.28);
+          border-radius: 8px;
           font-size: 12px;
+          font-weight: 500;
           z-index: 10;
-        ">Potentially Inappropriate</span>
+        ">
+          <img src="${chrome.runtime.getURL('assets/icons/safe-browse-logo.svg')}" alt="" width="14" height="18" style="width: 14px; height: 18px; object-fit: contain; margin-right: 6px; vertical-align: middle;">
+          Potentially inappropriate
+        </span>
       `;
       overlay.style.cssText = `
         position: absolute;
@@ -257,16 +262,18 @@ const YouTubeFilter = {
         if (!result.querySelector('.search-warning-badge')) {
           const badge = document.createElement('div');
           badge.className = 'search-warning-badge';
-          badge.innerHTML = '⚠️ Flagged';
+          badge.textContent = 'Filtered';
           badge.style.cssText = `
             position: absolute;
             top: 8px;
             right: 8px;
-            background: #ef4444;
+            background: rgba(4, 4, 4, 0.92);
             color: white;
             padding: 4px 8px;
-            border-radius: 4px;
+            border: 1px solid rgba(255, 85, 85, 0.42);
+            border-radius: 999px;
             font-size: 11px;
+            font-weight: 500;
             z-index: 10;
           `;
           result.appendChild(badge);

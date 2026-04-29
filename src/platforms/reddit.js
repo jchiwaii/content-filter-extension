@@ -179,11 +179,13 @@ const RedditFilter = {
         position: absolute;
         top: 8px;
         left: 8px;
-        background: #ef4444;
+        background: rgba(4, 4, 4, 0.92);
         color: white;
         padding: 4px 12px;
-        border-radius: 4px;
+        border: 1px solid rgba(255, 85, 85, 0.42);
+        border-radius: 999px;
         font-size: 12px;
+        font-weight: 500;
         z-index: 100;
         display: flex;
         align-items: center;
@@ -264,12 +266,13 @@ const RedditFilter = {
             padding-bottom: 8px;
           ">
             <button style="
-              background: #222823;
+              background: #040404;
               color: white;
-              border: none;
+              border: 1px solid rgba(217, 217, 217, 0.28);
               padding: 4px 12px;
-              border-radius: 4px;
+              border-radius: 999px;
               font-size: 11px;
+              font-weight: 500;
               cursor: pointer;
             ">Show filtered comment</button>
           </div>
@@ -353,24 +356,27 @@ const RedditFilter = {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: rgba(0,0,0,0.9);
+        background: rgba(4, 4, 4, 0.94);
         color: white;
-        padding: 20px 30px;
+        padding: 20px 24px;
+        border: 1px solid rgba(217, 217, 217, 0.28);
         border-radius: 8px;
         text-align: center;
         z-index: 100;
+        font-family: "Azeret Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       ">
-        <div style="font-size: 32px; margin-bottom: 12px;">🔞</div>
-        <div style="font-size: 16px; font-weight: bold;">NSFW Content</div>
-        <div style="font-size: 12px; color: #999; margin: 8px 0;">This content has been hidden</div>
+        <img src="${chrome.runtime.getURL('assets/icons/safe-browse-logo.svg')}" alt="" width="32" height="42" style="width: 32px; height: 42px; object-fit: contain; margin-bottom: 10px;">
+        <div style="font-size: 15px; font-weight: 500;">Content hidden</div>
+        <div style="font-size: 12px; color: #93969f; margin: 8px 0;">This post matched your filter settings.</div>
         <button style="
-          background: #ef4444;
+          background: rgba(255, 85, 85, 0.14);
           color: white;
-          border: none;
+          border: 1px solid rgba(255, 85, 85, 0.42);
           padding: 8px 20px;
-          border-radius: 4px;
+          border-radius: 999px;
           cursor: pointer;
           margin-top: 8px;
+          font: inherit;
         ">Show anyway</button>
       </div>
     `;
@@ -437,12 +443,13 @@ const RedditFilter = {
     overlay.className = 'subreddit-blocked-overlay';
     overlay.style.cssText = `
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: #222823; z-index: 10000;
+      background: #040404; z-index: 10000;
       display: flex; align-items: center; justify-content: center;
+      font-family: "Azeret Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     `;
 
     const card = document.createElement('div');
-    card.style.cssText = 'background: white; padding: 40px; border-radius: 16px; text-align: center; max-width: 400px;';
+    card.style.cssText = 'background: rgba(217,217,217,0.045); color: white; border: 1px solid rgba(217,217,217,0.28); padding: 34px; border-radius: 8px; text-align: center; max-width: 420px; margin: 24px;';
 
     const icon = document.createElement('img');
     icon.src = chrome.runtime.getURL('assets/icons/safe-browse-logo.svg');
@@ -452,11 +459,11 @@ const RedditFilter = {
     icon.style.cssText = 'width: 56px; height: 74px; object-fit: contain; margin-bottom: 16px;';
 
     const title = document.createElement('h1');
-    title.style.cssText = 'color: #222823; margin-bottom: 16px;';
+    title.style.cssText = 'color: #ffffff; margin: 0 0 12px; font-size: 28px; font-weight: 500; line-height: 1.2;';
     title.textContent = 'Subreddit Blocked';
 
     const desc = document.createElement('p');
-    desc.style.cssText = 'color: #666; margin-bottom: 24px;';
+    desc.style.cssText = 'color: #93969f; margin: 0 0 24px; font-size: 13px; line-height: 1.6;';
     const strong = document.createElement('strong');
     strong.textContent = subreddit;  // textContent prevents XSS
     desc.appendChild(strong);
@@ -464,7 +471,7 @@ const RedditFilter = {
 
     const btn = document.createElement('button');
     btn.textContent = 'Go Back';
-    btn.style.cssText = 'background: #222823; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 14px;';
+    btn.style.cssText = 'background: #2838e3; color: white; border: none; min-height: 44px; padding: 0 22px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 13px; font-weight: 600;';
     btn.addEventListener('click', () => history.back());
 
     card.appendChild(icon);

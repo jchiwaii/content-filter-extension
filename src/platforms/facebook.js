@@ -278,24 +278,27 @@ const FacebookFilter = {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          background: rgba(0,0,0,0.85);
+          background: rgba(4, 4, 4, 0.94);
           color: white;
-          padding: 16px 24px;
-          border-radius: 12px;
+          padding: 18px 22px;
+          border: 1px solid rgba(217, 217, 217, 0.28);
+          border-radius: 8px;
           text-align: center;
           z-index: 10;
+          font-family: "Azeret Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         ">
           <img src="${chrome.runtime.getURL('assets/icons/safe-browse-logo.svg')}" alt="" width="32" height="42" style="width: 32px; height: 42px; object-fit: contain; margin-bottom: 8px;">
-          <div style="font-size: 14px; font-weight: 600;">Image Hidden</div>
+          <div style="font-size: 14px; font-weight: 500;">Image hidden</div>
           <button style="
             margin-top: 12px;
-            background: white;
-            color: black;
+            background: #2838e3;
+            color: white;
             border: none;
             padding: 8px 16px;
-            border-radius: 6px;
+            border-radius: 999px;
             cursor: pointer;
             font-size: 12px;
+            font: inherit;
           ">Show Image</button>
         </div>
       `;

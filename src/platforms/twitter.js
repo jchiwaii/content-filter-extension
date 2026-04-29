@@ -142,11 +142,13 @@ const TwitterFilter = {
           position: absolute;
           top: 8px;
           right: 8px;
-          background: rgba(239, 68, 68, 0.9);
+          background: rgba(4, 4, 4, 0.92);
           color: white;
           padding: 4px 8px;
-          border-radius: 4px;
+          border: 1px solid rgba(255, 85, 85, 0.42);
+          border-radius: 999px;
           font-size: 11px;
+          font-weight: 500;
           z-index: 10;
           display: flex;
           align-items: center;
@@ -267,16 +269,18 @@ const TwitterFilter = {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          background: rgba(0,0,0,0.8);
+          background: rgba(4, 4, 4, 0.94);
           color: white;
           padding: 12px 16px;
+          border: 1px solid rgba(217, 217, 217, 0.28);
           border-radius: 8px;
           text-align: center;
           z-index: 10;
+          font-family: "Azeret Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         ">
           <img src="${chrome.runtime.getURL('assets/icons/safe-browse-logo.svg')}" alt="" width="28" height="37" style="width: 28px; height: 37px; object-fit: contain; margin-bottom: 8px;">
-          <div style="font-size: 14px;">Media Hidden</div>
-          <div style="font-size: 11px; color: #999; margin-top: 4px;">Click to reveal</div>
+          <div style="font-size: 14px; font-weight: 500;">Media hidden</div>
+          <div style="font-size: 11px; color: #93969f; margin-top: 4px;">Click to reveal</div>
         </div>
       `;
       overlay.style.cssText = `
@@ -305,8 +309,8 @@ const TwitterFilter = {
     warning.dataset.enhanced = 'true';
 
     // Add our own styling
-    warning.style.background = '#222823';
-    warning.style.border = '2px solid #ef4444';
+    warning.style.background = '#040404';
+    warning.style.border = '1px solid rgba(255, 85, 85, 0.42)';
   },
 
   // Simple profanity check
