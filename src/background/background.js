@@ -137,8 +137,7 @@ const defaultConfig = {
   filterImages: true,
   blockSites: true,
   safeSearch: true,
-  strictMode: true,
-  filterLevel: 'moderate',
+  showBadge: true,
   customWords: [],
   whitelistedDomains: [],
   customBlocklist: [],
@@ -327,9 +326,19 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
 // Update badge
 async function updateBadge() {
-  const result = await chrome.storage.local.get(['dailyStats']);
+  const [localResult, syncResult] = await Promise.all([
+    chrome.storage.local.get(['dailyStats']),
+    chrome.storage.sync.get(['config'])
+  ]);
+  const config = { ...defaultConfig, ...(syncResult.config || {}) };
+
+  if (config.showBadge === false) {
+    chrome.action.setBadgeText({ text: '' });
+    return;
+  }
+
   const today = new Date().toDateString();
-  const stats = result.dailyStats || {};
+  const stats = localResult.dailyStats || {};
 
   if (stats.date === today) {
     const count = (stats.wordsFiltered || 0) + (stats.sitesBlocked || 0);
@@ -344,6 +353,12 @@ async function updateBadge() {
     chrome.action.setBadgeText({ text: '' });
   }
 }
+
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (namespace === 'sync' && changes.config) {
+    updateBadge();
+  }
+});
 
 // Web navigation - check before page loads
 chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {

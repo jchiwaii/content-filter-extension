@@ -8,9 +8,10 @@ const ImageDetector = {
     checkKeywords: true,
     checkDimensions: true,
     checkUrlPatterns: true,
-    strictMode: false,
     placeholderEnabled: true
   },
+  observer: null,
+  scanTimeout: null,
 
   // NSFW keywords for metadata checking
   nsfwKeywords: [
@@ -74,12 +75,34 @@ const ImageDetector = {
     if (result.imageDetectorConfig) {
       this.config = { ...this.config, ...result.imageDetectorConfig };
     }
+    return this.config;
   },
 
   // Save configuration
   async saveConfig(config) {
     this.config = { ...this.config, ...config };
     await chrome.storage.sync.set({ imageDetectorConfig: this.config });
+  },
+
+  setEnabled(enabled) {
+    this.config = { ...this.config, enabled };
+    if (!enabled) {
+      this.restoreBlockedImages();
+    }
+  },
+
+  restoreBlockedImages() {
+    document.querySelectorAll('.cf-image-placeholder').forEach(placeholder => {
+      placeholder.remove();
+    });
+
+    document.querySelectorAll('img[data-blocked]').forEach(img => {
+      img.style.display = '';
+      img.style.filter = 'none';
+      img.style.transition = '';
+      delete img.dataset.blocked;
+      delete img.dataset.scanned;
+    });
   },
 
   // Main classification function
@@ -301,6 +324,7 @@ const ImageDetector = {
   blockImage(imgElement, result) {
     if (imgElement.dataset.blocked) return;
     imgElement.dataset.blocked = 'true';
+    this.recordBlockedImage();
 
     if (this.config.placeholderEnabled) {
       // Replace with placeholder
@@ -310,6 +334,18 @@ const ImageDetector = {
       imgElement.style.filter = 'blur(30px)';
       imgElement.style.transition = 'filter 0.3s ease';
     }
+  },
+
+  recordBlockedImage() {
+    if (typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) return;
+
+    chrome.runtime.sendMessage({
+      action: 'updateStatistics',
+      data: {
+        imagesBlocked: 1,
+        site: window.location.hostname
+      }
+    }).catch(() => {});
   },
 
   // Show placeholder for blocked image
@@ -330,21 +366,22 @@ const ImageDetector = {
         align-items: center;
         justify-content: center;
         padding: 20px;
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        background: #040404;
         color: white;
+        border: 1px solid rgba(217, 217, 217, 0.28);
         min-height: 100px;
         border-radius: 8px;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
       ">
-        <div style="font-size: 32px; margin-bottom: 8px;">🛡️</div>
-        <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">Image Blocked</div>
-        <div style="font-size: 11px; color: #a0a0a0; margin-bottom: 12px;">${result.reason}</div>
+        <div style="font-size: 11px; color: #4cd971; margin-bottom: 8px; text-transform: uppercase;">Safe Browse</div>
+        <div style="font-size: 14px; font-weight: 500; margin-bottom: 4px;">Image Blocked</div>
+        <div style="font-size: 11px; color: #93969f; margin-bottom: 12px;">${result.reason}</div>
         <button class="cf-reveal-btn" style="
-          background: rgba(255,255,255,0.1);
-          border: 1px solid rgba(255,255,255,0.2);
+          background: #2838e3;
+          border: 0;
           color: white;
           padding: 6px 16px;
-          border-radius: 4px;
+          border-radius: 999px;
           cursor: pointer;
           font-size: 12px;
           transition: background 0.2s;
@@ -363,6 +400,8 @@ const ImageDetector = {
       e.stopPropagation();
       imgElement.style.display = '';
       imgElement.style.filter = 'none';
+      delete imgElement.dataset.blocked;
+      delete imgElement.dataset.scanned;
       placeholder.remove();
     });
 
@@ -384,10 +423,15 @@ const ImageDetector = {
   },
 
   // Scan page for images
-  scanPage() {
-    const images = document.querySelectorAll('img:not([data-scanned])');
+  scanPage(force = false) {
+    if (!this.config.enabled) return 0;
+
+    const images = document.querySelectorAll(force ? 'img' : 'img:not([data-scanned])');
 
     images.forEach(img => {
+      if (force) {
+        delete img.dataset.scanned;
+      }
       img.dataset.scanned = 'true';
 
       // Process immediately if loaded, otherwise wait
@@ -405,7 +449,11 @@ const ImageDetector = {
 
   // Setup observer for dynamic images
   setupObserver() {
+    if (this.observer) return;
+
     const observer = new MutationObserver((mutations) => {
+      if (!this.config.enabled) return;
+
       let hasNewImages = false;
 
       for (const mutation of mutations) {
@@ -433,6 +481,8 @@ const ImageDetector = {
       childList: true,
       subtree: true
     });
+
+    this.observer = observer;
   },
 
   // Get statistics

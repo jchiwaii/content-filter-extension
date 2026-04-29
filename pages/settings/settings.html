@@ -4,13 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Settings - Safe Browse</title>
+  <link rel="icon" href="../../assets/icons/safe-browse-logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="settings.css">
 </head>
 <body>
   <!-- Password Lock Overlay -->
   <div id="passwordOverlay" class="password-overlay hidden">
     <div class="password-dialog">
-      <div class="password-icon">🔒</div>
+      <img class="password-logo" src="../../assets/icons/safe-browse-logo.svg" alt="" width="44" height="58">
       <h2>Settings Locked</h2>
       <p>Enter your password to access settings</p>
       <input type="password" id="passwordInput" placeholder="Enter password" autofocus>
@@ -23,48 +27,40 @@
     <!-- Sidebar -->
     <nav class="settings-sidebar">
       <div class="sidebar-header">
-        <span class="logo-icon">🛡️</span>
-        <h1>Safe Browse</h1>
+        <img class="brand-logo" src="../../assets/icons/safe-browse-logo.svg" alt="" width="28" height="37">
+        <h1>safe browse</h1>
       </div>
       <ul class="nav-menu">
         <li class="nav-item active" data-section="general">
-          <span class="nav-icon">⚙️</span>
+          <span class="nav-icon">01</span>
           <span>General</span>
         </li>
         <li class="nav-item" data-section="profiles">
-          <span class="nav-icon">👤</span>
+          <span class="nav-icon">02</span>
           <span>Profiles</span>
         </li>
         <li class="nav-item" data-section="filtering">
-          <span class="nav-icon">🔤</span>
+          <span class="nav-icon">Tx</span>
           <span>Text Filtering</span>
         </li>
         <li class="nav-item" data-section="sites">
-          <span class="nav-icon">🌐</span>
+          <span class="nav-icon">Web</span>
           <span>Site Blocking</span>
         </li>
         <li class="nav-item" data-section="images">
-          <span class="nav-icon">🖼️</span>
+          <span class="nav-icon">Img</span>
           <span>Image Filtering</span>
         </li>
-        <li class="nav-item" data-section="schedule">
-          <span class="nav-icon">⏰</span>
-          <span>Schedule</span>
-        </li>
         <li class="nav-item" data-section="parental">
-          <span class="nav-icon">👨‍👩‍👧</span>
+          <span class="nav-icon">Key</span>
           <span>Parental Controls</span>
         </li>
-        <li class="nav-item" data-section="notifications">
-          <span class="nav-icon">🔔</span>
-          <span>Notifications</span>
-        </li>
         <li class="nav-item" data-section="backup">
-          <span class="nav-icon">💾</span>
+          <span class="nav-icon">Bak</span>
           <span>Backup & Restore</span>
         </li>
         <li class="nav-item" data-section="about">
-          <span class="nav-icon">ℹ️</span>
+          <span class="nav-icon">Info</span>
           <span>About</span>
         </li>
       </ul>
@@ -90,17 +86,6 @@
 
           <div class="setting-item">
             <div class="setting-info">
-              <label>Dark Mode</label>
-              <p>Use dark theme for extension pages</p>
-            </div>
-            <label class="toggle">
-              <input type="checkbox" id="darkMode">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-
-          <div class="setting-item">
-            <div class="setting-info">
               <label>Show Badge Counter</label>
               <p>Display filtered content count on extension icon</p>
             </div>
@@ -108,25 +93,6 @@
               <input type="checkbox" id="showBadge" checked>
               <span class="toggle-slider"></span>
             </label>
-          </div>
-        </div>
-
-        <div class="setting-group">
-          <h3>Language</h3>
-          <div class="setting-item">
-            <div class="setting-info">
-              <label>Filter Language</label>
-              <p>Select which language profanity to filter</p>
-            </div>
-            <select id="filterLanguage" class="select-input">
-              <option value="en">English</option>
-              <option value="es">Spanish</option>
-              <option value="fr">French</option>
-              <option value="de">German</option>
-              <option value="pt">Portuguese</option>
-              <option value="auto">Auto-detect</option>
-              <option value="all">All Languages</option>
-            </select>
           </div>
         </div>
       </section>
@@ -165,29 +131,6 @@
             </label>
           </div>
 
-          <div class="setting-item">
-            <div class="setting-info">
-              <label>Strict Mode</label>
-              <p>Filter more words including mild profanity</p>
-            </div>
-            <label class="toggle">
-              <input type="checkbox" id="strictMode" checked>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-
-          <div class="setting-item">
-            <div class="setting-info">
-              <label>Filter Level</label>
-              <p>Choose how aggressive the filtering should be</p>
-            </div>
-            <select id="filterLevel" class="select-input">
-              <option value="mild">Mild - Only strong profanity</option>
-              <option value="moderate" selected>Moderate - Most profanity</option>
-              <option value="strong">Strong - All profanity</option>
-              <option value="all">All - Including slurs and NSFW</option>
-            </select>
-          </div>
         </div>
 
         <div class="setting-group">
@@ -225,42 +168,6 @@
             <label class="toggle">
               <input type="checkbox" id="safeSearch" checked>
               <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-
-        <div class="setting-group">
-          <h3>Blocked Categories</h3>
-          <div class="categories-grid" id="categoriesGrid">
-            <label class="category-item">
-              <input type="checkbox" value="adult" checked>
-              <span class="category-icon">🔞</span>
-              <span class="category-name">Adult Content</span>
-            </label>
-            <label class="category-item">
-              <input type="checkbox" value="gambling">
-              <span class="category-icon">🎰</span>
-              <span class="category-name">Gambling</span>
-            </label>
-            <label class="category-item">
-              <input type="checkbox" value="violence">
-              <span class="category-icon">⚠️</span>
-              <span class="category-name">Violence</span>
-            </label>
-            <label class="category-item">
-              <input type="checkbox" value="drugs">
-              <span class="category-icon">💊</span>
-              <span class="category-name">Drugs</span>
-            </label>
-            <label class="category-item">
-              <input type="checkbox" value="weapons">
-              <span class="category-icon">🔫</span>
-              <span class="category-name">Weapons</span>
-            </label>
-            <label class="category-item">
-              <input type="checkbox" value="hate">
-              <span class="category-icon">🚫</span>
-              <span class="category-name">Hate Speech</span>
             </label>
           </div>
         </div>
@@ -326,55 +233,6 @@
         </div>
       </section>
 
-      <!-- Schedule Section -->
-      <section id="section-schedule" class="settings-section">
-        <h2>Schedule</h2>
-
-        <div class="setting-group">
-          <div class="setting-item">
-            <div class="setting-info">
-              <label>Enable Scheduling</label>
-              <p>Set specific times for filtering to be active</p>
-            </div>
-            <label class="toggle">
-              <input type="checkbox" id="scheduleEnabled">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-
-        <div class="setting-group" id="scheduleSettings">
-          <h3>Weekly Schedule</h3>
-          <div class="schedule-grid" id="scheduleGrid">
-            <!-- Schedule will be generated here -->
-          </div>
-        </div>
-
-        <div class="setting-group">
-          <h3>Bedtime Mode</h3>
-          <div class="setting-item">
-            <div class="setting-info">
-              <label>Enable Bedtime Mode</label>
-              <p>Extra restrictions during bedtime hours</p>
-            </div>
-            <label class="toggle">
-              <input type="checkbox" id="bedtimeEnabled">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          <div class="time-range" id="bedtimeSettings">
-            <div class="time-input">
-              <label>Start</label>
-              <input type="time" id="bedtimeStart" value="22:00">
-            </div>
-            <div class="time-input">
-              <label>End</label>
-              <input type="time" id="bedtimeEnd" value="07:00">
-            </div>
-          </div>
-        </div>
-      </section>
-
       <!-- Parental Controls Section -->
       <section id="section-parental" class="settings-section">
         <h2>Parental Controls</h2>
@@ -400,54 +258,6 @@
               <input type="password" id="confirmPassword" class="text-input" placeholder="Confirm password">
             </div>
             <button id="setPasswordBtn" class="btn btn-primary">Set Password</button>
-          </div>
-        </div>
-
-        <div class="setting-group">
-          <h3>Time Limits</h3>
-          <div class="time-limits" id="timeLimits">
-            <div class="limit-item">
-              <span class="limit-label">Social Media</span>
-              <input type="number" id="limitSocialMedia" value="120" min="0" max="1440"> min/day
-            </div>
-            <div class="limit-item">
-              <span class="limit-label">Gaming</span>
-              <input type="number" id="limitGaming" value="60" min="0" max="1440"> min/day
-            </div>
-            <div class="limit-item">
-              <span class="limit-label">Streaming</span>
-              <input type="number" id="limitStreaming" value="180" min="0" max="1440"> min/day
-            </div>
-          </div>
-          <p class="setting-description">Set to 0 for no limit</p>
-        </div>
-      </section>
-
-      <!-- Notifications Section -->
-      <section id="section-notifications" class="settings-section">
-        <h2>Notifications</h2>
-
-        <div class="setting-group">
-          <div class="setting-item">
-            <div class="setting-info">
-              <label>Enable Notifications</label>
-              <p>Show notifications when content is filtered</p>
-            </div>
-            <label class="toggle">
-              <input type="checkbox" id="notificationsEnabled" checked>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-
-          <div class="setting-item">
-            <div class="setting-info">
-              <label>Daily Summary</label>
-              <p>Receive a daily summary of filtered content</p>
-            </div>
-            <label class="toggle">
-              <input type="checkbox" id="dailySummary">
-              <span class="toggle-slider"></span>
-            </label>
           </div>
         </div>
       </section>
@@ -482,7 +292,7 @@
         <h2>About Safe Browse</h2>
 
         <div class="about-content">
-          <div class="about-logo">🛡️</div>
+          <img class="about-logo" src="../../assets/icons/safe-browse-logo.svg" alt="" width="66" height="87">
           <h3>Safe Browse - Content Filter</h3>
           <p class="version">Version 2.0.0</p>
 
@@ -496,7 +306,7 @@
           </div>
 
           <div class="about-footer">
-            <p>Made with ❤️ for a safer internet</p>
+            <p>Made for a safer internet</p>
           </div>
         </div>
       </section>

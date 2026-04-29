@@ -95,12 +95,10 @@ let config = {
   filterImages: true,
   safeSearch: true,
   blockSites: true,
-  strictMode: true,
   customWords: [],
   whitelistedDomains: []
 };
 
-let activeProfile = 'teen-safe';
 let isPaused = false;
 let pauseTimeout = null;
 
@@ -124,7 +122,6 @@ function cacheElements() {
   elements.wordsFilteredToday = document.getElementById('wordsFilteredToday');
   elements.totalFiltered = document.getElementById('totalFiltered');
   elements.sitesBlocked = document.getElementById('sitesBlocked');
-  elements.profileBtns = document.querySelectorAll('.profile-btn');
   elements.filterTextToggle = document.getElementById('filterTextToggle');
   elements.filterImagesToggle = document.getElementById('filterImagesToggle');
   elements.safeSearchToggle = document.getElementById('safeSearchToggle');
@@ -133,12 +130,10 @@ function cacheElements() {
   elements.addWordBtn = document.getElementById('addWordBtn');
   elements.customWordsList = document.getElementById('customWordsList');
   elements.whitelistList = document.getElementById('whitelistList');
-  elements.darkModeBtn = document.getElementById('darkModeBtn');
   elements.pauseBtn = document.getElementById('pauseBtn');
   elements.whitelistBtn = document.getElementById('whitelistBtn');
   elements.dashboardBtn = document.getElementById('dashboardBtn');
   elements.settingsLink = document.getElementById('settingsLink');
-  elements.helpLink = document.getElementById('helpLink');
   elements.customWordsHeader = document.getElementById('customWordsHeader');
   elements.customWordsContent = document.getElementById('customWordsContent');
   elements.whitelistHeader = document.getElementById('whitelistHeader');
@@ -179,21 +174,13 @@ async function checkPasswordLock() {
 // Load configuration
 async function loadConfiguration() {
   const [syncResult, localResult] = await Promise.all([
-    extensionApi.storage.sync.get(['config', 'activeProfile', 'darkMode', 'safeSearchConfig', 'imageDetectorConfig']),
+    extensionApi.storage.sync.get(['config', 'safeSearchConfig', 'imageDetectorConfig']),
     extensionApi.storage.local.get(['isPaused', 'pauseUntil'])
   ]);
 
   if (syncResult.config) {
     config = { ...config, ...syncResult.config };
   }
-
-  activeProfile = syncResult.activeProfile || 'teen-safe';
-
-  // Check dark mode
-  if (syncResult.darkMode) {
-    document.body.classList.add('dark-mode');
-  }
-  elements.darkModeBtn.textContent = document.body.classList.contains('dark-mode') ? 'Light' : 'Mode';
 
   // Check pause status
   if (localResult.isPaused && localResult.pauseUntil > Date.now()) {
@@ -236,36 +223,39 @@ function setupEventListeners() {
   // Main toggle
   elements.mainToggle.addEventListener('change', toggleProtection);
 
-  // Profile buttons
-  elements.profileBtns.forEach(btn => {
-    btn.addEventListener('click', () => selectProfile(btn.dataset.profile));
-  });
-
   // Setting toggles
-  elements.filterTextToggle.addEventListener('change', () => {
+  elements.filterTextToggle.addEventListener('change', async () => {
     config.filterText = elements.filterTextToggle.checked;
-    saveConfiguration();
+    await saveConfiguration();
+    reloadActiveTab();
   });
 
-  elements.filterImagesToggle.addEventListener('change', () => {
+  elements.filterImagesToggle.addEventListener('change', async () => {
     config.filterImages = elements.filterImagesToggle.checked;
-    saveConfiguration();
-    extensionApi.storage.sync.set({
-      imageDetectorConfig: { enabled: config.filterImages }
+    await saveConfiguration();
+    const result = await extensionApi.storage.sync.get(['imageDetectorConfig']);
+    await extensionApi.storage.sync.set({
+      imageDetectorConfig: {
+        ...(result.imageDetectorConfig || {}),
+        enabled: config.filterImages
+      }
     });
+    reloadActiveTab();
   });
 
-  elements.safeSearchToggle.addEventListener('change', () => {
+  elements.safeSearchToggle.addEventListener('change', async () => {
     config.safeSearch = elements.safeSearchToggle.checked;
-    saveConfiguration();
-    extensionApi.storage.sync.set({
+    await saveConfiguration();
+    await extensionApi.storage.sync.set({
       safeSearchConfig: { enabled: config.safeSearch }
     });
+    reloadActiveTab();
   });
 
-  elements.blockSitesToggle.addEventListener('change', () => {
+  elements.blockSitesToggle.addEventListener('change', async () => {
     config.blockSites = elements.blockSitesToggle.checked;
-    saveConfiguration();
+    await saveConfiguration();
+    reloadActiveTab();
   });
 
   // Custom words
@@ -281,15 +271,8 @@ function setupEventListeners() {
     extensionApi.tabs.create({ url: extensionApi.runtime.getURL('pages/dashboard/dashboard.html') });
   });
 
-  // Dark mode
-  elements.darkModeBtn.addEventListener('click', toggleDarkMode);
-
   // Footer links
   elements.settingsLink.addEventListener('click', () => {
-    extensionApi.tabs.create({ url: extensionApi.runtime.getURL('pages/settings/settings.html') });
-  });
-
-  elements.helpLink.addEventListener('click', () => {
     extensionApi.tabs.create({ url: extensionApi.runtime.getURL('pages/settings/settings.html') });
   });
 
@@ -320,11 +303,6 @@ function updateUI() {
     elements.statusBadge.classList.remove('paused', 'disabled');
   }
 
-  // Profile buttons
-  elements.profileBtns.forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.profile === activeProfile);
-  });
-
   // Setting toggles
   elements.filterTextToggle.checked = config.filterText !== false;
   elements.filterImagesToggle.checked = config.filterImages !== false;
@@ -348,30 +326,12 @@ function updateUI() {
 }
 
 // Toggle protection
-function toggleProtection() {
+async function toggleProtection() {
   config.enabled = elements.mainToggle.checked;
   if (config.enabled && isPaused) {
-    resumeProtection();
+    await resumeProtection();
   }
-  saveConfiguration();
-  updateUI();
-  reloadActiveTab();
-}
-
-// Select profile
-async function selectProfile(profileId) {
-  activeProfile = profileId;
-  await extensionApi.storage.sync.set({ activeProfile });
-
-  // Apply profile settings
-  if (typeof FilterProfiles !== 'undefined') {
-    const profile = await FilterProfiles.getProfile(profileId);
-    if (profile) {
-      config = { ...config, ...profile.settings };
-      saveConfiguration();
-    }
-  }
-
+  await saveConfiguration();
   updateUI();
   reloadActiveTab();
 }
@@ -398,6 +358,7 @@ async function pauseProtection() {
 
   updateUI();
   notifyContentScripts({ action: 'pause' });
+  reloadActiveTab();
 }
 
 // Resume protection
@@ -412,6 +373,7 @@ async function resumeProtection() {
 
   updateUI();
   notifyContentScripts({ action: 'resume' });
+  reloadActiveTab();
 }
 
 // Whitelist current site
@@ -455,14 +417,15 @@ async function updateWhitelistButton() {
 }
 
 // Add custom word
-function addCustomWord() {
+async function addCustomWord() {
   const word = elements.customWordInput.value.trim().toLowerCase();
   if (!word || config.customWords.includes(word)) return;
 
   config.customWords.push(word);
   elements.customWordInput.value = '';
-  saveConfiguration();
+  await saveConfiguration();
   displayCustomWords();
+  reloadActiveTab();
 }
 
 // Display custom words
@@ -481,11 +444,12 @@ function displayCustomWords() {
 
   // Add remove handlers
   elements.customWordsList.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const word = btn.dataset.word;
       config.customWords = config.customWords.filter(w => w !== word);
-      saveConfiguration();
+      await saveConfiguration();
       displayCustomWords();
+      reloadActiveTab();
     });
   });
 }
@@ -506,21 +470,14 @@ function displayWhitelist() {
 
   // Add remove handlers
   elements.whitelistList.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const domain = btn.dataset.domain;
       config.whitelistedDomains = config.whitelistedDomains.filter(d => d !== domain);
-      saveConfiguration();
+      await saveConfiguration();
       displayWhitelist();
+      reloadActiveTab();
     });
   });
-}
-
-// Toggle dark mode
-async function toggleDarkMode() {
-  document.body.classList.toggle('dark-mode');
-  const isDark = document.body.classList.contains('dark-mode');
-  elements.darkModeBtn.textContent = isDark ? 'Light' : 'Mode';
-  await extensionApi.storage.sync.set({ darkMode: isDark });
 }
 
 // Save configuration

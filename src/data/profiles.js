@@ -6,78 +6,50 @@ const FilterProfiles = {
   builtIn: {
     'child-safe': {
       id: 'child-safe',
-      name: 'Child Safe',
-      description: 'Maximum protection - blocks all profanity, adult content, and violence',
-      icon: '🧒',
+      name: 'Full Protection',
+      description: 'Text filtering, image filtering, adult site blocking, and safe search',
+      icon: '01',
       settings: {
         filterText: true,
         filterImages: true,
         blockSites: true,
-        safeSearch: true,
-        strictMode: true,
-        filterLevel: 'all',
-        blockCategories: ['adult', 'violence', 'drugs', 'gambling', 'weapons', 'hate'],
-        blockMildProfanity: true,
-        blockSocialMedia: false,
-        blockGaming: false,
-        hideComments: false
+        safeSearch: true
       }
     },
     'teen-safe': {
       id: 'teen-safe',
-      name: 'Teen Safe',
-      description: 'Moderate protection - blocks adult content, allows mild language',
-      icon: '👦',
+      name: 'Web Guard',
+      description: 'Adult site blocking, safe search, and image filtering with text left unchanged',
+      icon: '02',
       settings: {
-        filterText: true,
+        filterText: false,
         filterImages: true,
         blockSites: true,
-        safeSearch: true,
-        strictMode: false,
-        filterLevel: 'moderate',
-        blockCategories: ['adult', 'drugs', 'gambling', 'weapons'],
-        blockMildProfanity: false,
-        blockSocialMedia: false,
-        blockGaming: false,
-        hideComments: false
+        safeSearch: true
       }
     },
     'work-safe': {
       id: 'work-safe',
-      name: 'Work Safe',
-      description: 'Professional environment - blocks NSFW content and slurs',
-      icon: '💼',
+      name: 'Page Clean',
+      description: 'Text and image filtering without site redirects',
+      icon: '03',
       settings: {
         filterText: true,
         filterImages: true,
-        blockSites: true,
-        safeSearch: true,
-        strictMode: false,
-        filterLevel: 'strong',
-        blockCategories: ['adult', 'gambling'],
-        blockMildProfanity: false,
-        blockSocialMedia: false,
-        blockGaming: false,
-        hideComments: false
+        blockSites: false,
+        safeSearch: false
       }
     },
     'minimal': {
       id: 'minimal',
       name: 'Minimal',
-      description: 'Light filtering - blocks only explicit adult content',
-      icon: '🔓',
+      description: 'Only adult site blocking and safe search',
+      icon: '04',
       settings: {
         filterText: false,
-        filterImages: true,
+        filterImages: false,
         blockSites: true,
-        safeSearch: true,
-        strictMode: false,
-        filterLevel: 'nsfw',
-        blockCategories: ['adult'],
-        blockMildProfanity: false,
-        blockSocialMedia: false,
-        blockGaming: false,
-        hideComments: false
+        safeSearch: true
       }
     }
   },
@@ -87,19 +59,12 @@ const FilterProfiles = {
     id: 'custom',
     name: 'Custom',
     description: 'Your personalized filtering settings',
-    icon: '⚙️',
+    icon: 'CU',
     settings: {
       filterText: true,
       filterImages: true,
       blockSites: true,
-      safeSearch: true,
-      strictMode: true,
-      filterLevel: 'moderate',
-      blockCategories: ['adult'],
-      blockMildProfanity: false,
-      blockSocialMedia: false,
-      blockGaming: false,
-      hideComments: false
+      safeSearch: true
     }
   },
 
@@ -159,7 +124,7 @@ const FilterProfiles = {
   },
 
   // Create custom profile
-  async createCustomProfile(name, settings, icon = '⚙️') {
+  async createCustomProfile(name, settings, icon = 'CU') {
     const id = `custom-${Date.now()}`;
     const profile = {
       id,
@@ -228,10 +193,7 @@ const FilterProfiles = {
       filterImages: settings.filterImages,
       blockSites: settings.blockSites,
       safeSearch: settings.safeSearch,
-      strictMode: settings.strictMode,
-      filterLevel: settings.filterLevel,
-      blockCategories: settings.blockCategories,
-      blockMildProfanity: settings.blockMildProfanity
+      blockCategories: ['adult']
     };
 
     await chrome.storage.sync.set({ config: updatedConfig });
@@ -240,15 +202,10 @@ const FilterProfiles = {
     await chrome.storage.sync.set({
       safeSearchConfig: {
         enabled: settings.safeSearch,
-        blockTerms: true,
-        enforceStrict: settings.strictMode
+        blockTerms: true
       },
       imageDetectorConfig: {
         enabled: settings.filterImages
-      },
-      siteBlockConfig: {
-        enabled: settings.blockSites,
-        categories: settings.blockCategories
       }
     });
 
@@ -297,11 +254,11 @@ const FilterProfiles = {
     const result = await chrome.storage.sync.get(['config']);
     const config = result.config || {};
 
-    if (config.strictMode && config.filterText) {
+    if (config.filterText && config.filterImages && config.blockSites && config.safeSearch) {
       return 'child-safe';
-    } else if (config.filterText && !config.strictMode) {
+    } else if (!config.filterText && config.filterImages && config.blockSites && config.safeSearch) {
       return 'teen-safe';
-    } else if (config.filterImages && !config.filterText) {
+    } else if (config.filterText && config.filterImages && !config.blockSites) {
       return 'work-safe';
     }
 

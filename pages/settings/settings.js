@@ -1,8 +1,151 @@
 // Settings Page JavaScript
 
+if (typeof window !== 'undefined' && (!window.chrome || !window.chrome.storage?.sync || !window.chrome.storage?.local)) {
+  window.chrome = createSettingsPreviewChrome(window.chrome || {});
+}
+
+function createSettingsPreviewChrome(existingChrome) {
+  const memoryStore = {
+    sync: {},
+    local: {},
+    session: {}
+  };
+
+  function readStore(areaName) {
+    if (areaName === 'session') {
+      return memoryStore.session;
+    }
+
+    try {
+      const stored = window.localStorage.getItem(`safeBrowsePreview:${areaName}`);
+      memoryStore[areaName] = stored ? JSON.parse(stored) : memoryStore[areaName];
+    } catch {
+      memoryStore[areaName] = memoryStore[areaName] || {};
+    }
+
+    return memoryStore[areaName];
+  }
+
+  function writeStore(areaName, value) {
+    memoryStore[areaName] = value;
+    if (areaName === 'session') return;
+
+    try {
+      window.localStorage.setItem(`safeBrowsePreview:${areaName}`, JSON.stringify(value));
+    } catch {
+      // Local file previews can block storage in some browsers; in-memory state is enough.
+    }
+  }
+
+  function callbackResult(value, callback) {
+    if (typeof callback === 'function') {
+      setTimeout(() => callback(value), 0);
+    }
+    return Promise.resolve(value);
+  }
+
+  function pickValues(keys, store) {
+    if (keys === null || keys === undefined) {
+      return { ...store };
+    }
+    if (Array.isArray(keys)) {
+      return keys.reduce((result, key) => {
+        result[key] = store[key];
+        return result;
+      }, {});
+    }
+    if (typeof keys === 'string') {
+      return { [keys]: store[keys] };
+    }
+    if (typeof keys === 'object') {
+      return Object.keys(keys).reduce((result, key) => {
+        result[key] = store[key] === undefined ? keys[key] : store[key];
+        return result;
+      }, {});
+    }
+    return {};
+  }
+
+  function createStorageArea(areaName) {
+    return {
+      get(keys, callback) {
+        const store = readStore(areaName);
+        return callbackResult(pickValues(keys, store), callback);
+      },
+      set(items, callback) {
+        writeStore(areaName, { ...readStore(areaName), ...items });
+        return callbackResult(undefined, callback);
+      },
+      remove(keys, callback) {
+        const store = { ...readStore(areaName) };
+        const keysToRemove = Array.isArray(keys) ? keys : [keys];
+        keysToRemove.forEach(key => delete store[key]);
+        writeStore(areaName, store);
+        return callbackResult(undefined, callback);
+      },
+      clear(callback) {
+        writeStore(areaName, {});
+        return callbackResult(undefined, callback);
+      }
+    };
+  }
+
+  return {
+    ...existingChrome,
+    storage: {
+      ...(existingChrome.storage || {}),
+      sync: createStorageArea('sync'),
+      local: createStorageArea('local'),
+      session: createStorageArea('session')
+    },
+    tabs: {
+      ...(existingChrome.tabs || {}),
+      query(queryInfo, callback) {
+        const tabs = [];
+        return callbackResult(tabs, callback);
+      },
+      sendMessage() {
+        return Promise.resolve();
+      },
+      create({ url } = {}) {
+        if (url) window.location.href = url;
+        return Promise.resolve();
+      },
+      reload() {
+        return Promise.resolve();
+      }
+    },
+    runtime: {
+      ...(existingChrome.runtime || {}),
+      lastError: null
+    }
+  };
+}
+
 // Current configuration
-let config = {};
+const DEFAULT_CONFIG = {
+  enabled: true,
+  filterText: true,
+  filterImages: true,
+  blockSites: true,
+  safeSearch: true,
+  showBadge: true,
+  customWords: [],
+  whitelistedDomains: [],
+  customBlocklist: []
+};
+
+const DEFAULT_IMAGE_CONFIG = {
+  enabled: true,
+  placeholderEnabled: true,
+  checkUrlPatterns: true
+};
+
+let config = { ...DEFAULT_CONFIG };
 let passwordStatus = { enabled: false };
+let passwordOverlayBound = false;
+let unlockPromise = null;
+let resolveUnlock = null;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
@@ -11,7 +154,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupNavigation();
   setupEventListeners();
   loadProfiles();
-  generateScheduleGrid();
 });
 
 // Check if settings are password protected
@@ -30,13 +172,34 @@ function showPasswordOverlay() {
   const overlay = document.getElementById('passwordOverlay');
   overlay.classList.remove('hidden');
 
+  if (!unlockPromise) {
+    unlockPromise = new Promise(resolve => {
+      resolveUnlock = resolve;
+    });
+  }
+
+  const passwordInput = document.getElementById('passwordInput');
+  passwordInput.value = '';
+  setTimeout(() => passwordInput.focus(), 0);
+
+  if (passwordOverlayBound) {
+    return unlockPromise;
+  }
+
+  passwordOverlayBound = true;
+
   document.getElementById('unlockBtn').addEventListener('click', async () => {
     const password = document.getElementById('passwordInput').value;
 
     try {
       await PasswordManager.unlock(password);
+      passwordStatus = await PasswordManager.getStatus();
       overlay.classList.add('hidden');
       document.getElementById('passwordError').classList.add('hidden');
+      const resolver = resolveUnlock;
+      unlockPromise = null;
+      resolveUnlock = null;
+      resolver?.(true);
     } catch (e) {
       document.getElementById('passwordError').classList.remove('hidden');
     }
@@ -47,6 +210,19 @@ function showPasswordOverlay() {
       document.getElementById('unlockBtn').click();
     }
   });
+
+  return unlockPromise;
+}
+
+async function ensureSettingsUnlocked() {
+  if (typeof PasswordManager === 'undefined') return true;
+
+  passwordStatus = await PasswordManager.getStatus();
+  if (!passwordStatus.enabled || passwordStatus.sessionValid) return true;
+
+  await showPasswordOverlay();
+  passwordStatus = await PasswordManager.getStatus();
+  return !passwordStatus.enabled || passwordStatus.sessionValid;
 }
 
 // Load configuration
@@ -56,17 +232,19 @@ async function loadConfiguration() {
     chrome.storage.local.get(['passwordEnabled'])
   ]);
 
-  config = syncResult.config || {};
+  const imageConfig = { ...DEFAULT_IMAGE_CONFIG, ...(syncResult.imageDetectorConfig || {}) };
+  config = {
+    ...DEFAULT_CONFIG,
+    ...(syncResult.config || {}),
+    filterImages: imageConfig.enabled !== false
+  };
+  if (syncResult.safeSearchConfig) {
+    config.safeSearch = syncResult.safeSearchConfig.enabled !== false;
+  }
 
   // Apply settings to UI
   applyConfigToUI(config);
-  applyConfigToUI(syncResult);
-
-  // Dark mode
-  if (syncResult.darkMode) {
-    document.body.classList.add('dark-mode');
-    document.getElementById('darkMode').checked = true;
-  }
+  applyImageConfigToUI(imageConfig);
 
   // Password
   if (localResult.passwordEnabled) {
@@ -83,25 +261,13 @@ function applyConfigToUI(cfg) {
   if (cfg.showBadge !== undefined) {
     document.getElementById('showBadge').checked = cfg.showBadge !== false;
   }
-  if (cfg.filterLanguage) {
-    document.getElementById('filterLanguage').value = cfg.filterLanguage;
-  }
 
   // Text filtering
   if (cfg.filterText !== undefined) {
     document.getElementById('filterText').checked = cfg.filterText !== false;
   }
-  if (cfg.strictMode !== undefined) {
-    document.getElementById('strictMode').checked = cfg.strictMode !== false;
-  }
-  if (cfg.filterLevel) {
-    document.getElementById('filterLevel').value = cfg.filterLevel;
-  }
 
-  // Custom words
-  if (cfg.customWords && cfg.customWords.length > 0) {
-    displayCustomWords(cfg.customWords);
-  }
+  displayCustomWords(cfg.customWords || []);
 
   // Site blocking
   if (cfg.blockSites !== undefined) {
@@ -111,54 +277,19 @@ function applyConfigToUI(cfg) {
     document.getElementById('safeSearch').checked = cfg.safeSearch !== false;
   }
 
-  // Block categories
-  if (cfg.blockCategories) {
-    cfg.blockCategories.forEach(cat => {
-      const checkbox = document.querySelector(`#categoriesGrid input[value="${cat}"]`);
-      if (checkbox) checkbox.checked = true;
-    });
-  }
+  displayWhitelist(cfg.whitelistedDomains || []);
+  displayBlocklist(cfg.customBlocklist || []);
+}
 
-  // Whitelist
-  if (cfg.whitelistedDomains && cfg.whitelistedDomains.length > 0) {
-    displayWhitelist(cfg.whitelistedDomains);
+function applyImageConfigToUI(imageConfig) {
+  if (imageConfig.enabled !== undefined) {
+    document.getElementById('filterImages').checked = imageConfig.enabled !== false;
   }
-  if (cfg.customBlocklist && cfg.customBlocklist.length > 0) {
-    displayBlocklist(cfg.customBlocklist);
+  if (imageConfig.placeholderEnabled !== undefined) {
+    document.getElementById('imagePlaceholder').checked = imageConfig.placeholderEnabled !== false;
   }
-
-  // Image filtering
-  if (cfg.filterImages !== undefined) {
-    document.getElementById('filterImages').checked = cfg.filterImages !== false;
-  }
-  if (cfg.imagePlaceholder !== undefined) {
-    document.getElementById('imagePlaceholder').checked = cfg.imagePlaceholder !== false;
-  }
-  if (cfg.checkUrlPatterns !== undefined) {
-    document.getElementById('checkUrlPatterns').checked = cfg.checkUrlPatterns !== false;
-  }
-
-  // Schedule
-  if (cfg.schedule) {
-    document.getElementById('scheduleEnabled').checked = cfg.schedule.enabled;
-    if (cfg.schedule.bedtimeMode) {
-      document.getElementById('bedtimeEnabled').checked = cfg.schedule.bedtimeMode.enabled;
-      document.getElementById('bedtimeStart').value = cfg.schedule.bedtimeMode.start || '22:00';
-      document.getElementById('bedtimeEnd').value = cfg.schedule.bedtimeMode.end || '07:00';
-    }
-  }
-
-  // Notifications
-  if (cfg.notificationConfig) {
-    document.getElementById('notificationsEnabled').checked = cfg.notificationConfig.enabled !== false;
-    document.getElementById('dailySummary').checked = cfg.notificationConfig.dailySummary === true;
-  }
-
-  // Time limits
-  if (cfg.schedule?.dailyLimits) {
-    document.getElementById('limitSocialMedia').value = cfg.schedule.dailyLimits.socialMedia || 120;
-    document.getElementById('limitGaming').value = cfg.schedule.dailyLimits.gaming || 60;
-    document.getElementById('limitStreaming').value = cfg.schedule.dailyLimits.streaming || 180;
+  if (imageConfig.checkUrlPatterns !== undefined) {
+    document.getElementById('checkUrlPatterns').checked = imageConfig.checkUrlPatterns !== false;
   }
 }
 
@@ -186,14 +317,10 @@ function setupNavigation() {
 function setupEventListeners() {
   // General settings
   document.getElementById('enableProtection').addEventListener('change', saveGeneralSettings);
-  document.getElementById('darkMode').addEventListener('change', toggleDarkMode);
   document.getElementById('showBadge').addEventListener('change', saveGeneralSettings);
-  document.getElementById('filterLanguage').addEventListener('change', saveGeneralSettings);
 
   // Text filtering
   document.getElementById('filterText').addEventListener('change', saveTextSettings);
-  document.getElementById('strictMode').addEventListener('change', saveTextSettings);
-  document.getElementById('filterLevel').addEventListener('change', saveTextSettings);
   document.getElementById('addWordBtn').addEventListener('click', addCustomWord);
   document.getElementById('customWordInput').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') addCustomWord();
@@ -202,9 +329,6 @@ function setupEventListeners() {
   // Site blocking
   document.getElementById('blockSites').addEventListener('change', saveSiteSettings);
   document.getElementById('safeSearch').addEventListener('change', saveSiteSettings);
-  document.querySelectorAll('#categoriesGrid input').forEach(cb => {
-    cb.addEventListener('change', saveSiteSettings);
-  });
   document.getElementById('addWhitelistBtn').addEventListener('click', addWhitelistDomain);
   document.getElementById('addBlocklistBtn').addEventListener('click', addBlocklistDomain);
 
@@ -213,22 +337,12 @@ function setupEventListeners() {
   document.getElementById('imagePlaceholder').addEventListener('change', saveImageSettings);
   document.getElementById('checkUrlPatterns').addEventListener('change', saveImageSettings);
 
-  // Schedule
-  document.getElementById('scheduleEnabled').addEventListener('change', saveScheduleSettings);
-  document.getElementById('bedtimeEnabled').addEventListener('change', saveScheduleSettings);
-  document.getElementById('bedtimeStart').addEventListener('change', saveScheduleSettings);
-  document.getElementById('bedtimeEnd').addEventListener('change', saveScheduleSettings);
-
   // Parental controls
   document.getElementById('passwordEnabled').addEventListener('change', togglePasswordSettings);
   document.getElementById('setPasswordBtn').addEventListener('click', setPassword);
-  document.getElementById('limitSocialMedia').addEventListener('change', saveTimeLimits);
-  document.getElementById('limitGaming').addEventListener('change', saveTimeLimits);
-  document.getElementById('limitStreaming').addEventListener('change', saveTimeLimits);
 
-  // Notifications
-  document.getElementById('notificationsEnabled').addEventListener('change', saveNotificationSettings);
-  document.getElementById('dailySummary').addEventListener('change', saveNotificationSettings);
+  // Profiles
+  document.getElementById('createProfileBtn').addEventListener('click', createCustomProfile);
 
   // Backup
   document.getElementById('exportSettingsBtn').addEventListener('click', exportSettings);
@@ -239,38 +353,54 @@ function setupEventListeners() {
 
 // Save functions
 async function saveGeneralSettings() {
+  if (!(await ensureSettingsUnlocked())) {
+    await loadConfiguration();
+    return;
+  }
+
   config.enabled = document.getElementById('enableProtection').checked;
   config.showBadge = document.getElementById('showBadge').checked;
-  config.filterLanguage = document.getElementById('filterLanguage').value;
 
   await chrome.storage.sync.set({ config });
   notifyContentScripts();
 }
 
 async function saveTextSettings() {
+  if (!(await ensureSettingsUnlocked())) {
+    await loadConfiguration();
+    return;
+  }
+
   config.filterText = document.getElementById('filterText').checked;
-  config.strictMode = document.getElementById('strictMode').checked;
-  config.filterLevel = document.getElementById('filterLevel').value;
 
   await chrome.storage.sync.set({ config });
   notifyContentScripts();
 }
 
 async function saveSiteSettings() {
+  if (!(await ensureSettingsUnlocked())) {
+    await loadConfiguration();
+    return;
+  }
+
   config.blockSites = document.getElementById('blockSites').checked;
   config.safeSearch = document.getElementById('safeSearch').checked;
 
-  const categories = [];
-  document.querySelectorAll('#categoriesGrid input:checked').forEach(cb => {
-    categories.push(cb.value);
-  });
-  config.blockCategories = categories;
+  config.blockCategories = ['adult'];
 
-  await chrome.storage.sync.set({ config });
+  await chrome.storage.sync.set({
+    config,
+    safeSearchConfig: { enabled: config.safeSearch }
+  });
   notifyContentScripts();
 }
 
 async function saveImageSettings() {
+  if (!(await ensureSettingsUnlocked())) {
+    await loadConfiguration();
+    return;
+  }
+
   const imageConfig = {
     enabled: document.getElementById('filterImages').checked,
     placeholderEnabled: document.getElementById('imagePlaceholder').checked,
@@ -282,52 +412,16 @@ async function saveImageSettings() {
   notifyContentScripts();
 }
 
-async function saveScheduleSettings() {
-  const schedule = {
-    enabled: document.getElementById('scheduleEnabled').checked,
-    bedtimeMode: {
-      enabled: document.getElementById('bedtimeEnabled').checked,
-      start: document.getElementById('bedtimeStart').value,
-      end: document.getElementById('bedtimeEnd').value
-    }
-  };
-
-  await chrome.storage.sync.set({ schedule });
-}
-
-async function saveTimeLimits() {
-  const result = await chrome.storage.sync.get(['schedule']);
-  const schedule = result.schedule || {};
-
-  schedule.dailyLimits = {
-    socialMedia: parseInt(document.getElementById('limitSocialMedia').value) || 0,
-    gaming: parseInt(document.getElementById('limitGaming').value) || 0,
-    streaming: parseInt(document.getElementById('limitStreaming').value) || 0
-  };
-
-  await chrome.storage.sync.set({ schedule });
-}
-
-async function saveNotificationSettings() {
-  const notificationConfig = {
-    enabled: document.getElementById('notificationsEnabled').checked,
-    dailySummary: document.getElementById('dailySummary').checked
-  };
-
-  await chrome.storage.sync.set({ notificationConfig });
-}
-
-// Dark mode
-async function toggleDarkMode() {
-  const enabled = document.getElementById('darkMode').checked;
-  document.body.classList.toggle('dark-mode', enabled);
-  await chrome.storage.sync.set({ darkMode: enabled });
-}
-
 // Password settings
 async function togglePasswordSettings() {
   const enabled = document.getElementById('passwordEnabled').checked;
   const settings = document.getElementById('passwordSettings');
+
+  if (!enabled && passwordStatus.enabled && !(await ensureSettingsUnlocked())) {
+    document.getElementById('passwordEnabled').checked = true;
+    return;
+  }
+
   settings.classList.toggle('hidden', !enabled);
 
   if (!enabled && passwordStatus.enabled) {
@@ -353,19 +447,23 @@ async function setPassword() {
 
   try {
     await PasswordManager.setPassword(newPassword);
+    await PasswordManager.clearSession();
     passwordStatus = await PasswordManager.getStatus();
     document.getElementById('passwordEnabled').checked = true;
-    alert('Password set successfully');
     document.getElementById('newPassword').value = '';
     document.getElementById('confirmPassword').value = '';
     document.getElementById('passwordSettings').classList.add('hidden');
+    alert('Password set successfully. Settings are locked now.');
+    showPasswordOverlay();
   } catch (e) {
     alert('Failed to set password: ' + e.message);
   }
 }
 
 // Custom words
-function addCustomWord() {
+async function addCustomWord() {
+  if (!(await ensureSettingsUnlocked())) return;
+
   const input = document.getElementById('customWordInput');
   const word = input.value.trim().toLowerCase();
 
@@ -374,8 +472,9 @@ function addCustomWord() {
   config.customWords = config.customWords || [];
   if (!config.customWords.includes(word)) {
     config.customWords.push(word);
-    chrome.storage.sync.set({ config });
+    await chrome.storage.sync.set({ config });
     displayCustomWords(config.customWords);
+    notifyContentScripts();
   }
 
   input.value = '';
@@ -400,14 +499,19 @@ function displayCustomWords(words) {
   });
 }
 
-function removeCustomWord(word) {
+async function removeCustomWord(word) {
+  if (!(await ensureSettingsUnlocked())) return;
+
   config.customWords = config.customWords.filter(w => w !== word);
-  chrome.storage.sync.set({ config });
+  await chrome.storage.sync.set({ config });
   displayCustomWords(config.customWords);
+  notifyContentScripts();
 }
 
 // Whitelist
-function addWhitelistDomain() {
+async function addWhitelistDomain() {
+  if (!(await ensureSettingsUnlocked())) return;
+
   const input = document.getElementById('whitelistInput');
   const domain = normalizeDomainInput(input.value);
 
@@ -416,8 +520,9 @@ function addWhitelistDomain() {
   config.whitelistedDomains = config.whitelistedDomains || [];
   if (!config.whitelistedDomains.some(existing => domainMatches(domain, existing))) {
     config.whitelistedDomains.push(domain);
-    chrome.storage.sync.set({ config });
+    await chrome.storage.sync.set({ config });
     displayWhitelist(config.whitelistedDomains);
+    notifyContentScripts();
   }
 
   input.value = '';
@@ -442,14 +547,19 @@ function displayWhitelist(domains) {
   });
 }
 
-function removeWhitelistDomain(domain) {
+async function removeWhitelistDomain(domain) {
+  if (!(await ensureSettingsUnlocked())) return;
+
   config.whitelistedDomains = config.whitelistedDomains.filter(d => d !== domain);
-  chrome.storage.sync.set({ config });
+  await chrome.storage.sync.set({ config });
   displayWhitelist(config.whitelistedDomains);
+  notifyContentScripts();
 }
 
 // Blocklist
-function addBlocklistDomain() {
+async function addBlocklistDomain() {
+  if (!(await ensureSettingsUnlocked())) return;
+
   const input = document.getElementById('blocklistInput');
   const domain = normalizeDomainInput(input.value);
 
@@ -458,8 +568,9 @@ function addBlocklistDomain() {
   config.customBlocklist = config.customBlocklist || [];
   if (!config.customBlocklist.some(existing => domainMatches(domain, existing))) {
     config.customBlocklist.push(domain);
-    chrome.storage.sync.set({ config });
+    await chrome.storage.sync.set({ config });
     displayBlocklist(config.customBlocklist);
+    notifyContentScripts();
   }
 
   input.value = '';
@@ -485,10 +596,13 @@ function displayBlocklist(domains) {
   });
 }
 
-function removeBlocklistDomain(domain) {
+async function removeBlocklistDomain(domain) {
+  if (!(await ensureSettingsUnlocked())) return;
+
   config.customBlocklist = config.customBlocklist.filter(d => d !== domain);
-  chrome.storage.sync.set({ config });
+  await chrome.storage.sync.set({ config });
   displayBlocklist(config.customBlocklist);
+  notifyContentScripts();
 }
 
 // Profiles
@@ -510,6 +624,8 @@ async function loadProfiles() {
   // Add click handlers
   container.querySelectorAll('.profile-card').forEach(card => {
     card.addEventListener('click', async () => {
+      if (!(await ensureSettingsUnlocked())) return;
+
       const profileId = card.dataset.profile;
       await FilterProfiles.setActiveProfile(profileId);
       loadProfiles();
@@ -517,38 +633,25 @@ async function loadProfiles() {
     });
   });
 
-  // Create profile button
-  document.getElementById('createProfileBtn').addEventListener('click', async () => {
-    const name = document.getElementById('customProfileName').value.trim();
-    if (!name) return;
-
-    await FilterProfiles.createCustomProfile(name, config);
-    document.getElementById('customProfileName').value = '';
-    loadProfiles();
-  });
 }
 
-// Schedule grid
-function generateScheduleGrid() {
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  const container = document.getElementById('scheduleGrid');
+async function createCustomProfile() {
+  if (typeof FilterProfiles === 'undefined') return;
+  if (!(await ensureSettingsUnlocked())) return;
 
-  container.innerHTML = days.map(day => `
-    <div class="schedule-day">
-      <label>${day}</label>
-      <input type="time" id="schedule-${day.toLowerCase()}-start" value="08:00">
-      <span>to</span>
-      <input type="time" id="schedule-${day.toLowerCase()}-end" value="22:00">
-    </div>
-  `).join('');
+  const name = document.getElementById('customProfileName').value.trim();
+  if (!name) return;
+
+  await FilterProfiles.createCustomProfile(name, config);
+  document.getElementById('customProfileName').value = '';
+  loadProfiles();
 }
 
 // Export settings
 async function exportSettings() {
-  const [syncData, localData] = await Promise.all([
-    chrome.storage.sync.get(null),
-    chrome.storage.local.get(['passwordHash', 'passwordEnabled'])
-  ]);
+  if (!(await ensureSettingsUnlocked())) return;
+
+  const syncData = await chrome.storage.sync.get(null);
 
   const exportData = {
     type: 'safe-browse-settings',
@@ -557,8 +660,6 @@ async function exportSettings() {
     config: syncData.config || {},
     profiles: syncData.customProfiles || {},
     activeProfile: syncData.activeProfile,
-    schedule: syncData.schedule || {},
-    notificationConfig: syncData.notificationConfig || {},
     imageDetectorConfig: syncData.imageDetectorConfig || {}
   };
 
@@ -600,16 +701,15 @@ function handleImportFile(e) {
 
 async function importSettings() {
   if (!importData) return;
+  if (!(await ensureSettingsUnlocked())) return;
 
   if (!confirm('This will replace your current settings. Continue?')) return;
 
   await chrome.storage.sync.set({
-    config: importData.config || {},
+    config: { ...DEFAULT_CONFIG, ...(importData.config || {}) },
     customProfiles: importData.profiles || {},
     activeProfile: importData.activeProfile || 'teen-safe',
-    schedule: importData.schedule || {},
-    notificationConfig: importData.notificationConfig || {},
-    imageDetectorConfig: importData.imageDetectorConfig || {}
+    imageDetectorConfig: { ...DEFAULT_IMAGE_CONFIG, ...(importData.imageDetectorConfig || {}) }
   });
 
   alert('Settings imported successfully');
@@ -618,10 +718,19 @@ async function importSettings() {
 
 // Reset settings
 async function resetSettings() {
+  if (!(await ensureSettingsUnlocked())) return;
+
   if (!confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.')) return;
 
   await chrome.storage.sync.clear();
-  await chrome.storage.local.remove(['passwordHash', 'passwordEnabled']);
+  await chrome.storage.sync.set({
+    config: { ...DEFAULT_CONFIG },
+    activeProfile: 'teen-safe',
+    imageDetectorConfig: { ...DEFAULT_IMAGE_CONFIG },
+    safeSearchConfig: { enabled: true }
+  });
+  await chrome.storage.local.remove(['passwordHash', 'passwordEnabled', 'passwordSetAt']);
+  await chrome.storage.session?.remove?.(['unlockSession']);
 
   alert('Settings reset to defaults');
   location.reload();

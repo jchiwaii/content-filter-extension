@@ -10,6 +10,7 @@ let config = {
 };
 
 let isPaused = false;
+let imageObserverReady = false;
 
 // Statistics for this session
 let statistics = {
@@ -29,7 +30,7 @@ function initialize() {
     chrome.storage.local.get(['isPaused', 'pauseUntil'], (pauseResult) => {
       isPaused = pauseResult.isPaused && pauseResult.pauseUntil > Date.now();
 
-      if (isPaused || !config.enabled) {
+      if (!isProtectionActive()) {
         console.log('[Safe Browse] Protection is paused or disabled');
         return;
       }
@@ -47,8 +48,10 @@ initialize();
 
 // Initialize the filter
 function initializeFilter() {
-  if (isWhitelisted()) {
-    console.log('[Safe Browse] Site is whitelisted');
+  if (!isProtectionActive()) {
+    if (isWhitelisted()) {
+      console.log('[Safe Browse] Site is whitelisted');
+    }
     return;
   }
 
@@ -64,11 +67,11 @@ function initializeFilter() {
   setupSPADetection();
 
   // Initialize image detector
-  if (config.filterImages && window.ImageDetector) {
-    window.ImageDetector.init();
-    window.ImageDetector.setupObserver();
-    window.ImageDetector.scanPage();
-  }
+  syncImageFiltering();
+}
+
+function isProtectionActive() {
+  return config.enabled !== false && !isPaused && !isWhitelisted();
 }
 
 // Check if current domain is whitelisted
@@ -114,12 +117,42 @@ function setupSPADetection() {
 
 // Filter all existing content
 function filterExistingContent() {
+  if (!isProtectionActive()) {
+    syncImageFiltering();
+    return;
+  }
+
   if (config.filterText) {
     filterTextContent();
   }
 
-  if (config.filterImages && window.ImageDetector) {
-    window.ImageDetector.scanPage();
+  syncImageFiltering();
+}
+
+async function syncImageFiltering() {
+  if (!window.ImageDetector) return;
+
+  const enabled = isProtectionActive() && config.filterImages !== false;
+
+  if (typeof window.ImageDetector.init === 'function') {
+    await window.ImageDetector.init();
+  }
+
+  if (typeof window.ImageDetector.setEnabled === 'function') {
+    window.ImageDetector.setEnabled(enabled);
+  } else {
+    window.ImageDetector.config = { ...window.ImageDetector.config, enabled };
+  }
+
+  if (!enabled) return;
+
+  if (!imageObserverReady && typeof window.ImageDetector.setupObserver === 'function') {
+    window.ImageDetector.setupObserver();
+    imageObserverReady = true;
+  }
+
+  if (typeof window.ImageDetector.scanPage === 'function') {
+    window.ImageDetector.scanPage(true);
   }
 }
 
@@ -227,7 +260,7 @@ function setupMutationObserver() {
 
 // Filter dynamically added content
 function filterDynamicContent(mutations) {
-  if (!config.filterText) return;
+  if (!isProtectionActive() || !config.filterText) return;
 
   mutations.forEach((mutation) => {
     mutation.addedNodes.forEach((node) => {
@@ -242,8 +275,28 @@ function filterDynamicContent(mutations) {
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === 'sync' && changes.config) {
     config = { ...config, ...changes.config.newValue };
-    if (config.enabled && !isPaused) {
+    if (isProtectionActive()) {
       filterExistingContent();
+    } else {
+      syncImageFiltering();
+    }
+  }
+
+  if (namespace === 'sync' && changes.imageDetectorConfig && window.ImageDetector) {
+    window.ImageDetector.config = {
+      ...window.ImageDetector.config,
+      ...changes.imageDetectorConfig.newValue
+    };
+    syncImageFiltering();
+  }
+
+  if (namespace === 'local' && (changes.isPaused || changes.pauseUntil)) {
+    const pauseUntil = changes.pauseUntil?.newValue;
+    isPaused = Boolean(changes.isPaused?.newValue && pauseUntil > Date.now());
+    if (isProtectionActive()) {
+      filterExistingContent();
+    } else {
+      syncImageFiltering();
     }
   }
 });
@@ -252,12 +305,15 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'configUpdate') {
     config = { ...config, ...request.config };
-    if (config.enabled && !isPaused) {
+    if (isProtectionActive()) {
       filterExistingContent();
+    } else {
+      syncImageFiltering();
     }
     sendResponse({ success: true });
   } else if (request.action === 'pause') {
     isPaused = true;
+    syncImageFiltering();
     sendResponse({ success: true });
   } else if (request.action === 'resume') {
     isPaused = false;

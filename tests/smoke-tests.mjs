@@ -52,7 +52,8 @@ function createChromeMock(initial = {}) {
     storage: {
       sync: area(syncData),
       local: area(localData),
-      session: area(sessionData)
+      session: area(sessionData),
+      onChanged: { addListener: fn => listeners.push(['storageChanged', fn]) }
     },
     runtime: {
       getURL: path => `chrome-extension://safe-browse/${path}`,
@@ -172,11 +173,7 @@ async function runProfileChecks() {
     filterText: false,
     filterImages: false,
     blockSites: false,
-    safeSearch: false,
-    strictMode: false,
-    filterLevel: 'nsfw',
-    blockCategories: ['adult'],
-    blockMildProfanity: false
+    safeSearch: false
   });
 
   assert.equal(chrome.storage.sync.data.config.filterText, false);
@@ -192,7 +189,8 @@ async function runStaticRegressionChecks() {
   const settings = await read('pages/settings/settings.js');
   const pkg = JSON.parse(await read('package.json'));
 
-  assert.match(settings, /displayBlocklist\(cfg\.customBlocklist\)/);
+  assert.match(settings, /displayBlocklist\(cfg\.customBlocklist \|\| \[\]\)/);
+  assert.doesNotMatch(settings, /darkMode|filterLanguage|scheduleEnabled|notificationsEnabled|dailySummary|filterLevel|strictMode/);
   assert.doesNotMatch(settings, /onclick="remove(?:CustomWord|WhitelistDomain|BlocklistDomain)/);
   assert.match(pkg.scripts.build, /manifest\.json package\.json README\.md src pages assets/);
   assert.doesNotMatch(pkg.scripts.build, /zip -r safe-browse\.zip \./);
