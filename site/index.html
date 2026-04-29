@@ -5,388 +5,112 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Safe Browse - Content Filter</title>
   <meta name="description" content="Safe Browse is a privacy-focused Chrome extension that removes profanity, blocks explicit images, blocks adult sites, and enforces safe search locally.">
+  <link rel="icon" href="assets/safe-browse-logo.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="site-header">
     <a class="brand-link" href="#top" aria-label="Safe Browse home">
-      <span class="brand-emblem">
-        <img src="../assets/icons/icon128.png" alt="" width="32" height="32">
-      </span>
-      <span>Safe Browse</span>
+      <img class="brand-logo" src="assets/safe-browse-logo.svg" alt="" width="28" height="37">
+      <span>safe browse</span>
     </a>
-
-    <nav class="desktop-nav" aria-label="Primary navigation">
-      <a href="#protection">Protection</a>
-      <a href="#privacy">Privacy</a>
-      <a href="#profiles">Profiles</a>
-      <a href="#stats">Stats</a>
-    </nav>
-
     <a class="header-cta" href="../README.md#installation-unpacked--developer-mode">Add to Chrome</a>
   </header>
 
-  <main id="top">
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-scene" aria-hidden="true">
-        <div class="product-window hero-window">
-          <div class="window-bar">
-            <span></span>
-            <span></span>
-            <span></span>
-            <div class="address-field">safe-browse.local/protected</div>
-          </div>
-          <div class="window-grid">
-            <div class="clean-feed">
-              <div class="feed-heading">
-                <span class="status-dot"></span>
-                <span>Live page scan</span>
-              </div>
-              <div class="feed-row">
-                <span class="feed-source">Text node</span>
-                <span class="feed-result clean">Cleaned</span>
-              </div>
-              <div class="feed-row">
-                <span class="feed-source">Image context</span>
-                <span class="feed-result blocked">Blocked</span>
-              </div>
-              <div class="feed-row">
-                <span class="feed-source">Search query</span>
-                <span class="feed-result clean">Safe mode</span>
-              </div>
-              <div class="feed-copy">Words are removed entirely, extra spaces collapse, and new content is checked as it loads.</div>
-            </div>
-            <div class="popup-preview">
-              <div class="popup-top">
-                <img src="../assets/icons/icon128.png" alt="" width="28" height="28">
-                <span>Active</span>
-              </div>
-              <div class="stat-strip">
-                <strong>128</strong>
-                <span>Today</span>
-              </div>
-              <div class="toggle-list">
-                <span>Text Filtering</span>
-                <i></i>
-              </div>
-              <div class="toggle-list">
-                <span>Image Filtering</span>
-                <i></i>
-              </div>
-              <div class="toggle-list">
-                <span>Safe Search</span>
-                <i></i>
-              </div>
-            </div>
+  <div class="smooth-page" data-smooth-scroll>
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy reveal">
+          <span class="corner-mark" aria-hidden="true"></span>
+          <h1 id="hero-title">the web's safest local content filter.</h1>
+          <p>Remove profanity, block explicit images and adult sites, and keep search clean without sending browsing data anywhere.</p>
+        </div>
+
+        <div class="visual-frame hero-frame reveal" aria-label="Safe Browse extension preview"></div>
+      </section>
+
+      <section class="ticker" aria-label="Safe Browse highlights">
+        <div class="ticker-track">
+          <span class="ticker-square"></span>
+          <span>filter locally, keep control</span>
+          <span class="ticker-square"></span>
+          <span>filter locally, keep control</span>
+          <span class="ticker-square"></span>
+          <span>filter locally, keep control</span>
+          <span class="ticker-square"></span>
+          <span>filter locally, keep control</span>
+        </div>
+      </section>
+
+      <section class="section feature-stack" id="protection" aria-labelledby="protection-title">
+        <div class="section-copy reveal">
+          <span class="corner-mark mark-left" aria-hidden="true"></span>
+          <h2 id="protection-title">Say goodbye to messy web pages</h2>
+          <p>Safe Browse cleans text, watches dynamic content, and blocks known adult domains before they load.</p>
+        </div>
+
+        <div class="visual-frame wide-frame reveal" aria-label="Filtering preview"></div>
+
+        <div class="small-frame-grid reveal" aria-label="Filtering modes">
+          <div class="visual-frame small-frame"></div>
+          <div class="visual-frame small-frame"></div>
+          <div class="visual-frame small-frame"></div>
+        </div>
+      </section>
+
+      <section class="ticker ticker-alt" aria-label="Filtering promise">
+        <div class="ticker-track reverse">
+          <span class="ticker-square"></span>
+          <span>local only, no tracking</span>
+          <span class="ticker-square"></span>
+          <span>local only, no tracking</span>
+          <span class="ticker-square"></span>
+          <span>local only, no tracking</span>
+          <span class="ticker-square"></span>
+          <span>local only, no tracking</span>
+        </div>
+      </section>
+
+      <section class="section split-section" id="privacy" aria-labelledby="privacy-title">
+        <div class="split-copy reveal">
+          <span class="corner-mark mark-offset" aria-hidden="true"></span>
+          <h2 id="privacy-title">Filter every page as it loads</h2>
+          <p>MutationObserver scanning keeps social feeds, comments, search results, and new page content clean in real time.</p>
+        </div>
+
+        <div class="visual-frame side-frame reveal" aria-label="Live filtering preview"></div>
+      </section>
+
+      <section class="section cta-section" id="profiles" aria-labelledby="cta-title">
+        <div class="cta-copy reveal">
+          <span class="corner-mark mark-center" aria-hidden="true"></span>
+          <h2 id="cta-title">Are you ready for a calmer browser?</h2>
+          <p>Load the unpacked extension, pin Safe Browse, and protection starts on every new page you open.</p>
+          <div class="hero-actions" aria-label="Primary actions">
+            <a class="button button-primary" href="../README.md#installation-unpacked--developer-mode">Add to Chrome</a>
+            <a class="button button-secondary" href="../pages/popup/popup.html">View the popup</a>
           </div>
         </div>
-      </div>
+      </section>
+    </main>
 
-      <div class="hero-content reveal">
-        <div class="product-mark" aria-hidden="true">
-          <span>
-            <img src="../assets/icons/icon128.png" alt="" width="44" height="44">
-          </span>
-        </div>
-        <h1 id="hero-title">Safe Browse</h1>
-        <p>Privacy-first content filtering for Chrome. Remove profanity instead of masking it, block suspicious images and adult sites, and keep search results clean without sending browsing data anywhere.</p>
-        <div class="hero-actions" aria-label="Primary actions">
-          <a class="button button-primary" href="../README.md#installation-unpacked--developer-mode">
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg>
-            Add to Chrome
-          </a>
-          <a class="button button-secondary" href="../README.md">
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 4h9a5 5 0 0 1 5 5v11H8a3 3 0 0 1-3-3V4Z"/><path d="M8 16h11"/></svg>
-            Read the docs
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <section class="ticker" aria-label="Safe Browse highlights">
-      <div class="ticker-track">
-        <span>Local filtering</span>
-        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        <span>No tracking</span>
-        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        <span>Safe search</span>
-        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        <span>Platform-aware filters</span>
-        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        <span>Local filtering</span>
-        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        <span>No tracking</span>
-        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        <span>Safe search</span>
-        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        <span>Platform-aware filters</span>
-      </div>
-    </section>
-
-    <section class="section showcase" id="protection" aria-labelledby="protection-title">
-      <div class="section-heading reveal">
-        <span class="eyebrow">Content guardrails</span>
-        <h2 id="protection-title">Filters the page before it reaches your eyes.</h2>
-        <p>Safe Browse scans live pages, social feeds, comments, and dynamically loaded content with a fast local word list and image-context checks.</p>
-      </div>
-
-      <div class="proof-grid reveal">
-        <article class="proof-item">
-          <strong>1,600+</strong>
-          <span>English terms from merged open-source lists</span>
-        </article>
-        <article class="proof-item">
-          <strong>0</strong>
-          <span>External requests for filtering decisions</span>
-        </article>
-        <article class="proof-item">
-          <strong>4</strong>
-          <span>Ready profiles for child, teen, work, and light use</span>
-        </article>
-      </div>
-
-      <div class="visual-grid">
-        <article class="product-window wide-shot reveal">
-          <div class="window-bar">
-            <span></span>
-            <span></span>
-            <span></span>
-            <div class="address-field">news.example/feed</div>
-          </div>
-          <div class="filter-console">
-            <div class="console-main">
-              <div class="console-title">MutationObserver scan</div>
-              <div class="scan-line">
-                <span>Text filtering</span>
-                <strong>Removed terms</strong>
-              </div>
-              <div class="scan-line">
-                <span>Whitespace cleanup</span>
-                <strong>Collapsed</strong>
-              </div>
-              <div class="scan-line">
-                <span>Dynamic content</span>
-                <strong>Watched</strong>
-              </div>
-            </div>
-            <div class="console-side">
-              <div class="shield-icon">
-                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 5 3 8 7 10 4-2 7-5 7-10V6l-7-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg>
-              </div>
-              <span>Local scan complete</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="product-window mini-shot reveal">
-          <div class="mini-header">
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="m4 15 4-4 3 3 3-4 6 7"/></svg>
-            <span>Image filtering</span>
-          </div>
-          <p>Checks image URL, alt text, filename, and nearby page context for known explicit markers.</p>
-          <div class="placeholder-strip">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </article>
-
-        <article class="product-window mini-shot reveal">
-          <div class="mini-header">
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m10 10-6 6 4 4 6-6"/><path d="m14 10 6-6-4-4-6 6"/><path d="m8 12 4 4M12 8l4 4"/></svg>
-            <span>Adult site blocking</span>
-          </div>
-          <p>Redirects known adult domains to a clean blocked-site page before the site loads.</p>
-          <div class="blocked-pill">Blocked before load</div>
-        </article>
-
-        <article class="product-window mini-shot reveal">
-          <div class="mini-header">
-            <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/><path d="M8 11h6"/></svg>
-            <span>Safe search</span>
-          </div>
-          <p>Enforces clean search settings on Google, Bing, and DuckDuckGo.</p>
-          <div class="search-row">
-            <i></i>
-            <span>safe=active</span>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section class="section privacy-band" id="privacy" aria-labelledby="privacy-title">
-      <div class="privacy-copy reveal">
-        <span class="eyebrow">Local by default</span>
-        <h2 id="privacy-title">Your browser does the work. Your data stays put.</h2>
-        <p>Filtering, configuration, and statistics live in Chrome storage. The extension does not track browsing history, record the content you visit, or ask a server what to block.</p>
-      </div>
-      <div class="privacy-stack reveal" aria-label="Privacy promises">
-        <div class="privacy-row">
-          <span>No network requests</span>
-          <strong>Local only</strong>
-        </div>
-        <div class="privacy-row">
-          <span>No browsing telemetry</span>
-          <strong>No tracking</strong>
-        </div>
-        <div class="privacy-row">
-          <span>No remote classification</span>
-          <strong>Fast checks</strong>
-        </div>
-      </div>
-    </section>
-
-    <section class="ticker ticker-alt" aria-label="Filtering modes">
-      <div class="ticker-track reverse">
-        <span>YouTube comments</span>
-        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        <span>Reddit posts</span>
-        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        <span>Twitter/X trends</span>
-        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        <span>Facebook feeds</span>
-        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        <span>YouTube comments</span>
-        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        <span>Reddit posts</span>
-        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-        <span>Twitter/X trends</span>
-      </div>
-    </section>
-
-    <section class="section split-section" id="profiles" aria-labelledby="profiles-title">
-      <div class="split-copy reveal">
-        <span class="eyebrow">Profiles and controls</span>
-        <h2 id="profiles-title">Tune the filter for kids, teens, work, or a lighter web.</h2>
-        <p>Profiles switch groups of settings at once. Add custom words, whitelist trusted domains, pause protection for an hour, or lock settings behind a password.</p>
-        <div class="feature-list">
-          <div>
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <span>Child, Teen, Work, and Light presets</span>
-          </div>
-          <div>
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 17v-5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><rect x="5" y="11" width="14" height="10" rx="2"/></svg>
-            <span>Password-protected settings</span>
-          </div>
-          <div>
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
-            <span>Whitelist and custom word lists</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="settings-device reveal" aria-label="Safe Browse settings preview">
-        <div class="device-sidebar">
-          <img src="../assets/icons/icon128.png" alt="" width="36" height="36">
-          <span class="active-line"></span>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-        <div class="device-main">
-          <div class="device-title">Filter Profiles</div>
-          <div class="profile-grid">
-            <div class="profile-tile active">Child</div>
-            <div class="profile-tile">Teen</div>
-            <div class="profile-tile">Work</div>
-            <div class="profile-tile">Light</div>
-          </div>
-          <div class="setting-lines">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section stats-section" id="stats" aria-labelledby="stats-title">
-      <div class="section-heading reveal">
-        <span class="eyebrow">Visibility without surveillance</span>
-        <h2 id="stats-title">See what was filtered, without giving up privacy.</h2>
-        <p>The dashboard summarizes words filtered, sites blocked, images blocked, safe searches, top local activity, and exportable stats.</p>
-      </div>
-
-      <div class="dashboard-preview reveal">
-        <div class="dashboard-top">
-          <span>Safe Browse Dashboard</span>
-          <a href="../pages/dashboard/dashboard.html">Open preview</a>
-        </div>
-        <div class="dashboard-cards">
-          <div>
-            <strong>2,448</strong>
-            <span>Words filtered</span>
-          </div>
-          <div>
-            <strong>38</strong>
-            <span>Sites blocked</span>
-          </div>
-          <div>
-            <strong>219</strong>
-            <span>Images blocked</span>
-          </div>
-          <div>
-            <strong>146h</strong>
-            <span>Hours protected</span>
-          </div>
-        </div>
-        <div class="chart-row">
-          <div class="bar-chart">
-            <span style="height: 38%"></span>
-            <span style="height: 62%"></span>
-            <span style="height: 44%"></span>
-            <span style="height: 78%"></span>
-            <span style="height: 52%"></span>
-            <span style="height: 86%"></span>
-            <span style="height: 64%"></span>
-          </div>
-          <div class="activity-list">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section cta-section" aria-labelledby="cta-title">
-      <div class="cta-copy reveal">
-        <span class="eyebrow">Ready when you are</span>
-        <h2 id="cta-title">Build a cleaner browser surface in minutes.</h2>
-        <p>Load the unpacked extension, pin Safe Browse, and the filter starts protecting every new page you open.</p>
-        <div class="hero-actions">
-          <a class="button button-primary" href="../README.md#installation-unpacked--developer-mode">
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg>
-            Add to Chrome
-          </a>
-          <a class="button button-secondary" href="../pages/popup/popup.html">
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg>
-            View popup
-          </a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div>
+    <footer class="site-footer" id="stats">
       <a class="footer-brand" href="#top">
-        <img src="../assets/icons/icon128.png" alt="" width="28" height="28">
-        <span>Safe Browse</span>
+        <img class="footer-logo" src="assets/safe-browse-logo.svg" alt="" width="42" height="55">
+        <span>safe browse</span>
       </a>
-      <p>The local-first content filter for Chrome.</p>
-    </div>
-    <div class="footer-links">
-      <a href="../README.md">README</a>
-      <a href="../manifest.json">Manifest</a>
-      <a href="../pages/settings/settings.html">Settings</a>
-      <a href="../pages/dashboard/dashboard.html">Dashboard</a>
-    </div>
-  </footer>
+      <p>the local-first content filter for chrome.</p>
+      <div class="footer-links" aria-label="Project links">
+        <a href="../README.md">README</a>
+        <a href="../pages/settings/settings.html">Settings</a>
+        <a href="../pages/dashboard/dashboard.html">Dashboard</a>
+      </div>
+      <small>Safe Browse. All rights reserved.</small>
+    </footer>
+  </div>
 
   <script src="script.js"></script>
 </body>

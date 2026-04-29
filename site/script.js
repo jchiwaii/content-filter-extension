@@ -1,8 +1,7 @@
 const revealItems = document.querySelectorAll(".reveal");
-const navLinks = Array.from(document.querySelectorAll(".desktop-nav a"));
-const sections = navLinks
-  .map((link) => document.querySelector(link.getAttribute("href")))
-  .filter(Boolean);
+const smoothRoot = document.querySelector("[data-smooth-scroll]");
+const header = document.querySelector(".site-header");
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 const revealObserver = new IntersectionObserver(
   (entries) => {
@@ -13,22 +12,88 @@ const revealObserver = new IntersectionObserver(
       }
     });
   },
-  { threshold: 0.18 }
+  { threshold: 0.16 }
 );
 
 revealItems.forEach((item) => revealObserver.observe(item));
 
-const navObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
+if (smoothRoot && !reducedMotion.matches) {
+  const root = document.documentElement;
+  const ease = 0.052;
+  let currentY = window.scrollY;
+  let targetY = window.scrollY;
+  let pageHeight = 0;
 
-      navLinks.forEach((link) => {
-        link.classList.toggle("active", link.getAttribute("href") === `#${entry.target.id}`);
-      });
+  root.classList.add("has-smooth-scroll");
+
+  const getHeaderHeight = () => header?.offsetHeight || 0;
+
+  const updatePageHeight = () => {
+    const headerHeight = getHeaderHeight();
+    pageHeight = smoothRoot.scrollHeight + headerHeight;
+    root.style.setProperty("--header-height", `${headerHeight}px`);
+    root.style.setProperty("--smooth-height", `${pageHeight}px`);
+    document.body.style.height = `${pageHeight}px`;
+  };
+
+  const animateScrollTo = (destination) => {
+    const start = window.scrollY;
+    const distance = destination - start;
+    const duration = 1200;
+    const startedAt = performance.now();
+
+    const step = (now) => {
+      const elapsed = Math.min((now - startedAt) / duration, 1);
+      const eased = 1 - Math.pow(1 - elapsed, 3);
+      window.scrollTo(0, start + distance * eased);
+
+      if (elapsed < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+
+    requestAnimationFrame(step);
+  };
+
+  const render = () => {
+    targetY = window.scrollY;
+    currentY += (targetY - currentY) * ease;
+
+    if (Math.abs(targetY - currentY) < 0.08) {
+      currentY = targetY;
+    }
+
+    smoothRoot.style.transform = `translate3d(0, ${-currentY}px, 0)`;
+    requestAnimationFrame(render);
+  };
+
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    link.addEventListener("click", (event) => {
+      const hash = link.getAttribute("href");
+      const target = hash === "#top" ? document.body : document.querySelector(hash);
+
+      if (!target) return;
+
+      event.preventDefault();
+
+      const destination = hash === "#top" ? 0 : Math.max(0, target.offsetTop);
+
+      history.pushState(null, "", hash);
+      animateScrollTo(destination);
     });
-  },
-  { rootMargin: "-42% 0px -48% 0px", threshold: 0.01 }
-);
+  });
 
-sections.forEach((section) => navObserver.observe(section));
+  updatePageHeight();
+  requestAnimationFrame(render);
+
+  window.addEventListener("resize", updatePageHeight);
+  window.addEventListener("load", updatePageHeight);
+
+  if (document.fonts) {
+    document.fonts.ready.then(updatePageHeight);
+  }
+
+  if ("ResizeObserver" in window) {
+    new ResizeObserver(updatePageHeight).observe(smoothRoot);
+  }
+}
