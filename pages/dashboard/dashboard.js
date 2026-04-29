@@ -25,7 +25,6 @@ const chartColors = {
 document.addEventListener('DOMContentLoaded', () => {
   loadStatistics();
   loadActivityLog();
-  loadUsageSummary();
   setupEventListeners();
   initCharts();
 });
@@ -128,45 +127,6 @@ async function loadActivityLog() {
       </div>
     `;
   }).join('');
-}
-
-// Load usage summary
-async function loadUsageSummary() {
-  const result = await storage.local.get(['dailyUsage']);
-  const today = new Date().toDateString();
-  const usage = result.dailyUsage || {};
-
-  if (usage.date !== today) return;
-
-  const categories = usage.categories || {};
-
-  // Update usage bars
-  updateUsageBar('socialMedia', categories.socialMedia || 0, 120);
-  updateUsageBar('gaming', categories.gaming || 0, 60);
-  updateUsageBar('streaming', categories.streaming || 0, 180);
-}
-
-// Update a single usage bar
-function updateUsageBar(category, used, limit) {
-  const percent = Math.min(100, (used / limit) * 100);
-  const fill = document.getElementById(`${category}Usage`);
-  const time = document.getElementById(`${category}Time`);
-
-  if (fill) {
-    fill.style.width = `${percent}%`;
-
-    // Add warning/danger classes
-    fill.classList.remove('warning', 'danger');
-    if (percent >= 90) {
-      fill.classList.add('danger');
-    } else if (percent >= 70) {
-      fill.classList.add('warning');
-    }
-  }
-
-  if (time) {
-    time.textContent = `${used} / ${limit} min`;
-  }
 }
 
 // Initialize charts
@@ -426,5 +386,4 @@ function createMemoryStorageArea(initialData = {}) {
 // Auto-refresh every 30 seconds
 setInterval(() => {
   loadStatistics();
-  loadUsageSummary();
 }, 30000);

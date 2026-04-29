@@ -241,7 +241,6 @@ a {
 
 .stat-label,
 .today-label,
-.usage-time,
 .log-time,
 .log-detail,
 .empty-state {
@@ -328,8 +327,7 @@ a {
 }
 
 .top-sites-list,
-.activity-log,
-.usage-bars {
+.activity-log {
   display: grid;
   gap: 12px;
 }
@@ -340,8 +338,7 @@ a {
 }
 
 .site-item,
-.log-item,
-.usage-item {
+.log-item {
   border: 1px solid rgba(217, 217, 217, 0.18);
   border-radius: 8px;
   background: var(--surface-strong);
@@ -427,48 +424,6 @@ a {
 .log-time {
   font-size: 11px;
   white-space: nowrap;
-}
-
-.usage-item {
-  display: grid;
-  grid-template-columns: 160px minmax(0, 1fr) 126px;
-  align-items: center;
-  gap: 18px;
-  min-height: 72px;
-  padding: 16px;
-}
-
-.usage-label {
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.usage-bar {
-  height: 14px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(217, 217, 217, 0.16);
-}
-
-.usage-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: var(--safe-green);
-  transition: width 300ms ease;
-}
-
-.usage-fill.warning {
-  background: var(--yellow);
-}
-
-.usage-fill.danger {
-  background: var(--danger);
-}
-
-.usage-time {
-  font-size: 12px;
-  text-align: right;
 }
 
 .empty-state {
@@ -568,13 +523,11 @@ a {
     flex-direction: column;
   }
 
-  .log-item,
-  .usage-item {
+  .log-item {
     grid-template-columns: 1fr;
   }
 
-  .log-time,
-  .usage-time {
+  .log-time {
     text-align: left;
   }
 }

@@ -184,8 +184,10 @@ const FilterProfiles = {
 
   // Apply profile settings to config
   async applyProfileSettings(settings) {
-    const result = await chrome.storage.sync.get(['config']);
+    const result = await chrome.storage.sync.get(['config', 'imageDetectorConfig', 'safeSearchConfig']);
     const config = result.config || {};
+    const imageDetectorConfig = result.imageDetectorConfig || {};
+    const safeSearchConfig = result.safeSearchConfig || {};
 
     const updatedConfig = {
       ...config,
@@ -201,10 +203,12 @@ const FilterProfiles = {
     // Also update related configs
     await chrome.storage.sync.set({
       safeSearchConfig: {
+        ...safeSearchConfig,
         enabled: settings.safeSearch,
         blockTerms: true
       },
       imageDetectorConfig: {
+        ...imageDetectorConfig,
         enabled: settings.filterImages
       }
     });

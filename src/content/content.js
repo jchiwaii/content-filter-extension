@@ -18,6 +18,7 @@ let statistics = {
   imagesBlocked: 0,
   lastUpdate: Date.now()
 };
+let statsFlushTimer = null;
 
 // Initialize
 function initialize() {
@@ -76,8 +77,31 @@ function isProtectionActive() {
 
 // Check if current domain is whitelisted
 function isWhitelisted() {
-  const currentDomain = window.location.hostname;
-  return config.whitelistedDomains.includes(currentDomain);
+  return (config.whitelistedDomains || []).some(domain =>
+    domainMatches(window.location.hostname, domain)
+  );
+}
+
+function normalizeHostname(input) {
+  if (!input) return '';
+
+  let value = String(input).trim().toLowerCase();
+  if (!value) return '';
+
+  try {
+    const url = value.includes('://') ? new URL(value) : new URL(`https://${value}`);
+    value = url.hostname;
+  } catch {
+    value = value.split('/')[0].split(':')[0];
+  }
+
+  return value.replace(/^\.+/, '').replace(/^www\./, '');
+}
+
+function domainMatches(hostname, configuredDomain) {
+  const host = normalizeHostname(hostname);
+  const domain = normalizeHostname(configuredDomain);
+  return Boolean(domain && (host === domain || host.endsWith(`.${domain}`)));
 }
 
 // Detect SPA route changes
@@ -173,21 +197,44 @@ function cleanProfanity(text) {
 }
 
 // Flush statistics to background
-function maybeFlushStats() {
-  if (Date.now() - statistics.lastUpdate > 5000) {
-    chrome.runtime.sendMessage({
-      action: 'updateStatistics',
-      data: {
-        wordsFiltered: statistics.wordsFiltered,
-        imagesBlocked: statistics.imagesBlocked,
-        site: window.location.hostname
-      }
-    }).catch(() => {});
-
-    statistics.wordsFiltered = 0;
-    statistics.imagesBlocked = 0;
-    statistics.lastUpdate = Date.now();
+function flushStats() {
+  if (statsFlushTimer) {
+    clearTimeout(statsFlushTimer);
+    statsFlushTimer = null;
   }
+
+  const wordsFiltered = statistics.wordsFiltered;
+  const imagesBlocked = statistics.imagesBlocked;
+
+  if (!wordsFiltered && !imagesBlocked) return;
+
+  chrome.runtime.sendMessage({
+    action: 'updateStatistics',
+    data: {
+      wordsFiltered,
+      imagesBlocked,
+      site: normalizeHostname(window.location.hostname)
+    }
+  }).catch(() => {});
+
+  statistics.wordsFiltered = 0;
+  statistics.imagesBlocked = 0;
+  statistics.lastUpdate = Date.now();
+}
+
+function scheduleStatsFlush() {
+  if (Date.now() - statistics.lastUpdate > 5000) {
+    flushStats();
+    return;
+  }
+
+  if (!statsFlushTimer) {
+    statsFlushTimer = setTimeout(flushStats, 1000);
+  }
+}
+
+function maybeFlushStats() {
+  scheduleStatsFlush();
 }
 
 // Filter a single text node
@@ -298,6 +345,13 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     } else {
       syncImageFiltering();
     }
+  }
+});
+
+window.addEventListener('pagehide', flushStats);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    flushStats();
   }
 });
 

@@ -341,7 +341,10 @@ async function updateBadge() {
   const stats = localResult.dailyStats || {};
 
   if (stats.date === today) {
-    const count = (stats.wordsFiltered || 0) + (stats.sitesBlocked || 0);
+    const count = (stats.wordsFiltered || 0) +
+      (stats.sitesBlocked || 0) +
+      (stats.imagesBlocked || 0) +
+      (stats.searchesFiltered || 0);
     if (count > 0) {
       const text = count > 999 ? '999+' : count.toString();
       chrome.action.setBadgeText({ text });
@@ -378,11 +381,13 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   if (!config.enabled) return;
 
   const url = details.url;
+  let hostname = '';
 
   // Check whitelist first
   try {
     const urlObj = new URL(url);
-    if ((config.whitelistedDomains || []).some(domain => domainMatches(urlObj.hostname, domain))) {
+    hostname = normalizeHostname(urlObj.hostname);
+    if ((config.whitelistedDomains || []).some(domain => domainMatches(hostname, domain))) {
       return;
     }
   } catch {
@@ -400,7 +405,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
       });
 
       // Update statistics
-      await updateStatistics({ sitesBlocked: 1 });
+      await updateStatistics({ sitesBlocked: 1, site: hostname });
 
       // Log activity
       await logActivity('siteBlocked', { url, category: blockResult.category });
@@ -419,7 +424,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
         url: chrome.runtime.getURL(`pages/blocked/blocked.html?url=${encodeURIComponent(url)}&category=blocked_search&reason=blocked_search`)
       });
 
-      await updateStatistics({ searchesFiltered: 1 });
+      await updateStatistics({ searchesFiltered: 1, site: hostname });
       await logActivity('searchFiltered', { url, reason: searchResult.reason });
       return;
     }
@@ -427,7 +432,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     if (searchResult.action === 'redirect') {
       // Redirect to safe search version
       chrome.tabs.update(details.tabId, { url: searchResult.url });
-      await updateStatistics({ searchesFiltered: 1 });
+      await updateStatistics({ searchesFiltered: 1, site: hostname });
       return;
     }
   }
@@ -452,7 +457,7 @@ async function handleMessage(request, sender, sendResponse) {
         chrome.storage.sync.get(['config']),
         chrome.storage.local.get(['statistics', 'isPaused', 'pauseUntil'])
       ]);
-      const config = syncResult.config || defaultConfig;
+      const config = { ...defaultConfig, ...(syncResult.config || {}) };
       const stats = localResult.statistics || defaultStats;
       sendResponse({
         ...config,
@@ -489,10 +494,11 @@ async function handleMessage(request, sender, sendResponse) {
 // Update statistics
 async function updateStatistics(data) {
   // Update global statistics
-  const result = await chrome.storage.local.get(['statistics', 'dailyStats', 'siteStats']);
-  const stats = result.statistics || defaultStats;
+  const result = await chrome.storage.local.get(['statistics', 'dailyStats', 'siteStats', 'weeklyStats']);
+  const stats = { ...defaultStats, ...(result.statistics || {}) };
   const today = new Date().toDateString();
   let dailyStats = result.dailyStats || { date: today };
+  let weeklyStats = normalizeWeeklyStats(result.weeklyStats);
 
   // Reset daily stats if new day
   if (dailyStats.date !== today) {
@@ -513,15 +519,91 @@ async function updateStatistics(data) {
     }
   }
 
+  updateWeeklyStats(weeklyStats, data);
+
   // Update site-specific stats
   if (data.site) {
     const siteStats = result.siteStats || {};
-    siteStats[data.site] = (siteStats[data.site] || 0) + (data.wordsFiltered || 0);
+    const siteCount = getFilterCount(data);
+    siteStats[data.site] = (siteStats[data.site] || 0) + siteCount;
     await chrome.storage.local.set({ siteStats });
   }
 
-  await chrome.storage.local.set({ statistics: stats, dailyStats });
+  await chrome.storage.local.set({ statistics: stats, dailyStats, weeklyStats });
   await updateBadge();
+}
+
+function getFilterCount(data = {}) {
+  return (data.wordsFiltered || 0) +
+    (data.sitesBlocked || 0) +
+    (data.imagesBlocked || 0) +
+    (data.searchesFiltered || 0);
+}
+
+function getDateKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function createEmptyWeeklyStats(now = new Date()) {
+  const labels = [];
+  const dateKeys = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - i);
+    labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+    dateKeys.push(getDateKey(date));
+  }
+
+  return {
+    labels,
+    dateKeys,
+    words: [0, 0, 0, 0, 0, 0, 0],
+    sites: [0, 0, 0, 0, 0, 0, 0],
+    images: [0, 0, 0, 0, 0, 0, 0],
+    searches: [0, 0, 0, 0, 0, 0, 0],
+    types: [0, 0, 0, 0]
+  };
+}
+
+function normalizeWeeklyStats(existing = {}) {
+  const empty = createEmptyWeeklyStats();
+  if (!Array.isArray(existing.dateKeys)) return empty;
+
+  const normalized = { ...empty };
+  for (const field of ['words', 'sites', 'images', 'searches']) {
+    normalized[field] = empty.dateKeys.map(dateKey => {
+      const oldIndex = existing.dateKeys.indexOf(dateKey);
+      return oldIndex >= 0 ? (existing[field]?.[oldIndex] || 0) : 0;
+    });
+  }
+  normalized.types = [
+    normalized.words.reduce((sum, value) => sum + value, 0),
+    normalized.images.reduce((sum, value) => sum + value, 0),
+    normalized.sites.reduce((sum, value) => sum + value, 0),
+    normalized.searches.reduce((sum, value) => sum + value, 0)
+  ];
+  return normalized;
+}
+
+function updateWeeklyStats(weeklyStats, data) {
+  const todayKey = getDateKey(new Date());
+  const index = weeklyStats.dateKeys.indexOf(todayKey);
+  if (index < 0) return;
+
+  weeklyStats.words[index] += data.wordsFiltered || 0;
+  weeklyStats.sites[index] += data.sitesBlocked || 0;
+  weeklyStats.images[index] += data.imagesBlocked || 0;
+  weeklyStats.searches[index] += data.searchesFiltered || 0;
+  weeklyStats.types = [
+    weeklyStats.words.reduce((sum, value) => sum + value, 0),
+    weeklyStats.images.reduce((sum, value) => sum + value, 0),
+    weeklyStats.sites.reduce((sum, value) => sum + value, 0),
+    weeklyStats.searches.reduce((sum, value) => sum + value, 0)
+  ];
 }
 
 // Log activity

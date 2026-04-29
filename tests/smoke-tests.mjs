@@ -22,28 +22,41 @@ function createChromeMock(initial = {}) {
   const localData = initial.local || {};
   const sessionData = initial.session || {};
   const listeners = [];
+  const tabUpdates = [];
+  const tabReloads = [];
+  const tabCreates = [];
+  const messages = [];
+  const badgeTexts = [];
+  const badgeColors = [];
 
   function area(data) {
     return {
       data,
-      async get(keys) {
-        if (keys === null || keys === undefined) return { ...data };
-        if (Array.isArray(keys)) {
-          return Object.fromEntries(keys.map(key => [key, data[key]]));
+      async get(keys, callback) {
+        let result;
+        if (keys === null || keys === undefined) {
+          result = { ...data };
+        } else if (Array.isArray(keys)) {
+          result = Object.fromEntries(keys.map(key => [key, data[key]]));
+        } else if (typeof keys === 'string') {
+          result = { [keys]: data[keys] };
+        } else {
+          result = { ...keys, ...Object.fromEntries(Object.keys(keys).map(key => [key, data[key] ?? keys[key]])) };
         }
-        if (typeof keys === 'string') {
-          return { [keys]: data[keys] };
-        }
-        return { ...keys, ...Object.fromEntries(Object.keys(keys).map(key => [key, data[key] ?? keys[key]])) };
+        callback?.(result);
+        return result;
       },
-      async set(values) {
+      async set(values, callback) {
         Object.assign(data, values);
+        callback?.();
       },
-      async remove(keys) {
+      async remove(keys, callback) {
         for (const key of Array.isArray(keys) ? keys : [keys]) delete data[key];
+        callback?.();
       },
-      async clear() {
+      async clear(callback) {
         for (const key of Object.keys(data)) delete data[key];
+        callback?.();
       }
     };
   }
@@ -74,21 +87,58 @@ function createChromeMock(initial = {}) {
       onBeforeNavigate: { addListener: fn => listeners.push(['navigation', fn]) }
     },
     action: {
-      setBadgeText: () => {},
-      setBadgeBackgroundColor: () => {}
+      setBadgeText: details => badgeTexts.push(details.text),
+      setBadgeBackgroundColor: details => badgeColors.push(details.color)
     },
     commands: {
       onCommand: { addListener: fn => listeners.push(['command', fn]) }
     },
     tabs: {
-      create: () => {},
-      reload: () => {},
-      update: () => {},
-      query: async () => [],
-      sendMessage: async () => {}
+      create: details => tabCreates.push(details),
+      reload: tabId => tabReloads.push(tabId),
+      update: (tabId, details) => tabUpdates.push({ tabId, ...details }),
+      query(queryInfo, callback) {
+        const tabs = [];
+        callback?.(tabs);
+        return Promise.resolve(tabs);
+      },
+      sendMessage(tabId, message, callback) {
+        messages.push({ tabId, message });
+        callback?.({ success: true });
+        return Promise.resolve({ success: true });
+      }
     },
-    __listeners: listeners
+    __listeners: listeners,
+    __tabUpdates: tabUpdates,
+    __tabReloads: tabReloads,
+    __tabCreates: tabCreates,
+    __messages: messages,
+    __badgeTexts: badgeTexts,
+    __badgeColors: badgeColors
   };
+}
+
+async function createBackgroundContext(initialStorage = {}) {
+  const chrome = createChromeMock(initialStorage);
+  const context = vm.createContext({
+    chrome,
+    console: { log: () => {}, warn: console.warn, error: console.error },
+    URL,
+    Date,
+    setTimeout,
+    clearTimeout
+  });
+  vm.runInContext(`${await read('src/background/background.js')}
+globalThis.__background = {
+  BlocklistData,
+  SafeSearch,
+  domainMatches,
+  normalizeHostname,
+  updateStatistics,
+  updateBadge,
+  defaultConfig
+};`, context);
+  return { chrome, context, background: context.__background };
 }
 
 async function runManifestChecks() {
@@ -120,7 +170,7 @@ async function runProfanityChecks() {
 }
 
 async function runSafeSearchAndBlocklistChecks() {
-  const chrome = createChromeMock({
+  const { chrome, background } = await createBackgroundContext({
     sync: {
       config: {
         customBlocklist: ['example.com'],
@@ -130,42 +180,89 @@ async function runSafeSearchAndBlocklistChecks() {
     },
     local: {}
   });
-  const context = vm.createContext({
-    chrome,
-    console: { log: () => {}, warn: console.warn, error: console.error },
-    URL,
-    Date,
-    setTimeout,
-    clearTimeout
-  });
-  vm.runInContext(`${await read('src/background/background.js')}\nglobalThis.__background = { BlocklistData, SafeSearch, domainMatches, normalizeHostname };`, context);
 
-  assert.equal(context.__background.normalizeHostname('https://www.Example.com/path'), 'example.com');
-  assert.equal(context.__background.domainMatches('sub.example.com', 'example.com'), true);
+  assert.equal(background.normalizeHostname('https://www.Example.com/path'), 'example.com');
+  assert.equal(background.domainMatches('sub.example.com', 'example.com'), true);
 
-  const customBlock = await context.__background.BlocklistData.isBlocked('https://www.example.com/path');
+  const customBlock = await background.BlocklistData.isBlocked('https://www.example.com/path');
   assert.equal(customBlock.blocked, true);
   assert.equal(customBlock.category, 'custom');
   assert.equal(customBlock.reason, 'Manually blocked');
 
-  const adultBlock = await context.__background.BlocklistData.isBlocked('https://www.pornhub.com/');
+  const adultBlock = await background.BlocklistData.isBlocked('https://www.pornhub.com/');
   assert.equal(adultBlock.blocked, true);
   assert.equal(adultBlock.category, 'adult');
 
-  const googleRedirect = context.__background.SafeSearch.processSearchUrl('https://www.google.com/search?q=weather');
+  const googleRedirect = background.SafeSearch.processSearchUrl('https://www.google.com/search?q=weather');
   assert.equal(googleRedirect.action, 'redirect');
   assert.equal(new URL(googleRedirect.url).searchParams.get('safe'), 'active');
 
-  const blockedSearch = context.__background.SafeSearch.processSearchUrl('https://www.google.com/search?q=porn');
+  const blockedSearch = background.SafeSearch.processSearchUrl('https://www.google.com/search?q=porn');
   assert.equal(blockedSearch.action, 'block');
   assert.equal(blockedSearch.reason, 'blocked_search');
 
-  const ordinaryUrl = context.__background.SafeSearch.processSearchUrl('https://example.com/?q=porn');
+  const ordinaryUrl = background.SafeSearch.processSearchUrl('https://example.com/?q=porn');
   assert.equal(ordinaryUrl.action, 'none');
+
+  const navListener = chrome.__listeners.find(([type]) => type === 'navigation')?.[1];
+  assert.equal(typeof navListener, 'function');
+
+  await navListener({ frameId: 0, tabId: 1, url: 'https://sub.example.com/path' });
+  assert.equal(chrome.__tabUpdates.length, 1);
+  assert.match(chrome.__tabUpdates[0].url, /pages\/blocked\/blocked\.html/);
+  assert.equal(chrome.storage.local.data.statistics.sitesBlocked, 1);
+  assert.equal(chrome.storage.local.data.dailyStats.sitesBlocked, 1);
+  assert.equal(chrome.storage.local.data.siteStats['sub.example.com'], 1);
+
+  await navListener({ frameId: 0, tabId: 2, url: 'https://www.google.com/search?q=weather' });
+  assert.equal(new URL(chrome.__tabUpdates[1].url).searchParams.get('safe'), 'active');
+  assert.equal(chrome.storage.local.data.statistics.searchesFiltered, 1);
+
+  chrome.storage.sync.data.config.whitelistedDomains = ['example.com'];
+  const beforeWhitelistedNav = chrome.__tabUpdates.length;
+  await navListener({ frameId: 0, tabId: 3, url: 'https://sub.example.com/path' });
+  assert.equal(chrome.__tabUpdates.length, beforeWhitelistedNav);
+}
+
+async function runStatisticsAndBadgeChecks() {
+  const { chrome, background } = await createBackgroundContext({
+    sync: { config: { showBadge: true } },
+    local: {}
+  });
+
+  await background.updateStatistics({
+    wordsFiltered: 1,
+    imagesBlocked: 2,
+    sitesBlocked: 3,
+    searchesFiltered: 4,
+    site: 'example.com'
+  });
+
+  assert.equal(chrome.storage.local.data.statistics.wordsFiltered, 1);
+  assert.equal(chrome.storage.local.data.statistics.imagesBlocked, 2);
+  assert.equal(chrome.storage.local.data.statistics.sitesBlocked, 3);
+  assert.equal(chrome.storage.local.data.statistics.searchesFiltered, 4);
+  assert.equal(chrome.storage.local.data.dailyStats.wordsFiltered, 1);
+  assert.equal(chrome.storage.local.data.siteStats['example.com'], 10);
+  assert.equal(chrome.storage.local.data.weeklyStats.types[0], 1);
+  assert.equal(chrome.storage.local.data.weeklyStats.types[1], 2);
+  assert.equal(chrome.storage.local.data.weeklyStats.types[2], 3);
+  assert.equal(chrome.storage.local.data.weeklyStats.types[3], 4);
+  assert.equal(chrome.__badgeTexts.at(-1), '10');
+
+  chrome.storage.sync.data.config.showBadge = false;
+  await background.updateBadge();
+  assert.equal(chrome.__badgeTexts.at(-1), '');
 }
 
 async function runProfileChecks() {
-  const chrome = createChromeMock({ sync: { config: { customWords: ['pineapple'] } } });
+  const chrome = createChromeMock({
+    sync: {
+      config: { customWords: ['pineapple'] },
+      imageDetectorConfig: { enabled: true, placeholderEnabled: false, checkUrlPatterns: false },
+      safeSearchConfig: { enabled: true, blockTerms: false }
+    }
+  });
   const context = vm.createContext({ chrome, window: {}, Date });
   vm.runInContext(`${await read('src/data/profiles.js')}\nglobalThis.__profiles = FilterProfiles;`, context);
 
@@ -181,17 +278,116 @@ async function runProfileChecks() {
   assert.equal(chrome.storage.sync.data.config.blockSites, false);
   assert.equal(chrome.storage.sync.data.config.safeSearch, false);
   assert.equal(chrome.storage.sync.data.imageDetectorConfig.enabled, false);
+  assert.equal(chrome.storage.sync.data.imageDetectorConfig.placeholderEnabled, false);
+  assert.equal(chrome.storage.sync.data.imageDetectorConfig.checkUrlPatterns, false);
   assert.equal(chrome.storage.sync.data.safeSearchConfig.enabled, false);
   assert.deepEqual(chrome.storage.sync.data.config.customWords, ['pineapple']);
 }
 
+async function runContentWhitelistChecks() {
+  const chrome = createChromeMock({
+    sync: { config: { whitelistedDomains: ['example.com'] } },
+    local: {}
+  });
+  const context = vm.createContext({
+    chrome,
+    window: {
+      location: { hostname: 'sub.example.com' },
+      addEventListener: () => {}
+    },
+    location: { href: 'https://sub.example.com/page' },
+    history: { pushState: () => {}, replaceState: () => {} },
+    document: {
+      readyState: 'complete',
+      visibilityState: 'visible',
+      addEventListener: () => {},
+      body: {
+        nodeType: 1,
+        tagName: 'BODY',
+        isContentEditable: false,
+        childNodes: []
+      }
+    },
+    MutationObserver: class {
+      observe() {}
+    },
+    URL,
+    Date,
+    setTimeout,
+    clearTimeout,
+    setInterval: () => 0,
+    console: { log: () => {}, warn: () => {}, error: () => {} }
+  });
+
+  vm.runInContext(`${await read('src/content/profanity-data.js')}
+${await read('src/content/content.js')}
+globalThis.__content = { isWhitelisted, domainMatches, normalizeHostname, config };`, context);
+
+  assert.equal(context.__content.domainMatches('sub.example.com', 'example.com'), true);
+  assert.equal(context.__content.isWhitelisted(), true);
+}
+
+async function runImageDetectorChecks() {
+  const sentMessages = [];
+  const chrome = createChromeMock({ sync: { imageDetectorConfig: { enabled: true, placeholderEnabled: false } } });
+  chrome.runtime.sendMessage = message => {
+    sentMessages.push(message);
+    return Promise.resolve();
+  };
+
+  const context = vm.createContext({
+    chrome,
+    window: { location: { hostname: 'images.example.com' } },
+    document: {
+      querySelectorAll: () => []
+    },
+    URL,
+    MutationObserver: class {
+      observe() {}
+    },
+    setTimeout,
+    clearTimeout
+  });
+
+  vm.runInContext(`${await read('src/modules/image-detector.js')}\nglobalThis.__imageDetector = ImageDetector;`, context);
+  const detector = context.__imageDetector;
+
+  const image = {
+    src: 'https://cdn.example.com/nsfw/photo.jpg',
+    srcset: '',
+    dataset: {},
+    attributes: [],
+    alt: '',
+    title: '',
+    className: '',
+    id: '',
+    complete: true,
+    style: {},
+    parentElement: null,
+    naturalWidth: 640,
+    naturalHeight: 480
+  };
+
+  detector.config = { ...detector.config, enabled: true, placeholderEnabled: false, checkUrlPatterns: true };
+  const result = await detector.processImage(image);
+  assert.equal(result.blocked, true);
+  assert.equal(image.dataset.blocked, 'true');
+  assert.equal(image.style.filter, 'blur(30px)');
+  assert.equal(sentMessages.length, 1);
+  assert.equal(sentMessages[0].action, 'updateStatistics');
+  assert.equal(sentMessages[0].data.imagesBlocked, 1);
+  assert.equal(sentMessages[0].data.site, 'images.example.com');
+}
+
 async function runStaticRegressionChecks() {
   const settings = await read('pages/settings/settings.js');
+  const dashboardHtml = await read('pages/dashboard/dashboard.html');
   const pkg = JSON.parse(await read('package.json'));
 
   assert.match(settings, /displayBlocklist\(cfg\.customBlocklist \|\| \[\]\)/);
   assert.doesNotMatch(settings, /darkMode|filterLanguage|scheduleEnabled|notificationsEnabled|dailySummary|filterLevel|strictMode/);
   assert.doesNotMatch(settings, /onclick="remove(?:CustomWord|WhitelistDomain|BlocklistDomain)/);
+  assert.doesNotMatch(dashboardHtml, /Time Limits Usage|Social Media|Gaming|Streaming/);
   assert.match(pkg.scripts.build, /manifest\.json package\.json README\.md src pages assets/);
   assert.doesNotMatch(pkg.scripts.build, /zip -r safe-browse\.zip \./);
 }
@@ -199,7 +395,10 @@ async function runStaticRegressionChecks() {
 await runManifestChecks();
 await runProfanityChecks();
 await runSafeSearchAndBlocklistChecks();
+await runStatisticsAndBadgeChecks();
 await runProfileChecks();
+await runContentWhitelistChecks();
+await runImageDetectorChecks();
 await runStaticRegressionChecks();
 
 console.log('Smoke tests passed');

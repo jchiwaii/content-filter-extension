@@ -14,10 +14,13 @@ if (!hasExtensionApi && typeof window !== 'undefined') {
 function createPreviewApi() {
   const syncStore = {};
   const localStore = {
-    statistics: { wordsFiltered: 1280, sitesBlocked: 14 },
+    statistics: { wordsFiltered: 1280, sitesBlocked: 14, imagesBlocked: 8, searchesFiltered: 4 },
     dailyStats: {
       date: new Date().toDateString(),
-      wordsFiltered: 38
+      wordsFiltered: 38,
+      sitesBlocked: 2,
+      imagesBlocked: 3,
+      searchesFiltered: 1
     }
   };
   const sessionStore = {};
@@ -208,11 +211,11 @@ async function loadStatistics() {
 
   // Today's filtered count
   if (dailyStats.date === today) {
-    elements.wordsFilteredToday.textContent = formatNumber(dailyStats.wordsFiltered || 0);
+    elements.wordsFilteredToday.textContent = formatNumber(sumFilterCounts(dailyStats));
   }
 
   // Total filtered
-  elements.totalFiltered.textContent = formatNumber(stats.wordsFiltered || 0);
+  elements.totalFiltered.textContent = formatNumber(sumFilterCounts(stats));
 
   // Sites blocked
   elements.sitesBlocked.textContent = formatNumber(stats.sitesBlocked || 0);
@@ -383,9 +386,9 @@ async function whitelistCurrentSite() {
 
   try {
     const url = new URL(tabs[0].url);
-    const hostname = url.hostname;
+    const hostname = normalizeHostname(url.hostname);
 
-    if (!config.whitelistedDomains.includes(hostname)) {
+    if (!config.whitelistedDomains.some(domain => domainMatches(hostname, domain))) {
       config.whitelistedDomains.push(hostname);
       await saveConfiguration();
       displayWhitelist();
@@ -404,8 +407,8 @@ async function updateWhitelistButton() {
 
   try {
     const url = new URL(tabs[0].url);
-    const hostname = url.hostname;
-    const isWhitelisted = config.whitelistedDomains.includes(hostname);
+    const hostname = normalizeHostname(url.hostname);
+    const isWhitelisted = config.whitelistedDomains.some(domain => domainMatches(hostname, domain));
 
     elements.whitelistBtn.querySelector('span:last-child').textContent =
       isWhitelisted ? 'Whitelisted' : 'Whitelist';
@@ -514,6 +517,35 @@ function formatNumber(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
   if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
   return num.toString();
+}
+
+function sumFilterCounts(stats = {}) {
+  return (stats.wordsFiltered || 0) +
+    (stats.sitesBlocked || 0) +
+    (stats.imagesBlocked || 0) +
+    (stats.searchesFiltered || 0);
+}
+
+function normalizeHostname(input) {
+  if (!input) return '';
+
+  let value = String(input).trim().toLowerCase();
+  if (!value) return '';
+
+  try {
+    const url = value.includes('://') ? new URL(value) : new URL(`https://${value}`);
+    value = url.hostname;
+  } catch {
+    value = value.split('/')[0].split(':')[0];
+  }
+
+  return value.replace(/^\.+/, '').replace(/^www\./, '');
+}
+
+function domainMatches(hostname, configuredDomain) {
+  const host = normalizeHostname(hostname);
+  const domain = normalizeHostname(configuredDomain);
+  return Boolean(domain && (host === domain || host.endsWith(`.${domain}`)));
 }
 
 function escapeHtml(text) {
