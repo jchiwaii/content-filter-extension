@@ -1,5 +1,93 @@
 // Modern Popup Script
 
+const hasExtensionApi = typeof chrome !== 'undefined'
+  && chrome.storage?.sync
+  && chrome.storage?.local
+  && chrome.tabs
+  && chrome.runtime;
+const extensionApi = hasExtensionApi ? chrome : createPreviewApi();
+
+if (!hasExtensionApi && typeof window !== 'undefined') {
+  window.chrome = extensionApi;
+}
+
+function createPreviewApi() {
+  const syncStore = {};
+  const localStore = {
+    statistics: { wordsFiltered: 1280, sitesBlocked: 14 },
+    dailyStats: {
+      date: new Date().toDateString(),
+      wordsFiltered: 38
+    }
+  };
+  const sessionStore = {};
+
+  const readStore = (store, keys) => {
+    if (Array.isArray(keys)) {
+      return Object.fromEntries(keys.map(key => [key, store[key]]));
+    }
+    if (typeof keys === 'string') {
+      return { [keys]: store[keys] };
+    }
+    if (keys && typeof keys === 'object') {
+      return Object.fromEntries(
+        Object.keys(keys).map(key => [key, store[key] ?? keys[key]])
+      );
+    }
+    return { ...store };
+  };
+
+  const storageArea = store => ({
+    get(keys) {
+      return Promise.resolve(readStore(store, keys));
+    },
+    set(values) {
+      Object.assign(store, values);
+      return Promise.resolve();
+    },
+    remove(keys) {
+      const keysToRemove = Array.isArray(keys) ? keys : [keys];
+      keysToRemove.forEach(key => delete store[key]);
+      return Promise.resolve();
+    }
+  });
+
+  const queryTabs = (query, callback) => {
+    const tabs = [{ id: 1, url: window.location.href }];
+    if (callback) {
+      callback(tabs);
+      return undefined;
+    }
+    return Promise.resolve(tabs);
+  };
+
+  return {
+    storage: {
+      sync: storageArea(syncStore),
+      local: storageArea(localStore),
+      session: storageArea(sessionStore)
+    },
+    tabs: {
+      query: queryTabs,
+      create({ url }) {
+        window.location.href = url;
+        return Promise.resolve();
+      },
+      sendMessage() {
+        return Promise.resolve();
+      },
+      reload() {
+        return Promise.resolve();
+      }
+    },
+    runtime: {
+      getURL(path) {
+        return `../../${path}`;
+      }
+    }
+  };
+}
+
 // State
 let config = {
   enabled: true,
@@ -91,8 +179,8 @@ async function checkPasswordLock() {
 // Load configuration
 async function loadConfiguration() {
   const [syncResult, localResult] = await Promise.all([
-    chrome.storage.sync.get(['config', 'activeProfile', 'darkMode', 'safeSearchConfig', 'imageDetectorConfig']),
-    chrome.storage.local.get(['isPaused', 'pauseUntil'])
+    extensionApi.storage.sync.get(['config', 'activeProfile', 'darkMode', 'safeSearchConfig', 'imageDetectorConfig']),
+    extensionApi.storage.local.get(['isPaused', 'pauseUntil'])
   ]);
 
   if (syncResult.config) {
@@ -105,6 +193,7 @@ async function loadConfiguration() {
   if (syncResult.darkMode) {
     document.body.classList.add('dark-mode');
   }
+  elements.darkModeBtn.textContent = document.body.classList.contains('dark-mode') ? 'Light' : 'Mode';
 
   // Check pause status
   if (localResult.isPaused && localResult.pauseUntil > Date.now()) {
@@ -125,7 +214,7 @@ async function loadConfiguration() {
 
 // Load statistics
 async function loadStatistics() {
-  const result = await chrome.storage.local.get(['statistics', 'dailyStats']);
+  const result = await extensionApi.storage.local.get(['statistics', 'dailyStats']);
   const stats = result.statistics || {};
   const dailyStats = result.dailyStats || {};
   const today = new Date().toDateString();
@@ -161,7 +250,7 @@ function setupEventListeners() {
   elements.filterImagesToggle.addEventListener('change', () => {
     config.filterImages = elements.filterImagesToggle.checked;
     saveConfiguration();
-    chrome.storage.sync.set({
+    extensionApi.storage.sync.set({
       imageDetectorConfig: { enabled: config.filterImages }
     });
   });
@@ -169,7 +258,7 @@ function setupEventListeners() {
   elements.safeSearchToggle.addEventListener('change', () => {
     config.safeSearch = elements.safeSearchToggle.checked;
     saveConfiguration();
-    chrome.storage.sync.set({
+    extensionApi.storage.sync.set({
       safeSearchConfig: { enabled: config.safeSearch }
     });
   });
@@ -189,7 +278,7 @@ function setupEventListeners() {
   elements.pauseBtn.addEventListener('click', togglePause);
   elements.whitelistBtn.addEventListener('click', whitelistCurrentSite);
   elements.dashboardBtn.addEventListener('click', () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL('pages/dashboard/dashboard.html') });
+    extensionApi.tabs.create({ url: extensionApi.runtime.getURL('pages/dashboard/dashboard.html') });
   });
 
   // Dark mode
@@ -197,11 +286,11 @@ function setupEventListeners() {
 
   // Footer links
   elements.settingsLink.addEventListener('click', () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL('pages/settings/settings.html') });
+    extensionApi.tabs.create({ url: extensionApi.runtime.getURL('pages/settings/settings.html') });
   });
 
   elements.helpLink.addEventListener('click', () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL('pages/settings/settings.html') });
+    extensionApi.tabs.create({ url: extensionApi.runtime.getURL('pages/settings/settings.html') });
   });
 
   // Collapsible sections
@@ -246,7 +335,7 @@ function updateUI() {
   elements.pauseBtn.querySelector('span:last-child').textContent =
     isPaused ? 'Resume' : 'Pause 1hr';
   elements.pauseBtn.querySelector('.action-icon').textContent =
-    isPaused ? '▶️' : '⏸️';
+    isPaused ? 'Go' : 'II';
 
   // Custom words
   displayCustomWords();
@@ -272,7 +361,7 @@ function toggleProtection() {
 // Select profile
 async function selectProfile(profileId) {
   activeProfile = profileId;
-  await chrome.storage.sync.set({ activeProfile });
+  await extensionApi.storage.sync.set({ activeProfile });
 
   // Apply profile settings
   if (typeof FilterProfiles !== 'undefined') {
@@ -301,7 +390,7 @@ async function pauseProtection() {
   isPaused = true;
   const pauseUntil = Date.now() + (60 * 60 * 1000); // 1 hour
 
-  await chrome.storage.local.set({ isPaused: true, pauseUntil });
+  await extensionApi.storage.local.set({ isPaused: true, pauseUntil });
 
   pauseTimeout = setTimeout(() => {
     resumeProtection();
@@ -319,7 +408,7 @@ async function resumeProtection() {
     pauseTimeout = null;
   }
 
-  await chrome.storage.local.set({ isPaused: false, pauseUntil: null });
+  await extensionApi.storage.local.set({ isPaused: false, pauseUntil: null });
 
   updateUI();
   notifyContentScripts({ action: 'resume' });
@@ -327,7 +416,7 @@ async function resumeProtection() {
 
 // Whitelist current site
 async function whitelistCurrentSite() {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tabs = await extensionApi.tabs.query({ active: true, currentWindow: true });
   if (!tabs[0]?.url) return;
 
   try {
@@ -348,7 +437,7 @@ async function whitelistCurrentSite() {
 
 // Update whitelist button
 async function updateWhitelistButton() {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tabs = await extensionApi.tabs.query({ active: true, currentWindow: true });
   if (!tabs[0]?.url) return;
 
   try {
@@ -359,7 +448,7 @@ async function updateWhitelistButton() {
     elements.whitelistBtn.querySelector('span:last-child').textContent =
       isWhitelisted ? 'Whitelisted' : 'Whitelist';
     elements.whitelistBtn.querySelector('.action-icon').textContent =
-      isWhitelisted ? '✓' : '✅';
+      isWhitelisted ? 'OK' : '+';
   } catch (e) {
     // Invalid URL
   }
@@ -430,8 +519,8 @@ function displayWhitelist() {
 async function toggleDarkMode() {
   document.body.classList.toggle('dark-mode');
   const isDark = document.body.classList.contains('dark-mode');
-  elements.darkModeBtn.textContent = isDark ? '☀️' : '🌙';
-  await chrome.storage.sync.set({ darkMode: isDark });
+  elements.darkModeBtn.textContent = isDark ? 'Light' : 'Mode';
+  await extensionApi.storage.sync.set({ darkMode: isDark });
 }
 
 // Save configuration
@@ -439,16 +528,16 @@ async function saveConfiguration() {
   const configToSave = { ...config };
   delete configToSave.statistics;
 
-  await chrome.storage.sync.set({ config: configToSave });
+  await extensionApi.storage.sync.set({ config: configToSave });
   notifyContentScripts({ action: 'configUpdate', config: configToSave });
 }
 
 // Notify content scripts
 function notifyContentScripts(message) {
-  chrome.tabs.query({}, (tabs) => {
+  extensionApi.tabs.query({}, (tabs) => {
     tabs.forEach(tab => {
       if (tab.id) {
-        chrome.tabs.sendMessage(tab.id, message).catch(() => {});
+        extensionApi.tabs.sendMessage(tab.id, message).catch(() => {});
       }
     });
   });
@@ -456,9 +545,9 @@ function notifyContentScripts(message) {
 
 // Reload active tab
 function reloadActiveTab() {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  extensionApi.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs[0]?.id) {
-      chrome.tabs.reload(tabs[0].id);
+      extensionApi.tabs.reload(tabs[0].id);
     }
   });
 }
