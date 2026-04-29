@@ -4,6 +4,23 @@
 let activityChart = null;
 let typeChart = null;
 
+const extensionApi = typeof chrome !== 'undefined' ? chrome : null;
+const storage = {
+  local: extensionApi?.storage?.local || createMemoryStorageArea({ installTime: Date.now() }),
+  sync: extensionApi?.storage?.sync || createMemoryStorageArea({ config: {} })
+};
+
+const chartColors = {
+  bg: '#040404',
+  text: '#ffffff',
+  muted: '#93969f',
+  line: 'rgba(217, 217, 217, 0.18)',
+  green: '#4cd971',
+  blue: '#2838e3',
+  yellow: '#ffb700',
+  danger: '#ff5555'
+};
+
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', () => {
   loadStatistics();
@@ -17,16 +34,21 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupEventListeners() {
   document.getElementById('exportBtn').addEventListener('click', exportData);
   document.getElementById('settingsBtn').addEventListener('click', () => {
-    chrome.runtime.openOptionsPage?.() || window.open('../settings/settings.html');
+    if (extensionApi?.runtime?.openOptionsPage) {
+      extensionApi.runtime.openOptionsPage();
+      return;
+    }
+
+    window.location.href = '../settings/settings.html';
   });
   document.getElementById('clearLogBtn').addEventListener('click', clearActivityLog);
 }
 
 // Load statistics
 async function loadStatistics() {
-  const [localResult, syncResult] = await Promise.all([
-    chrome.storage.local.get(['statistics', 'dailyStats', 'installTime', 'siteStats']),
-    chrome.storage.sync.get(['config'])
+  const [localResult] = await Promise.all([
+    storage.local.get(['statistics', 'dailyStats', 'installTime', 'siteStats']),
+    storage.sync.get(['config'])
   ]);
 
   const stats = localResult.statistics || {};
@@ -79,7 +101,7 @@ function loadTopSites(siteStats) {
 
 // Load activity log
 async function loadActivityLog() {
-  const result = await chrome.storage.local.get(['activityLog']);
+  const result = await storage.local.get(['activityLog']);
   const log = result.activityLog || [];
   const container = document.getElementById('activityLog');
 
@@ -110,7 +132,7 @@ async function loadActivityLog() {
 
 // Load usage summary
 async function loadUsageSummary() {
-  const result = await chrome.storage.local.get(['dailyUsage']);
+  const result = await storage.local.get(['dailyUsage']);
   const today = new Date().toDateString();
   const usage = result.dailyUsage || {};
 
@@ -155,8 +177,22 @@ async function initCharts() {
     return;
   }
 
-  const result = await chrome.storage.local.get(['weeklyStats']);
+  const result = await storage.local.get(['weeklyStats']);
   const weeklyStats = result.weeklyStats || generateEmptyWeekStats();
+  const chartFont = {
+    family: '"Azeret Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+    size: 11
+  };
+  const legend = {
+    position: 'bottom',
+    labels: {
+      color: chartColors.muted,
+      boxWidth: 12,
+      boxHeight: 12,
+      padding: 18,
+      font: chartFont
+    }
+  };
 
   // Activity chart (line)
   const activityCtx = document.getElementById('activityChart').getContext('2d');
@@ -167,16 +203,22 @@ async function initCharts() {
       datasets: [{
         label: 'Words Filtered',
         data: weeklyStats.words,
-        borderColor: '#222823',
-        backgroundColor: 'rgba(34, 40, 35, 0.1)',
+        borderColor: chartColors.green,
+        backgroundColor: 'rgba(76, 217, 113, 0.12)',
         fill: true,
+        pointBackgroundColor: chartColors.green,
+        pointBorderColor: chartColors.bg,
+        pointRadius: 4,
         tension: 0.4
       }, {
         label: 'Sites Blocked',
         data: weeklyStats.sites,
-        borderColor: '#ef4444',
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        borderColor: chartColors.blue,
+        backgroundColor: 'rgba(40, 56, 227, 0.14)',
         fill: true,
+        pointBackgroundColor: chartColors.blue,
+        pointBorderColor: chartColors.bg,
+        pointRadius: 4,
         tension: 0.4
       }]
     },
@@ -184,13 +226,27 @@ async function initCharts() {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          position: 'bottom'
-        }
+        legend
       },
       scales: {
+        x: {
+          ticks: {
+            color: chartColors.muted,
+            font: chartFont
+          },
+          grid: {
+            color: chartColors.line
+          }
+        },
         y: {
-          beginAtZero: true
+          beginAtZero: true,
+          ticks: {
+            color: chartColors.muted,
+            font: chartFont
+          },
+          grid: {
+            color: chartColors.line
+          }
         }
       }
     }
@@ -205,20 +261,20 @@ async function initCharts() {
       datasets: [{
         data: weeklyStats.types,
         backgroundColor: [
-          '#222823',
-          '#ef4444',
-          '#f59e0b',
-          '#10b981'
-        ]
+          chartColors.green,
+          chartColors.blue,
+          chartColors.yellow,
+          chartColors.danger
+        ],
+        borderColor: chartColors.bg,
+        borderWidth: 4
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          position: 'bottom'
-        }
+        legend
       }
     }
   });
@@ -246,8 +302,8 @@ function generateEmptyWeekStats() {
 // Export data
 async function exportData() {
   const [localData, syncData] = await Promise.all([
-    chrome.storage.local.get(null),
-    chrome.storage.sync.get(null)
+    storage.local.get(null),
+    storage.sync.get(null)
   ]);
 
   const exportData = {
@@ -275,7 +331,7 @@ async function exportData() {
 // Clear activity log
 async function clearActivityLog() {
   if (confirm('Are you sure you want to clear the activity log?')) {
-    await chrome.storage.local.set({ activityLog: [] });
+    await storage.local.set({ activityLog: [] });
     loadActivityLog();
   }
 }
@@ -304,14 +360,14 @@ function formatTime(timestamp) {
 
 function getLogIcon(type) {
   const icons = {
-    wordFiltered: '🔤',
-    siteBlocked: '🚫',
-    imageBlocked: '🖼️',
-    searchFiltered: '🔍',
-    configChanged: '⚙️',
-    profileChanged: '👤'
+    wordFiltered: 'Tx',
+    siteBlocked: 'Web',
+    imageBlocked: 'Img',
+    searchFiltered: 'Src',
+    configChanged: 'Cfg',
+    profileChanged: 'Pro'
   };
-  return icons[type] || '📝';
+  return icons[type] || 'Log';
 }
 
 function getLogTypeName(type) {
@@ -330,6 +386,41 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+function createMemoryStorageArea(initialData = {}) {
+  let data = { ...initialData };
+
+  return {
+    async get(keys) {
+      if (keys === null || typeof keys === 'undefined') {
+        return { ...data };
+      }
+
+      if (Array.isArray(keys)) {
+        return keys.reduce((result, key) => {
+          if (Object.prototype.hasOwnProperty.call(data, key)) {
+            result[key] = data[key];
+          }
+
+          return result;
+        }, {});
+      }
+
+      if (typeof keys === 'string') {
+        return Object.prototype.hasOwnProperty.call(data, keys) ? { [keys]: data[keys] } : {};
+      }
+
+      return Object.entries(keys).reduce((result, [key, fallback]) => {
+        result[key] = Object.prototype.hasOwnProperty.call(data, key) ? data[key] : fallback;
+        return result;
+      }, {});
+    },
+
+    async set(values) {
+      data = { ...data, ...values };
+    }
+  };
 }
 
 // Auto-refresh every 30 seconds

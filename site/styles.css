@@ -418,6 +418,82 @@ a {
   color: var(--bg);
 }
 
+.legal-page {
+  padding: 80px max(clamp(24px, 5.56vw, 80px), calc((100vw - 1440px) / 2 + 80px)) 0;
+}
+
+.legal-hero {
+  position: relative;
+  width: min(1280px, 100%);
+  margin: 0 auto 56px;
+  text-align: left;
+}
+
+.legal-kicker {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(32px, 3.35vw, 48px);
+  font-weight: 500;
+  line-height: 1.12;
+}
+
+.policy-steps {
+  width: min(1280px, 100%);
+  margin: 0 auto var(--space-7);
+  display: grid;
+  gap: 0;
+}
+
+.policy-step {
+  min-height: 148px;
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) minmax(320px, 392px);
+  align-items: center;
+  gap: clamp(48px, 14vw, 220px);
+  padding: 32px;
+  border-radius: 8px;
+}
+
+.policy-step:nth-child(odd) {
+  background: #1a1a1a;
+}
+
+.policy-step-heading {
+  display: grid;
+  grid-template-columns: 5px 64px minmax(0, 1fr);
+  align-items: center;
+  gap: 48px;
+}
+
+.policy-step-line {
+  width: 5px;
+  height: 84px;
+  display: block;
+  background: var(--safe-green);
+}
+
+.policy-step-number {
+  color: var(--text);
+  font-size: clamp(44px, 4.5vw, 68px);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.policy-step h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(20px, 1.75vw, 28px);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.policy-step p {
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(13px, 1vw, 16px);
+  line-height: 1.7;
+}
+
 .site-footer {
   min-height: 360px;
   display: grid;
@@ -510,6 +586,19 @@ a {
 
   .section {
     padding: 92px 28px;
+  }
+
+  .legal-page {
+    padding: 72px 28px 0;
+  }
+
+  .policy-step {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+
+  .policy-step {
+    min-height: 0;
   }
 
   .section-copy {
@@ -630,6 +719,24 @@ a {
 
   .section {
     padding: 76px 18px;
+  }
+
+  .legal-page {
+    padding: 64px 18px 0;
+  }
+
+  .policy-step {
+    padding: 24px 18px;
+  }
+
+  .policy-step-heading {
+    grid-template-columns: 4px 48px minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .policy-step-line {
+    width: 4px;
+    height: 64px;
   }
 
   .feature-stack {

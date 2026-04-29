@@ -4,14 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Safe Browse</title>
+  <link rel="icon" href="../../assets/icons/safe-browse-logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <!-- Password Lock -->
   <div id="passwordLock" class="password-lock hidden">
     <div class="lock-content">
-      <div class="lock-icon">🔒</div>
-      <h3>Settings Locked</h3>
+      <img class="lock-logo" src="../../assets/icons/safe-browse-logo.svg" alt="" width="42" height="55">
+      <h3>Settings locked</h3>
       <input type="password" id="passwordInput" placeholder="Enter password">
       <button id="unlockBtn" class="btn btn-primary">Unlock</button>
       <p class="error hidden" id="passwordError">Incorrect password</p>
@@ -19,17 +22,16 @@
   </div>
 
   <div class="popup-container" id="mainContent">
-    <!-- Header -->
     <header class="header">
       <div class="header-left">
-        <span class="logo-icon">🛡️</span>
+        <img class="popup-logo" src="../../assets/icons/safe-browse-logo.svg" alt="" width="24" height="32">
         <div class="header-text">
-          <h1>Safe Browse</h1>
+          <h1>safe browse</h1>
           <span class="status-badge" id="statusBadge">Active</span>
         </div>
       </div>
       <div class="header-right">
-        <button class="icon-btn" id="darkModeBtn" title="Toggle dark mode">🌙</button>
+        <button class="icon-btn" id="darkModeBtn" title="Toggle display mode">Mode</button>
         <label class="main-toggle">
           <input type="checkbox" id="mainToggle" checked>
           <span class="toggle-slider"></span>
@@ -37,8 +39,7 @@
       </div>
     </header>
 
-    <!-- Quick Stats -->
-    <section class="quick-stats">
+    <section class="quick-stats" aria-label="Filtering statistics">
       <div class="stat-item">
         <span class="stat-value" id="wordsFilteredToday">0</span>
         <span class="stat-label">Today</span>
@@ -55,54 +56,50 @@
       </div>
     </section>
 
-    <!-- Profile Selector -->
     <section class="profile-section">
       <div class="section-header">
-        <span class="section-icon">👤</span>
-        <span>Active Profile</span>
+        <span>Active profile</span>
       </div>
       <div class="profile-selector">
         <button class="profile-btn" data-profile="child-safe">
-          <span class="profile-icon">🧒</span>
+          <span class="profile-icon">01</span>
           <span>Child</span>
         </button>
         <button class="profile-btn active" data-profile="teen-safe">
-          <span class="profile-icon">👦</span>
+          <span class="profile-icon">02</span>
           <span>Teen</span>
         </button>
         <button class="profile-btn" data-profile="work-safe">
-          <span class="profile-icon">💼</span>
+          <span class="profile-icon">03</span>
           <span>Work</span>
         </button>
         <button class="profile-btn" data-profile="minimal">
-          <span class="profile-icon">🔓</span>
+          <span class="profile-icon">04</span>
           <span>Light</span>
         </button>
       </div>
     </section>
 
-    <!-- Quick Actions -->
-    <section class="quick-actions">
+    <section class="quick-actions" aria-label="Quick actions">
       <button class="action-btn" id="pauseBtn">
-        <span class="action-icon">⏸️</span>
+        <span class="action-icon">II</span>
         <span>Pause 1hr</span>
       </button>
       <button class="action-btn" id="whitelistBtn">
-        <span class="action-icon">✅</span>
+        <span class="action-icon">OK</span>
         <span>Whitelist</span>
       </button>
       <button class="action-btn" id="dashboardBtn">
-        <span class="action-icon">📊</span>
-        <span>Stats</span>
+        <span class="action-icon">Stats</span>
+        <span>Dashboard</span>
       </button>
     </section>
 
-    <!-- Settings Toggles -->
     <section class="settings-section">
       <div class="setting-row">
         <div class="setting-info">
-          <span class="setting-icon">🔤</span>
-          <span>Text Filtering</span>
+          <span class="setting-icon">Tx</span>
+          <span>Text filtering</span>
         </div>
         <label class="toggle">
           <input type="checkbox" id="filterTextToggle" checked>
@@ -111,8 +108,8 @@
       </div>
       <div class="setting-row">
         <div class="setting-info">
-          <span class="setting-icon">🖼️</span>
-          <span>Image Filtering</span>
+          <span class="setting-icon">Img</span>
+          <span>Image filtering</span>
         </div>
         <label class="toggle">
           <input type="checkbox" id="filterImagesToggle" checked>
@@ -121,8 +118,8 @@
       </div>
       <div class="setting-row">
         <div class="setting-info">
-          <span class="setting-icon">🔍</span>
-          <span>Safe Search</span>
+          <span class="setting-icon">Src</span>
+          <span>Safe search</span>
         </div>
         <label class="toggle">
           <input type="checkbox" id="safeSearchToggle" checked>
@@ -131,8 +128,8 @@
       </div>
       <div class="setting-row">
         <div class="setting-info">
-          <span class="setting-icon">🌐</span>
-          <span>Site Blocking</span>
+          <span class="setting-icon">Web</span>
+          <span>Site blocking</span>
         </div>
         <label class="toggle">
           <input type="checkbox" id="blockSitesToggle" checked>
@@ -141,40 +138,33 @@
       </div>
     </section>
 
-    <!-- Custom Words (Collapsible) -->
     <section class="collapsible-section">
       <button class="collapsible-header" id="customWordsHeader">
-        <span>Custom Words</span>
-        <span class="collapse-icon">▼</span>
+        <span>Custom words</span>
+        <span class="collapse-icon">v</span>
       </button>
       <div class="collapsible-content" id="customWordsContent">
         <div class="input-group">
-          <input type="text" id="customWordInput" placeholder="Add word to filter...">
-          <button id="addWordBtn" class="btn btn-small">+</button>
+          <input type="text" id="customWordInput" placeholder="Add word">
+          <button id="addWordBtn" class="btn btn-small">Add</button>
         </div>
         <div class="tags-list" id="customWordsList"></div>
       </div>
     </section>
 
-    <!-- Whitelist (Collapsible) -->
     <section class="collapsible-section">
       <button class="collapsible-header" id="whitelistHeader">
-        <span>Whitelisted Sites</span>
-        <span class="collapse-icon">▼</span>
+        <span>Whitelisted sites</span>
+        <span class="collapse-icon">v</span>
       </button>
       <div class="collapsible-content" id="whitelistContent">
         <div class="whitelist-list" id="whitelistList"></div>
       </div>
     </section>
 
-    <!-- Footer -->
     <footer class="footer">
-      <button class="footer-link" id="settingsLink">
-        <span>⚙️</span> Settings
-      </button>
-      <button class="footer-link" id="helpLink">
-        <span>❓</span> Help
-      </button>
+      <button class="footer-link" id="settingsLink">Settings</button>
+      <button class="footer-link" id="helpLink">Help</button>
     </footer>
   </div>
 
