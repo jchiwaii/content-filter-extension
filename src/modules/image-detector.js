@@ -8,7 +8,7 @@ const ImageDetector = {
     checkKeywords: true,
     checkDimensions: true,
     checkUrlPatterns: true,
-    placeholderEnabled: true
+    placeholderEnabled: false
   },
   observer: null,
   scanTimeout: null,
@@ -329,14 +329,8 @@ const ImageDetector = {
     imgElement.dataset.blocked = 'true';
     this.recordBlockedImage();
 
-    if (this.config.placeholderEnabled) {
-      // Replace with placeholder
-      this.showPlaceholder(imgElement, result);
-    } else {
-      // Just blur
-      imgElement.style.filter = 'blur(30px)';
-      imgElement.style.transition = 'filter 0.3s ease';
-    }
+    imgElement.style.filter = 'blur(30px)';
+    imgElement.style.transition = 'filter 0.3s ease';
   },
 
   recordBlockedImage() {
@@ -349,68 +343,6 @@ const ImageDetector = {
         site: window.location.hostname
       }
     }).catch(() => {});
-  },
-
-  // Show placeholder for blocked image
-  showPlaceholder(imgElement, result) {
-    const container = imgElement.parentElement;
-    if (!container) return;
-
-    // Store original src
-    imgElement.dataset.originalSrc = imgElement.src;
-
-    // Create placeholder
-    const placeholder = document.createElement('div');
-    placeholder.className = 'cf-image-placeholder';
-    placeholder.innerHTML = `
-      <div style="
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        background: #040404;
-        color: white;
-        border: 1px solid rgba(217, 217, 217, 0.28);
-        min-height: 100px;
-        border-radius: 8px;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
-      ">
-        <div style="font-size: 11px; color: #4cd971; margin-bottom: 8px; text-transform: uppercase;">Safe Browse</div>
-        <div style="font-size: 14px; font-weight: 500; margin-bottom: 4px;">Image Blocked</div>
-        <div style="font-size: 11px; color: #93969f; margin-bottom: 12px;">${result.reason}</div>
-        <button class="cf-reveal-btn" style="
-          background: #2838e3;
-          border: 0;
-          color: white;
-          padding: 6px 16px;
-          border-radius: 999px;
-          cursor: pointer;
-          font-size: 12px;
-          transition: background 0.2s;
-        ">Show Image</button>
-      </div>
-    `;
-
-    // Copy dimensions
-    const width = imgElement.width || imgElement.naturalWidth || 200;
-    const height = imgElement.height || imgElement.naturalHeight || 150;
-    placeholder.style.width = `${width}px`;
-    placeholder.style.height = `${height}px`;
-
-    // Add reveal functionality
-    placeholder.querySelector('.cf-reveal-btn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      imgElement.style.display = '';
-      imgElement.style.filter = 'none';
-      delete imgElement.dataset.blocked;
-      delete imgElement.dataset.scanned;
-      placeholder.remove();
-    });
-
-    // Hide original and insert placeholder
-    imgElement.style.display = 'none';
-    container.insertBefore(placeholder, imgElement);
   },
 
   // Batch process images

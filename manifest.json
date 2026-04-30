@@ -29,26 +29,6 @@
       "css": ["src/content/content.css"],
       "run_at": "document_end",
       "all_frames": true
-    },
-    {
-      "matches": ["*://*.youtube.com/*"],
-      "js": ["src/platforms/youtube.js"],
-      "run_at": "document_end"
-    },
-    {
-      "matches": ["*://*.twitter.com/*", "*://*.x.com/*"],
-      "js": ["src/platforms/twitter.js"],
-      "run_at": "document_end"
-    },
-    {
-      "matches": ["*://*.reddit.com/*"],
-      "js": ["src/platforms/reddit.js"],
-      "run_at": "document_end"
-    },
-    {
-      "matches": ["*://*.facebook.com/*", "*://*.instagram.com/*"],
-      "js": ["src/platforms/facebook.js"],
-      "run_at": "document_end"
     }
   ],
 

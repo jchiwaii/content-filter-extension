@@ -137,7 +137,7 @@ const DEFAULT_CONFIG = {
 
 const DEFAULT_IMAGE_CONFIG = {
   enabled: true,
-  placeholderEnabled: true,
+  placeholderEnabled: false,
   checkUrlPatterns: true
 };
 
@@ -285,9 +285,6 @@ function applyImageConfigToUI(imageConfig) {
   if (imageConfig.enabled !== undefined) {
     document.getElementById('filterImages').checked = imageConfig.enabled !== false;
   }
-  if (imageConfig.placeholderEnabled !== undefined) {
-    document.getElementById('imagePlaceholder').checked = imageConfig.placeholderEnabled !== false;
-  }
   if (imageConfig.checkUrlPatterns !== undefined) {
     document.getElementById('checkUrlPatterns').checked = imageConfig.checkUrlPatterns !== false;
   }
@@ -334,7 +331,6 @@ function setupEventListeners() {
 
   // Image filtering
   document.getElementById('filterImages').addEventListener('change', saveImageSettings);
-  document.getElementById('imagePlaceholder').addEventListener('change', saveImageSettings);
   document.getElementById('checkUrlPatterns').addEventListener('change', saveImageSettings);
 
   // Parental controls
@@ -403,7 +399,7 @@ async function saveImageSettings() {
 
   const imageConfig = {
     enabled: document.getElementById('filterImages').checked,
-    placeholderEnabled: document.getElementById('imagePlaceholder').checked,
+    placeholderEnabled: false,
     checkUrlPatterns: document.getElementById('checkUrlPatterns').checked
   };
 

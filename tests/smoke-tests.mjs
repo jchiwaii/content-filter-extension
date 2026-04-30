@@ -148,6 +148,7 @@ async function runManifestChecks() {
 
   for (const script of manifest.content_scripts.flatMap(entry => entry.js || [])) {
     assert.equal(await exists(script), true, `Missing content script: ${script}`);
+    assert.equal(script.startsWith('src/platforms/'), false, `Platform-specific script should not load: ${script}`);
   }
 
   for (const css of manifest.content_scripts.flatMap(entry => entry.css || [])) {
@@ -436,69 +437,39 @@ async function runImageDetectorChecks() {
   const safeResult = await detector.processImage(safeImage);
   assert.equal(safeResult.blocked, false);
   assert.equal(safeImage.dataset.blocked, undefined);
-}
 
-async function runPlatformTextSafetyChecks() {
-  const context = vm.createContext({
-    chrome: {
-      runtime: { getURL: path => `chrome-extension://safe-browse/${path}` },
-      storage: { sync: { get: async () => ({}) } }
-    },
-    window: {
-      location: { hostname: 'example.com' },
-      addEventListener: () => {}
-    },
-    location: { href: 'https://example.com/' },
-    document: {
-      readyState: 'complete',
-      addEventListener: () => {},
-      body: {},
-      querySelectorAll: () => []
-    },
-    MutationObserver: class {
-      observe() {}
-    },
-    setTimeout,
-    clearTimeout,
-    setInterval: () => 0,
-    console: { log: () => {}, warn: () => {}, error: () => {} }
-  });
-
-  vm.runInContext(await read('src/content/profanity-data.js'), context);
-  vm.runInContext(await read('src/platforms/twitter.js'), context);
-
-  const filter = context.window.TwitterFilter;
-  assert.equal(filter.containsProfanity('God is good'), false);
-  assert.equal(filter.containsNsfwKeyword('adulting in Essex'), false);
-  assert.equal(filter.containsNsfwKeyword('Sex Education is a normal title'), false);
-  assert.equal(filter.containsNsfwKeyword('adult education resources'), false);
-  assert.equal(filter.containsNsfwKeyword('watch porn now'), true);
-
-  const article = {
-    style: {},
-    querySelector: () => null,
-    appendChild: () => {
-      throw new Error('Tweets should not receive filter overlays for text matches');
+  const placeholderParent = {
+    insertBefore: () => {
+      throw new Error('Image detector should not insert placeholder UI');
     }
   };
-  const tweet = { closest: () => article };
-  let textFiltered = false;
-  filter.filterTextInElement = node => {
-    textFiltered = node === tweet;
+  const placeholderProofImage = {
+    src: 'https://cdn.example.com/nsfw/photo.jpg',
+    srcset: '',
+    dataset: {},
+    attributes: [],
+    alt: '',
+    title: '',
+    className: '',
+    id: '',
+    complete: true,
+    style: {},
+    parentElement: placeholderParent,
+    naturalWidth: 640,
+    naturalHeight: 480
   };
-
-  filter.filterTweetContent(tweet);
-  assert.equal(textFiltered, true);
-  assert.equal(article.style.opacity, undefined);
+  detector.config = { ...detector.config, enabled: true, placeholderEnabled: true, checkUrlPatterns: true };
+  const placeholderProofResult = await detector.processImage(placeholderProofImage);
+  assert.equal(placeholderProofResult.blocked, true);
+  assert.equal(placeholderProofImage.style.filter, 'blur(30px)');
 }
 
 async function runStaticRegressionChecks() {
   const settings = await read('pages/settings/settings.js');
+  const settingsHtml = await read('pages/settings/settings.html');
   const dashboardHtml = await read('pages/dashboard/dashboard.html');
   const contentCss = await read('src/content/content.css');
-  const twitter = await read('src/platforms/twitter.js');
-  const facebook = await read('src/platforms/facebook.js');
-  const reddit = await read('src/platforms/reddit.js');
+  const imageDetector = await read('src/modules/image-detector.js');
   const pkg = JSON.parse(await read('package.json'));
 
   assert.match(settings, /displayBlocklist\(cfg\.customBlocklist \|\| \[\]\)/);
@@ -508,9 +479,9 @@ async function runStaticRegressionChecks() {
   assert.match(pkg.scripts.build, /manifest\.json package\.json README\.md src pages assets/);
   assert.doesNotMatch(pkg.scripts.build, /zip -r safe-browse\.zip \./);
   assert.doesNotMatch(contentCss, /\[data-filtered="true"\]:hover/);
-  assert.doesNotMatch(twitter, /mouseenter|mouseleave|article\.style\.opacity/);
-  assert.doesNotMatch(facebook, /fb-filter-overlay|article\.style\.opacity|style\.filter = 'blur\(4px\)'/);
-  assert.doesNotMatch(reddit, /reddit-filter-overlay|comment-filter-overlay|post\.style\.opacity|collapseFilteredComments:\s*true/);
+  assert.doesNotMatch(imageDetector, /Show Image|Image Blocked|showPlaceholder/);
+  assert.doesNotMatch(settings, /imagePlaceholder/);
+  assert.doesNotMatch(settingsHtml, /imagePlaceholder|Show Placeholder/);
 }
 
 await runManifestChecks();
@@ -520,7 +491,6 @@ await runStatisticsAndBadgeChecks();
 await runProfileChecks();
 await runContentWhitelistChecks();
 await runImageDetectorChecks();
-await runPlatformTextSafetyChecks();
 await runStaticRegressionChecks();
 
 console.log('Smoke tests passed');
