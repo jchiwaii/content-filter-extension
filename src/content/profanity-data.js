@@ -434,8 +434,41 @@ const _ldnoobwWords = [
   "wetback", "yaoi", "zoophilia"
 ];
 
+// Keep text filtering conservative. The source list above is intentionally broad
+// and includes many ambiguous words, religious terms, names, places, and
+// non-English ethnic terms. For page text, we only match high-confidence
+// profanity/lewd terms so ordinary tweets and non-English posts are not flagged.
+const CORE_TEXT_FILTER_WORDS = [
+  'fuck', 'fucked', 'fucker', 'fuckers', 'fuckface', 'fuckhead', 'fuckin',
+  'fucking', 'fucks', 'motherfuck', 'motherfucker', 'motherfucking',
+  'mothafucka', 'mothafucker',
+  'shit', 'shite', 'shits', 'shitty', 'shithead', 'bullshit', 'dipshit',
+  'horseshit', 'jackshit', 'piece of shit',
+  'bitch', 'bitches', 'bitching', 'bitchy', 'bitchslap',
+  'asshole', 'assholes', 'arsehole', 'jackass', 'dumbass',
+  'bastard', 'bugger', 'crap', 'damn', 'dammit', 'damnit',
+  'dick', 'dickhead', 'dickwad', 'dickweed', 'cock', 'cocksucker',
+  'cunt', 'twat',
+  'whore', 'slut', 'sluts', 'slutty', 'skank',
+  'pussy', 'pussies', 'dildo', 'vibrator',
+  'porn', 'porno', 'pornography', 'pornographic', 'xxx', 'nsfw',
+  'nude', 'nudity', 'naked', 'hentai', 'erotic',
+  'blowjob', 'blow job', 'handjob', 'hand job', 'deepthroat',
+  'deep throat', 'anal', 'anal sex', 'analsex', 'oral', 'fellatio',
+  'cunnilingus', 'cum', 'semen', 'jizz',
+  'onlyfans', 'fansly', 'camgirl', 'camwhore', 'sexcam',
+  'sextoy', 'sex toy', 'sextoys', 'sex toys',
+  'faggot', 'nigger', 'niggers', 'nigga', 'niggas',
+  'chink', 'kike', 'spic', 'wetback',
+  'goddamn', 'goddammit', 'goddamnit'
+];
+
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function buildTermPattern(term) {
+  return escapeRegExp(term.trim()).replace(/\s+/g, '[\\s-]+');
 }
 
 // ── Pre-compile regex at module load — avoids creating thousands of RegExp
@@ -443,13 +476,13 @@ function escapeRegExp(str) {
 
 // Merge all word sources first, then build the filtered deduplicated list
 // (longest first so multi-word phrases are matched before component words)
-const _filteredWords = [...new Set([...PROFANITY_DATA.words, ..._ldnoobwWords])]
+const _filteredWords = [...new Set([...CORE_TEXT_FILTER_WORDS, ..._ldnoobwWords])]
   .filter(w => w && !PROFANITY_DATA.exceptions.has(w.toLowerCase()))
   .sort((a, b) => b.length - a.length);
 
 // Single combined regex: one pass replaces all matches
 const _wordRegex = new RegExp(
-  `\\b(${_filteredWords.map(escapeRegExp).join('|')})\\b`,
+  `\\b(${_filteredWords.map(buildTermPattern).join('|')})\\b`,
   'gi'
 );
 

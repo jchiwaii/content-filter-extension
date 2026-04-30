@@ -125,43 +125,7 @@ const TwitterFilter = {
 
   // Filter a specific tweet
   filterTweetContent(tweetElement) {
-    // Get the tweet article container
-    const article = tweetElement.closest('article');
-    if (!article) return;
-
-    // Dim the tweet
-    article.style.opacity = '0.4';
-    article.style.position = 'relative';
-
-    // Add filter overlay
-    if (!article.querySelector('.twitter-filter-overlay')) {
-      const overlay = document.createElement('div');
-      overlay.className = 'twitter-filter-overlay';
-      overlay.innerHTML = `
-        <div style="
-          position: absolute;
-          top: 8px;
-          right: 8px;
-          background: rgba(4, 4, 4, 0.92);
-          color: white;
-          padding: 4px 8px;
-          border: 1px solid rgba(255, 85, 85, 0.42);
-          border-radius: 999px;
-          font-size: 11px;
-          font-weight: 500;
-          z-index: 10;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        ">
-          <img src="${chrome.runtime.getURL('assets/icons/safe-browse-logo.svg')}" alt="" width="12" height="16" style="width: 12px; height: 16px; object-fit: contain;">
-          <span>Filtered</span>
-        </div>
-      `;
-      article.appendChild(overlay);
-    }
-
-    // Also filter the text content
+    // Keep the tweet visible; only remove the matched words from text nodes.
     this.filterTextInElement(tweetElement);
   },
 
@@ -195,18 +159,8 @@ const TwitterFilter = {
 
       const text = bio.textContent;
       if (this.containsProfanity(text)) {
-        bio.style.filter = 'blur(4px)';
-        bio.title = 'This bio may contain inappropriate content';
+        this.filterTextInElement(bio);
         bio.dataset.bioFiltered = 'true';
-
-        // Add reveal on hover
-        bio.style.cursor = 'pointer';
-        bio.addEventListener('mouseenter', () => {
-          bio.style.filter = 'none';
-        });
-        bio.addEventListener('mouseleave', () => {
-          bio.style.filter = 'blur(4px)';
-        });
       }
     });
   },
@@ -237,11 +191,6 @@ const TwitterFilter = {
       // Get associated tweet text
       const article = media.closest('article');
       if (!article) return;
-
-      const tweetText = article.querySelector(this.selectors.tweets);
-      if (tweetText && this.containsProfanity(tweetText.textContent)) {
-        this.blurMedia(media);
-      }
 
       // Check for sensitive content warning already present
       const sensitiveWarning = article.querySelector(this.selectors.sensitiveWarning);
@@ -322,16 +271,22 @@ const TwitterFilter = {
     }
 
     const basicWords = ['fuck', 'shit', 'porn', 'xxx', 'nsfw', 'nude', 'naked'];
-    const lowerText = text.toLowerCase();
-    return basicWords.some(word => lowerText.includes(word));
+    return this.containsKeyword(text, basicWords);
   },
 
   // Check for NSFW keywords
   containsNsfwKeyword(text) {
     if (!text) return false;
-    const keywords = ['porn', 'xxx', 'nsfw', 'nude', 'naked', 'sex', 'onlyfans', 'fansly', '18+', 'adult'];
-    const lower = text.toLowerCase();
-    return keywords.some(k => lower.includes(k));
+    const keywords = ['porn', 'xxx', 'nsfw', 'nude', 'naked', 'explicit', 'onlyfans', 'fansly', '18+'];
+    return this.containsKeyword(text, keywords);
+  },
+
+  containsKeyword(text, keywords) {
+    const value = String(text).toLowerCase();
+    return keywords.some(keyword => {
+      const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '[\\s-]+');
+      return new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i').test(value);
+    });
   },
 
   // Remove profanity from text

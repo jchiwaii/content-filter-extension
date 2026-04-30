@@ -167,6 +167,45 @@ async function runProfanityChecks() {
   assert.equal(context.window.containsProfanity('that was shit'), true);
   assert.equal(context.window.removeProfanity('that was shit'), 'that was ');
   assert.equal(context.window.containsProfanity('hello pineapple', ['pineapple']), true);
+
+  const safeTexts = [
+    'God is good',
+    'Jesus loves you',
+    'Allah bless this day',
+    'This class assessment includes Essex and Sussex.',
+    'The assistant passed the assignment with classic glass assets.',
+    'Analysis paralysis is a normal phrase.',
+    'This is a sex education article.',
+    'Adult education resources are useful.',
+    'Habari yako rafiki',
+    'Dios es bueno',
+    'Gracias por todo',
+    'Привет мир',
+    'こんにちは世界',
+    'مرحبا بالعالم'
+  ];
+
+  for (const text of safeTexts) {
+    assert.equal(context.window.containsProfanity(text), false, `False positive: ${text}`);
+    assert.equal(context.window.removeProfanity(text), text, `Safe text changed: ${text}`);
+  }
+
+  const blockedTexts = [
+    'that was fucking awful',
+    'what the fuck is this',
+    'this is bullshit',
+    'watch porn now',
+    'this post is nsfw',
+    'nude photos here',
+    'onlyfans link',
+    'you asshole'
+  ];
+
+  for (const text of blockedTexts) {
+    assert.equal(context.window.containsProfanity(text), true, `Missed profanity: ${text}`);
+  }
+
+  assert.equal(context.window.removeProfanity('that was fucking awful'), 'that was awful');
 }
 
 async function runSafeSearchAndBlocklistChecks() {
@@ -377,11 +416,89 @@ async function runImageDetectorChecks() {
   assert.equal(sentMessages[0].action, 'updateStatistics');
   assert.equal(sentMessages[0].data.imagesBlocked, 1);
   assert.equal(sentMessages[0].data.site, 'images.example.com');
+
+  const safeImage = {
+    src: 'https://cdn.example.com/classes/assistant-avatar.jpg',
+    srcset: '',
+    dataset: {},
+    attributes: [],
+    alt: 'assistant profile image for adult education resources',
+    title: 'sex education article thumbnail',
+    className: 'classic-avatar assessment-image',
+    id: 'safe-image',
+    complete: true,
+    style: {},
+    parentElement: null,
+    naturalWidth: 640,
+    naturalHeight: 480
+  };
+
+  const safeResult = await detector.processImage(safeImage);
+  assert.equal(safeResult.blocked, false);
+  assert.equal(safeImage.dataset.blocked, undefined);
+}
+
+async function runPlatformTextSafetyChecks() {
+  const context = vm.createContext({
+    chrome: {
+      runtime: { getURL: path => `chrome-extension://safe-browse/${path}` },
+      storage: { sync: { get: async () => ({}) } }
+    },
+    window: {
+      location: { hostname: 'example.com' },
+      addEventListener: () => {}
+    },
+    location: { href: 'https://example.com/' },
+    document: {
+      readyState: 'complete',
+      addEventListener: () => {},
+      body: {},
+      querySelectorAll: () => []
+    },
+    MutationObserver: class {
+      observe() {}
+    },
+    setTimeout,
+    clearTimeout,
+    setInterval: () => 0,
+    console: { log: () => {}, warn: () => {}, error: () => {} }
+  });
+
+  vm.runInContext(await read('src/content/profanity-data.js'), context);
+  vm.runInContext(await read('src/platforms/twitter.js'), context);
+
+  const filter = context.window.TwitterFilter;
+  assert.equal(filter.containsProfanity('God is good'), false);
+  assert.equal(filter.containsNsfwKeyword('adulting in Essex'), false);
+  assert.equal(filter.containsNsfwKeyword('Sex Education is a normal title'), false);
+  assert.equal(filter.containsNsfwKeyword('adult education resources'), false);
+  assert.equal(filter.containsNsfwKeyword('watch porn now'), true);
+
+  const article = {
+    style: {},
+    querySelector: () => null,
+    appendChild: () => {
+      throw new Error('Tweets should not receive filter overlays for text matches');
+    }
+  };
+  const tweet = { closest: () => article };
+  let textFiltered = false;
+  filter.filterTextInElement = node => {
+    textFiltered = node === tweet;
+  };
+
+  filter.filterTweetContent(tweet);
+  assert.equal(textFiltered, true);
+  assert.equal(article.style.opacity, undefined);
 }
 
 async function runStaticRegressionChecks() {
   const settings = await read('pages/settings/settings.js');
   const dashboardHtml = await read('pages/dashboard/dashboard.html');
+  const contentCss = await read('src/content/content.css');
+  const twitter = await read('src/platforms/twitter.js');
+  const facebook = await read('src/platforms/facebook.js');
+  const reddit = await read('src/platforms/reddit.js');
   const pkg = JSON.parse(await read('package.json'));
 
   assert.match(settings, /displayBlocklist\(cfg\.customBlocklist \|\| \[\]\)/);
@@ -390,6 +507,10 @@ async function runStaticRegressionChecks() {
   assert.doesNotMatch(dashboardHtml, /Time Limits Usage|Social Media|Gaming|Streaming/);
   assert.match(pkg.scripts.build, /manifest\.json package\.json README\.md src pages assets/);
   assert.doesNotMatch(pkg.scripts.build, /zip -r safe-browse\.zip \./);
+  assert.doesNotMatch(contentCss, /\[data-filtered="true"\]:hover/);
+  assert.doesNotMatch(twitter, /mouseenter|mouseleave|article\.style\.opacity/);
+  assert.doesNotMatch(facebook, /fb-filter-overlay|article\.style\.opacity|style\.filter = 'blur\(4px\)'/);
+  assert.doesNotMatch(reddit, /reddit-filter-overlay|comment-filter-overlay|post\.style\.opacity|collapseFilteredComments:\s*true/);
 }
 
 await runManifestChecks();
@@ -399,6 +520,7 @@ await runStatisticsAndBadgeChecks();
 await runProfileChecks();
 await runContentWhitelistChecks();
 await runImageDetectorChecks();
+await runPlatformTextSafetyChecks();
 await runStaticRegressionChecks();
 
 console.log('Smoke tests passed');

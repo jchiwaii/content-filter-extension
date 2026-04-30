@@ -15,15 +15,13 @@ const ImageDetector = {
 
   // NSFW keywords for metadata checking
   nsfwKeywords: [
-    'porn', 'xxx', 'nude', 'naked', 'nsfw', 'adult', 'sex', 'sexy',
-    'explicit', 'hentai', 'r34', 'rule34', 'erotic', 'lingerie',
-    'bikini', 'topless', 'bottomless', 'boobs', 'tits', 'ass',
-    'pussy', 'cock', 'dick', 'penis', 'vagina', 'nipple',
+    'porn', 'xxx', 'nude', 'naked', 'nsfw', 'explicit',
+    'hentai', 'r34', 'rule34', 'erotic', 'topless', 'bottomless',
+    'boobs', 'tits', 'pussy', 'cock', 'dick', 'penis', 'vagina', 'nipple',
     'onlyfans', 'fansly', 'playboy', 'penthouse', 'brazzers',
     'pornhub', 'xvideos', 'xhamster', 'redtube', 'youporn',
-    'camgirl', 'webcam', 'stripper', 'escort', 'hooker',
-    'fetish', 'bdsm', 'bondage', 'dominatrix', 'submissive',
-    'lewd', 'slutty', 'whore', 'thot', 'milf', 'dilf'
+    'camgirl', 'stripper', 'fetish', 'bdsm', 'bondage',
+    'lewd', 'slutty', 'whore', 'milf'
   ],
 
   // NSFW URL patterns
@@ -187,7 +185,7 @@ const ImageDetector = {
     const combined = `${src} ${alt} ${title} ${className} ${id} ${dataAttrs}`;
 
     for (const keyword of this.nsfwKeywords) {
-      if (combined.includes(keyword)) {
+      if (this.containsKeyword(combined, keyword)) {
         return {
           safe: false,
           reason: `NSFW keyword: ${keyword}`,
@@ -198,6 +196,11 @@ const ImageDetector = {
     }
 
     return { safe: true };
+  },
+
+  containsKeyword(text, keyword) {
+    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '[\\s_-]+');
+    return new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i').test(String(text).toLowerCase());
   },
 
   // Check URL patterns
@@ -259,7 +262,7 @@ const ImageDetector = {
       const combined = `${className} ${id}`;
 
       for (const keyword of ['nsfw', 'adult', 'mature', 'explicit', 'xxx', 'porn']) {
-        if (combined.includes(keyword)) {
+        if (this.containsKeyword(combined, keyword)) {
           return {
             safe: false,
             reason: `NSFW context: parent has ${keyword}`,
@@ -269,7 +272,7 @@ const ImageDetector = {
       }
 
       // Check for blur/warning overlays (site's own NSFW handling)
-      if (combined.includes('blur') || combined.includes('sensitive') || combined.includes('warning')) {
+      if (/(^|[^a-z0-9])(sensitive[-_ ]?media|sensitive[-_ ]?content|age[-_ ]?restricted|adult[-_ ]?warning)([^a-z0-9]|$)/i.test(combined)) {
         return {
           safe: false,
           reason: 'Site-marked sensitive content',

@@ -118,65 +118,7 @@ const FacebookFilter = {
 
   // Filter a post
   filterPost(postElement) {
-    const article = postElement.closest('article') ||
-                    postElement.closest('[role="article"]') ||
-                    postElement.closest('[data-pagelet*="FeedUnit"]');
-
-    if (!article) {
-      // Just filter text if no article found
-      this.filterTextInElement(postElement);
-      return;
-    }
-
-    // Dim the post
-    article.style.opacity = '0.3';
-    article.style.position = 'relative';
-
-    // Add filter overlay
-    if (!article.querySelector('.fb-filter-overlay')) {
-      const overlay = document.createElement('div');
-      overlay.className = 'fb-filter-overlay';
-
-      const inner = document.createElement('div');
-      inner.style.cssText = `
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        background: rgba(239, 68, 68, 0.95);
-        color: white;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 600;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      `;
-
-      const icon = document.createElement('img');
-      icon.src = chrome.runtime.getURL('assets/icons/safe-browse-logo.svg');
-      icon.alt = '';
-      icon.width = 14;
-      icon.height = 18;
-      icon.style.cssText = 'width: 14px; height: 18px; object-fit: contain;';
-      const label = document.createElement('span');
-      label.textContent = 'Content Filtered';
-      const btn = document.createElement('button');
-      btn.textContent = '✕';
-      btn.style.cssText = 'background: none; border: none; color: white; cursor: pointer; font-size: 14px; padding: 0 4px; margin-left: 4px;';
-      btn.addEventListener('click', () => {
-        article.style.opacity = '1';
-        overlay.remove();
-      });
-
-      inner.appendChild(icon);
-      inner.appendChild(label);
-      inner.appendChild(btn);
-      overlay.appendChild(inner);
-      article.appendChild(overlay);
-    }
+    this.filterTextInElement(postElement);
   },
 
   // Filter comments
@@ -200,16 +142,7 @@ const FacebookFilter = {
 
   // Filter a comment
   filterComment(commentElement) {
-    // Blur and add reveal on hover
-    commentElement.style.filter = 'blur(4px)';
-    commentElement.style.cursor = 'pointer';
-    commentElement.title = 'Click to reveal filtered comment';
-
-    commentElement.addEventListener('click', function onClick(e) {
-      e.stopPropagation();
-      this.style.filter = 'none';
-      this.removeEventListener('click', onClick);
-    });
+    this.filterTextInElement(commentElement);
   },
 
   // Filter text in element
@@ -333,16 +266,22 @@ const FacebookFilter = {
     }
 
     const basicWords = ['fuck', 'shit', 'porn', 'xxx', 'nsfw', 'nude'];
-    const lowerText = text.toLowerCase();
-    return basicWords.some(word => lowerText.includes(word));
+    return this.containsKeyword(text, basicWords);
   },
 
   // NSFW keyword check
   containsNsfwKeyword(text) {
     if (!text) return false;
-    const keywords = ['porn', 'xxx', 'nsfw', 'nude', 'naked', 'sex', 'onlyfans'];
-    const lower = text.toLowerCase();
-    return keywords.some(k => lower.includes(k));
+    const keywords = ['porn', 'xxx', 'nsfw', 'nude', 'naked', 'explicit', 'onlyfans'];
+    return this.containsKeyword(text, keywords);
+  },
+
+  containsKeyword(text, keywords) {
+    const value = String(text).toLowerCase();
+    return keywords.some(keyword => {
+      const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '[\\s-]+');
+      return new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i').test(value);
+    });
   },
 
   // Remove profanity from text

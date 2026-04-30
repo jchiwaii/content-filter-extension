@@ -345,17 +345,23 @@ const YouTubeFilter = {
     }
 
     // Fallback basic check
-    const basicWords = ['fuck', 'shit', 'porn', 'xxx', 'nsfw', 'nude', 'naked', 'sex'];
-    const lowerText = text.toLowerCase();
-    return basicWords.some(word => lowerText.includes(word));
+    const basicWords = ['fuck', 'shit', 'porn', 'xxx', 'nsfw', 'nude', 'naked'];
+    return this.containsKeyword(text, basicWords);
   },
 
   // Check for NSFW keywords in URL/text
   containsNsfwKeyword(text) {
     if (!text) return false;
-    const keywords = ['porn', 'xxx', 'nsfw', 'nude', 'naked', 'sex', 'hentai', 'adult'];
-    const lower = text.toLowerCase();
-    return keywords.some(k => lower.includes(k));
+    const keywords = ['porn', 'xxx', 'nsfw', 'nude', 'naked', 'explicit', 'hentai'];
+    return this.containsKeyword(text, keywords);
+  },
+
+  containsKeyword(text, keywords) {
+    const value = String(text).toLowerCase();
+    return keywords.some(keyword => {
+      const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '[\\s-]+');
+      return new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i').test(value);
+    });
   },
 
   // Remove profanity from text

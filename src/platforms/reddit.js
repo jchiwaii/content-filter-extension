@@ -10,7 +10,7 @@ const RedditFilter = {
     blurNsfwPosts: true,
     hideNsfwSubreddits: true,
     filterUsernames: false,
-    collapseFilteredComments: true
+    collapseFilteredComments: false
   },
 
   // Selectors for Reddit elements (supports both old and new Reddit)
@@ -166,54 +166,7 @@ const RedditFilter = {
 
   // Filter a post
   filterPost(post, titleText) {
-    post.style.opacity = '0.3';
-    post.style.position = 'relative';
-
-    // Add warning overlay
-    if (!post.querySelector('.reddit-filter-overlay')) {
-      const overlay = document.createElement('div');
-      overlay.className = 'reddit-filter-overlay';
-
-      const inner = document.createElement('div');
-      inner.style.cssText = `
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        background: rgba(4, 4, 4, 0.92);
-        color: white;
-        padding: 4px 12px;
-        border: 1px solid rgba(255, 85, 85, 0.42);
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 500;
-        z-index: 100;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      `;
-
-      const icon = document.createElement('img');
-      icon.src = chrome.runtime.getURL('assets/icons/safe-browse-logo.svg');
-      icon.alt = '';
-      icon.width = 14;
-      icon.height = 18;
-      icon.style.cssText = 'width: 14px; height: 18px; object-fit: contain;';
-      const label = document.createElement('span');
-      label.textContent = 'Content Filtered';
-      const btn = document.createElement('button');
-      btn.textContent = '✕';
-      btn.style.cssText = 'background: none; border: none; color: white; cursor: pointer; padding: 0 4px; font-size: 14px;';
-      btn.addEventListener('click', () => {
-        post.style.opacity = '1';
-        overlay.remove();
-      });
-
-      inner.appendChild(icon);
-      inner.appendChild(label);
-      inner.appendChild(btn);
-      overlay.appendChild(inner);
-      post.appendChild(overlay);
-    }
+    this.filterTextInElement(post);
   },
 
   // Filter comments
@@ -242,55 +195,8 @@ const RedditFilter = {
 
   // Filter a comment
   filterComment(comment, contentElement) {
-    if (this.config.collapseFilteredComments) {
-      // Collapse the comment
-      comment.style.maxHeight = '60px';
-      comment.style.overflow = 'hidden';
-      comment.style.position = 'relative';
-
-      // Add expand overlay
-      if (!comment.querySelector('.comment-filter-overlay')) {
-        const overlay = document.createElement('div');
-        overlay.className = 'comment-filter-overlay';
-        overlay.innerHTML = `
-          <div style="
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 40px;
-            background: linear-gradient(transparent, rgba(255,255,255,0.95));
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            padding-bottom: 8px;
-          ">
-            <button style="
-              background: #040404;
-              color: white;
-              border: 1px solid rgba(217, 217, 217, 0.28);
-              padding: 4px 12px;
-              border-radius: 999px;
-              font-size: 11px;
-              font-weight: 500;
-              cursor: pointer;
-            ">Show filtered comment</button>
-          </div>
-        `;
-
-        overlay.querySelector('button').addEventListener('click', () => {
-          comment.style.maxHeight = 'none';
-          comment.style.overflow = 'visible';
-          overlay.remove();
-        });
-
-        comment.appendChild(overlay);
-      }
-    } else {
-      // Just filter the text
-      if (contentElement) {
-        this.filterTextInElement(contentElement);
-      }
+    if (contentElement) {
+      this.filterTextInElement(contentElement);
     }
   },
 
@@ -491,8 +397,15 @@ const RedditFilter = {
     }
 
     const basicWords = ['fuck', 'shit', 'porn', 'xxx', 'nsfw'];
-    const lowerText = text.toLowerCase();
-    return basicWords.some(word => lowerText.includes(word));
+    return this.containsKeyword(text, basicWords);
+  },
+
+  containsKeyword(text, keywords) {
+    const value = String(text).toLowerCase();
+    return keywords.some(keyword => {
+      const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '[\\s-]+');
+      return new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i').test(value);
+    });
   },
 
   // Remove profanity from text

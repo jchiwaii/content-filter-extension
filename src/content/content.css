@@ -14,7 +14,6 @@
 /* Filtered content styles */
 [data-filtered="true"] {
   position: relative;
-  user-select: none;
 }
 
 /* Warning overlay */
@@ -58,15 +57,6 @@
 .filter-confidence {
   font-size: 11px;
   color: var(--safe-browse-muted);
-}
-
-/* Blurred content hover effect */
-[data-filtered="true"]:not([style*="display: none"]) {
-  transition: filter 0.3s ease;
-}
-
-[data-filtered="true"]:hover {
-  filter: blur(10px) !important;
 }
 
 /* Blocked iframe styles */
@@ -134,7 +124,7 @@ iframe[data-filtered="true"] {
   }
 }
 
-[data-filtered="true"]:not([data-animated]) {
+[data-safe-browse-blocked="true"]:not([data-animated]) {
   animation: contentBlocked 0.3s ease-out;
 }
 
