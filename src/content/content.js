@@ -69,6 +69,7 @@ function initializeFilter() {
 
   // Initialize image detector
   syncImageFiltering();
+  setupFormProtection();
 }
 
 function isProtectionActive() {
@@ -376,5 +377,31 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
   return true;
 });
+
+// Protect forms from submitting profanity
+function setupFormProtection() {
+  document.addEventListener('submit', function(event) {
+    if (!isProtectionActive() || !config.filterText) return;
+    const form = event.target;
+    const profanityElements = [];
+    const elements = form.querySelectorAll('input[type=text], input[type=email], input[type=url], input[type=search], textarea');
+    elements.forEach(el => {
+      if (el.value && window.containsProfanity && window.containsProfanity(el.value, config.customWords)) {
+        profanityElements.push(el);
+      }
+    });
+    if (profanityElements.length === 0) return;
+    event.preventDefault();
+    profanityElements.forEach(el => {
+      if (window.removeProfanity) {
+        const cleaned = window.removeProfanity(el.value, config.customWords);
+        el.value = cleaned;
+      }
+    });
+    requestAnimationFrame(() => {
+      form.submit();
+    });
+  });
+}
 
 console.log('[Safe Browse] Content script loaded');
