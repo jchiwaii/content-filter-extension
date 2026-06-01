@@ -475,7 +475,12 @@ const PROFANITY_DATA = {
 "wab","wank","wanker","wanking","waysted","weenie","weewee","welcher","welfare","wetb","wetback","wetspot","whacker","whash","whigger","whiskeydick","whiskydick","white trash","whitenigger","whites","whitetrash","whitey","whities","whiz","whop","whore","whorefucker","whorehouse","wigga","wigger","wiggers","willie","williewanker","willy","wog","wop","wtf","wuss","wuzzie",
 "xkwe","xtc","xxx",
 "yank","yankee","yanks","yarpie","yellowman","yid","yids",
-"zigabo","zigabos","zipperhead","zipperheads"
+"zigabo","zigabos","zipperhead","zipperheads",
+// Additional missing words from noswearing.com (A-D)
+"asses","asslick","asslicker","assmonkey","assmunch","assmuncher","asspirate","asswipe",
+"bampot","beaner","beartrap","bollox","butt plug","butt-pirate","buttfucka",
+"chesticle","chinc",
+"dick-sneeze"
   ],
 
   // Regex patterns for evasion techniques not covered by the word list
