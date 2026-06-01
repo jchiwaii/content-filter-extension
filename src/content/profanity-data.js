@@ -496,7 +496,8 @@ const PROFANITY_DATA = {
 "scrote","shitbagger","shitbrains","shitcanned","shitspitter","shittiest","shiz","shiznit","skullfuck","smeg","spook","suckass",
 "thundercunt","tittyfuck","twatlips",
 "uglyfuck","unclefucker",
-"va-j-j","vajayjay","vjayjay"
+"va-j-j","vajayjay","vjayjay",
+"nigaboo","niggerish","nut sack","nutsack"
   ],
 
   // Regex patterns for evasion techniques not covered by the word list
