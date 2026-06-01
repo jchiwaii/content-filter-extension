@@ -649,6 +649,7 @@ const PROFANITY_DATA = {
     'tramp',             // a hike; homeless person
     'hooters',           // restaurant chain (though vulgar slang too)
     'tinkle',            // gentle sound; child's word for urinate
+    'home',
   ])
 };
 
