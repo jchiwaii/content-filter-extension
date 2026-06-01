@@ -524,18 +524,18 @@ function removeProfanity(text, customWords) {
   // replace() resets lastIndex internally for non-sticky global regexes,
   // but we reset explicitly here for clarity
   _wordRegex.lastIndex = 0;
-  let result = text.replace(_wordRegex, '');
+  let result = text.replace(_wordRegex, ' ');
 
   if (customWords && customWords.length) {
     for (const word of customWords) {
       if (!word) continue;
-      result = result.replace(new RegExp(`\\b${escapeRegExp(word)}\\b`, 'gi'), '');
+      result = result.replace(new RegExp(`\\b${escapeRegExp(word)}\\b`, 'gi'), ' ');
     }
   }
 
   for (const pattern of PROFANITY_DATA.patterns) {
     pattern.lastIndex = 0;
-    result = result.replace(pattern, '');
+    result = result.replace(pattern, ' ');
   }
 
   // Return original if nothing changed — avoids triggering unnecessary DOM

@@ -651,3 +651,59 @@ chrome.commands.onCommand.addListener(async (command) => {
 updateBadge();
 
 console.log('[Safe Browse] Background service worker initialized');
+// Background service worker for Safe Browse
+
+let config = {};
+
+chrome.storage.sync.get(['config'], (result) => {
+  if (result.config) config = result.config;
+});
+
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (namespace === 'sync' && changes.config) {
+    config = changes.config.newValue || {};
+  }
+});
+
+// Listen for statistics updates from content scripts
+chrome.runtime.onMessage.addListener((message, sender) => {
+  if (message.action === 'updateStatistics') {
+    const data = message.data;
+    const now = Date.now();
+    const today = new Date().toDateString();
+
+    chrome.storage.local.get(['statistics', 'dailyStats'], (result) => {
+      const stats = result.statistics || {
+        wordsFiltered: 0,
+        sitesBlocked: 0,
+        imagesBlocked: 0,
+        searchesFiltered: 0,
+        lastUpdate: now
+      };
+      const dailyStats = result.dailyStats || {
+        date: today,
+        wordsFiltered: 0,
+        sitesBlocked: 0,
+        imagesBlocked: 0,
+        searchesFiltered: 0
+      };
+
+      if (data.wordsFiltered) {
+        stats.wordsFiltered += data.wordsFiltered;
+        if (dailyStats.date === today) {
+          dailyStats.wordsFiltered += data.wordsFiltered;
+        }
+      }
+      if (data.imagesBlocked) {
+        stats.imagesBlocked += data.imagesBlocked;
+        if (dailyStats.date === today) {
+          dailyStats.imagesBlocked += data.imagesBlocked;
+        }
+      }
+
+      chrome.storage.local.set({ statistics: stats, dailyStats });
+    });
+  }
+  // No response needed
+  return false;
+});
