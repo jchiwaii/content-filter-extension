@@ -444,7 +444,12 @@ const PROFANITY_DATA = {
 "chickenshit", "cockwomble", "dimwit", "doofus", "duffer", "dunce", "dork",
 "gold digger", "mindfuck", "minger", "mooncalf", "nincompoop", "numbnuts",
 "numpty", "nutjob", "pillock", "prat", "scumbag", "smartass", "snollygoster",
-"tramp", "wazzack"
+"tramp", "wazzack",
+"assbandit", "assbanger", "assbite", "asscock", "asscracker",
+"assface", "assgoblin", "asshead", "asshopper", "assjabber",
+"assjacker", "assnigger", "assshit", "assshole",
+"asssucker", "asswad",
+"axwound"
   ],
 
   // Regex patterns for evasion techniques not covered by the word list
