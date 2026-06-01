@@ -1,4 +1,4 @@
-// Profanity Database
+// Profanity Database — Full combined wordlist (cuss + LDNOOBW + CORE)
 // Word list sourced from the open-source 'cuss' project (MIT License)
 // https://github.com/words/cuss — words rated >= 1 (ambiguous or definitely profane)
 // Supplemented with regex patterns for leetspeak, censored variants, and spaced-out letters
