@@ -337,7 +337,7 @@ const PROFANITY_DATA = {
 "frot", "fuckable", "fuckbucket", "fuckbuddy",
 "fuckbutter", "fuckbutton", "fuckdoll", "fuckface",
 "fuckhead", "fuckhole", "fuckin", "fuckknob",
-"fuckmeat", "fuckoff", "fuckpig", "fucktard",
+"fuckmeat", "fuckoff", "fuckpig", "fucktard", "fuckwitt",
 "fucktoy", "fucktrumpet", "fucktunnel", "fuckwit",
 "gayass", "gaybashing", "gayboy", "gayfuck",
 "gaylord", "gaywad", "goddamn", "goddamnit",
