@@ -445,9 +445,9 @@ const PROFANITY_DATA = {
 "gold digger", "mindfuck", "minger", "mooncalf", "nincompoop", "numbnuts",
 "numpty", "nutjob", "pillock", "prat", "scumbag", "smartass", "snollygoster",
 "tramp", "wazzack",
-"assbandit", "assbanger", "assbite", "asscock", "asscracker",
-"assface", "assgoblin", "asshead", "asshopper", "assjabber",
-"assjacker", "assnigger", "assshit", "assshole",
+"assbag", "assbandit", "assbanger", "assbite", "asscock", "asscracker",
+"assface", "assgoblin", "ass-hat", "asshead", "asshopper", "ass-jabber",
+"assjacker", "assnigger", "ass-pirate", "assshit", "assshole",
 "asssucker", "asswad",
 "axwound",
 // B‑Z words from noswearing.com dictionary (A already included above)
