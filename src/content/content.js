@@ -1,6 +1,86 @@
 // Enhanced Content Filter - Main Content Script
 
-// Configuration
+// ── Image Detector (inline) ──────────────────────────────────────────────────
+window.ImageDetector = (() => {
+  const SUSPICIOUS_DOMAINS = [
+    'pornhub','xvideos','xnxx','xhamster','redtube','youporn','spankbang',
+    'beeg','eporner','pornpic','xxx','nudevista','hentai','rule34'
+  ];
+  const SUSPICIOUS_EXTS = /\.(jpg|jpeg|png|gif|webp|bmp)$/i;
+  const SUSPICIOUS_CLASSES = /\b(adult|nsfw|xxx|porn|naked|nude|sexy|bikini|lingerie)\b/i;
+
+  let enabled = true;
+
+  function isSuspicious(url) {
+    try {
+      const u = new URL(url);
+      const host = u.hostname.toLowerCase();
+      for (const d of SUSPICIOUS_DOMAINS) {
+        if (host.includes(d)) return true;
+      }
+    } catch {}
+    return false;
+  }
+
+  function hasSuspiciousAlt(img) {
+    const alt = (img.alt || '').toLowerCase();
+    const title = (img.title || '').toLowerCase();
+    const src = (img.src || '').toLowerCase();
+    return SUSPICIOUS_CLASSES.test(alt) || SUSPICIOUS_CLASSES.test(title) ||
+           SUSPICIOUS_CLASSES.test(img.className) ||
+           SUSPICIOUS_CLASSES.test(src);
+  }
+
+  function processImage(img) {
+    if (img.dataset.sbProcessed) return;
+    img.dataset.sbProcessed = '1';
+
+    if (hasSuspiciousAlt(img) || isSuspicious(img.src)) {
+      img.style.opacity = '0.3';
+      img.style.filter = 'blur(8px)';
+      img.style.transition = 'opacity 0.3s, filter 0.3s';
+      img.title = 'Potentially adult content';
+      img.alt = '[Filtered]';
+      // increment statistics later
+      chrome.runtime.sendMessage({
+        action: 'updateStatistics',
+        data: { imagesBlocked: 1, site: window.location.hostname }
+      }).catch(()=>{});
+    }
+  }
+
+  function scanPage() {
+    if (!enabled) return;
+    const imgs = document.querySelectorAll('img');
+    imgs.forEach(processImage);
+  }
+
+  function observe() {
+    if (!enabled) return;
+    const observer = new MutationObserver(mutations => {
+      if (!enabled) return;
+      for (const m of mutations) {
+        for (const node of m.addedNodes) {
+          if (node.nodeType === 1 && node.tagName === 'IMG') processImage(node);
+          else if (node.nodeType === 1) {
+            node.querySelectorAll('img').forEach(processImage);
+          }
+        }
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+
+  return {
+    init: () => { if (!document.body) return; scanPage(); observe(); },
+    setEnabled: (val) => { enabled = val; },
+    config: { enabled: true },
+    setupObserver: observe,
+    scanPage
+  };
+})();
+
+// ── Configuration ────────────────────────────────────────────────────────────
 let config = {
   enabled: true,
   filterText: true,
@@ -169,29 +249,31 @@ function filterExistingContent() {
 }
 
 async function syncImageFiltering() {
-  if (!window.ImageDetector) return;
+  // ImageDetector is now always available (defined above)
+  const imageDetector = window.ImageDetector;
+  if (!imageDetector) return;
 
   const enabled = isProtectionActive() && config.filterImages !== false;
 
-  if (typeof window.ImageDetector.init === 'function') {
-    await window.ImageDetector.init();
+  if (typeof imageDetector.init === 'function') {
+    await imageDetector.init();
   }
 
-  if (typeof window.ImageDetector.setEnabled === 'function') {
-    window.ImageDetector.setEnabled(enabled);
+  if (typeof imageDetector.setEnabled === 'function') {
+    imageDetector.setEnabled(enabled);
   } else {
-    window.ImageDetector.config = { ...window.ImageDetector.config, enabled };
+    imageDetector.config = { ...imageDetector.config, enabled };
   }
 
   if (!enabled) return;
 
-  if (!imageObserverReady && typeof window.ImageDetector.setupObserver === 'function') {
-    window.ImageDetector.setupObserver();
+  if (!imageObserverReady && typeof imageDetector.setupObserver === 'function') {
+    imageDetector.setupObserver();
     imageObserverReady = true;
   }
 
-  if (typeof window.ImageDetector.scanPage === 'function') {
-    window.ImageDetector.scanPage(true);
+  if (typeof imageDetector.scanPage === 'function') {
+    imageDetector.scanPage(true);
   }
 }
 
