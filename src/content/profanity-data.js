@@ -485,7 +485,7 @@ const _filteredWords = _allSources
   .filter(w => w && !PROFANITY_DATA.exceptions.has(w.toLowerCase()))
   .sort((a, b) => b.length - a.length);
 
-// Single combined regex: one pass replaces all matches
+// Single combined regex: one pass replaces all matches (includes CORE, LDNOOBW, and PROFANITY_DATA.words)
 const _wordRegex = new RegExp(
   `\\b(${_filteredWords.map(buildTermPattern).join('|')})\\b`,
   'gi'
