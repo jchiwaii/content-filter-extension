@@ -474,9 +474,14 @@ function buildTermPattern(term) {
 // ── Pre-compile regex at module load — avoids creating thousands of RegExp
 //    objects on every text node check (major performance fix) ─────────────────
 
-// Merge all word sources first, then build the filtered deduplicated list
-// (longest first so multi-word phrases are matched before component words)
-const _filteredWords = [...new Set([...CORE_TEXT_FILTER_WORDS, ..._ldnoobwWords])]
+// Merge ALL source lists (full PROFANITY_DATA.words, LDNOOBW, and CORE list),
+// deduplicate, remove exceptions, and sort longest first.
+const _allSources = [...new Set([
+  ...PROFANITY_DATA.words,
+  ..._ldnoobwWords,
+  ...CORE_TEXT_FILTER_WORDS
+])];
+const _filteredWords = _allSources
   .filter(w => w && !PROFANITY_DATA.exceptions.has(w.toLowerCase()))
   .sort((a, b) => b.length - a.length);
 
