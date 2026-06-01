@@ -841,3 +841,12 @@ function removeProfanity(text, customWords) {
 window.PROFANITY_DATA = PROFANITY_DATA;
 window.containsProfanity = containsProfanity;
 window.removeProfanity = removeProfanity;
+
+// Store filtered word list in extension storage so background service worker can use it.
+if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+  try {
+    chrome.storage.sync.set({ combinedProfanityWords: _filteredWords }).catch(() => {});
+  } catch (e) {
+    // Ignore
+  }
+}

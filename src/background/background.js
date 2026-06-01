@@ -66,62 +66,41 @@ const BlocklistData = {
 
 // Minimal safe search enforcement
 const SafeSearch = {
-  // Core profanity words (taken from CORE_TEXT_FILTER_WORDS) that must be blocked in searches.
-  // This list is intentionally broad; it mirrors the profanity list used for text filtering.
-  blockedTerms: [
-    // F‑word
-    'fuck', 'fucked', 'fucker', 'fuckers', 'fuckface', 'fuckhead', 'fuckin',
-    'fucking', 'fucks', 'motherfuck', 'motherfucker', 'motherfucking',
-    'mothafucka', 'mothafucker',
-    // S‑word
-    'shit', 'shite', 'shits', 'shitty', 'shithead', 'bullshit', 'dipshit',
-    'horseshit', 'jackshit', 'piece of shit',
-    // B‑word
-    'bitch', 'bitches', 'bitching', 'bitchy', 'bitchslap',
-    // A‑word
-    'asshole', 'assholes', 'arsehole', 'jackass', 'dumbass',
-    // General insults
-    'bastard', 'bugger', 'crap', 'damn', 'dammit', 'damnit',
-    'dick', 'dickhead', 'dickwad', 'dickweed', 'cock', 'cocksucker',
-    'cocksuckers', 'cockfoam',
-    'cunt', 'twat',
-    'whore', 'slut', 'sluts', 'slutty', 'skank',
-    'pussy', 'pussies', 'dildo', 'vibrator',
-    // Pornography
-    'porn', 'porno', 'pornography', 'pornographic', 'xxx', 'nsfw',
-    'nude', 'nudity', 'naked', 'hentai', 'erotic',
-    'blowjob', 'blow job', 'handjob', 'hand job', 'deepthroat',
-    'deep throat', 'anal', 'anal sex', 'analsex', 'oral', 'fellatio',
-    'cunnilingus', 'cum', 'semen', 'jizz',
-    'onlyfans', 'fansly', 'camgirl', 'camwhore', 'sexcam',
-    'sextoy', 'sex toy', 'sextoys', 'sex toys',
-    // Racial slurs
-    'faggot', 'nigger', 'niggers', 'nigga', 'niggas',
-    'chink', 'kike', 'spic', 'wetback',
-    // Religious
-    'goddamn', 'goddammit', 'goddamnit',
-    // Additional high‑frequency terms
-    'boner', 'muff', 'titties', 'titty', 'knob', 'knobhead',
-    'wank', 'wanker', 'wanking', 'turd', 'ballsack', 'scrotum',
-    'fellatio', 'cunnilingus', 'rimjob', 'rimming', 'handjob',
-    'blowjob', 'cumshot', 'creampie', 'gangbang', 'threesome',
-    'bukkake', 'cuckold', 'squirting', 'fisting', 'anilingus',
-    'numbnuts', 'nutjob', 'cockwomble', 'bellend', 'pillock',
-    'prat', 'tosser', 'wazzack', 'mooncalf', 'doofus', 'dunce',
-    'nincompoop'
-  ],
+  _blockedTermsPromise: null,
+  _blockedTerms: null,
 
-  /** Simple leetspeak‑aware check: also matches common substitutions. */
+  async _ensureTerms() {
+    if (this._blockedTerms) return this._blockedTerms;
+    if (this._blockedTermsPromise) return this._blockedTermsPromise;
+    this._blockedTermsPromise = (async () => {
+      try {
+        const result = await chrome.storage.sync.get(['combinedProfanityWords']);
+        const stored = result.combinedProfanityWords;
+        if (stored && Array.isArray(stored) && stored.length) {
+          this._blockedTerms = stored;
+        } else {
+          this._blockedTerms = [
+            'fuck','shit','bitch','asshole','porn','xxx','nude','naked','nsfw','hentai'
+          ];
+        }
+      } catch {
+        this._blockedTerms = [
+          'fuck','shit','bitch','asshole','porn','xxx','nude','naked','nsfw','hentai'
+        ];
+      }
+      return this._blockedTerms;
+    })();
+    return this._blockedTermsPromise;
+  },
+
   _patternCache: null,
 
-  _buildPatterns() {
+  async _buildPatterns() {
     if (this._patternCache) return this._patternCache;
+    const terms = await this._ensureTerms();
     const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    // For each term, create a regex that allows some leet substitutions
-    const patterns = this.blockedTerms.map(term => {
+    const patterns = terms.map(term => {
       const escaped = escapeRegExp(term);
-      // Replace letters with possible leet variants (case‑insensitive)
-      // Only handle a few common substitutions to avoid complexity.
       const leet = escaped
         .replace(/[a]/g, '[a@4]')
         .replace(/[e]/g, '[e3]')
@@ -131,32 +110,26 @@ const SafeSearch = {
         .replace(/[t]/g, '[t7]')
         .replace(/[u]/g, '[u]')
         .replace(/[ck]/g, '[ck]');
-      // Allow spaces between letters (e.g., "f u c k")
       const spaced = leet.replace(/(.)/g, '$1[\\s-]*');
       return `\\b${spaced}\\b`;
     });
-    // Also add asterisk‑censored patterns (e.g., f*ck, s**t)
     const asteriskPatterns = [
-      /\bf\*ck\b/gi,
-      /\bs\*[i!]t\b/gi,
-      /\bc\*nt\b/gi,
-      /\bb\*tch\b/gi,
-      /\bd\*ck\b/gi,
-      /\bp\*rn\b/gi,
-      /\ba\*ss\b/gi
+      /\bf\*ck\b/gi, /\bs\*[i!]t\b/gi, /\bc\*nt\b/gi, /\bb\*tch\b/gi, /\bd\*ck\b/gi, /\bp\*rn\b/gi, /\ba\*ss\b/gi
     ];
-    this._patternCache = { patterns: patterns.map(p => new RegExp(p, 'gi')), asteriskPatterns };
+    this._patternCache = {
+      patterns: patterns.map(p => new RegExp(p, 'gi')),
+      asteriskPatterns
+    };
     return this._patternCache;
   },
 
-  containsBlockedTerm(query) {
+  async containsBlockedTerm(query) {
+    const terms = await this._ensureTerms();
     const lower = query.toLowerCase();
-    // Exact substring match
-    for (const term of this.blockedTerms) {
+    for (const term of terms) {
       if (lower.includes(term.toLowerCase())) return true;
     }
-    // Leetspeak / spaced‑out / censored regex matches
-    const cache = this._buildPatterns();
+    const cache = await this._buildPatterns();
     for (const regex of cache.patterns) {
       regex.lastIndex = 0;
       if (regex.test(query)) return true;
@@ -176,7 +149,7 @@ const SafeSearch = {
            '';
   },
 
-  processSearchUrl: (url) => {
+  async processSearchUrl(url) {
     try {
       const urlObj = new URL(url);
       const hostname = urlObj.hostname;
@@ -190,7 +163,7 @@ const SafeSearch = {
       }
 
       const query = SafeSearch.getSearchQuery(urlObj);
-      if (query && SafeSearch.containsBlockedTerm(query)) {
+      if (query && await SafeSearch.containsBlockedTerm(query)) {
         return { action: 'block', reason: 'blocked_search' };
       }
 
@@ -511,7 +484,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 
   // Check safe search
   if (config.safeSearch) {
-    const searchResult = SafeSearch.processSearchUrl(url);
+    const searchResult = await SafeSearch.processSearchUrl(url);
 
     if (searchResult.action === 'block') {
       // Block inappropriate search
