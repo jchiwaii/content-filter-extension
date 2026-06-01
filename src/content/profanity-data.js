@@ -481,7 +481,22 @@ const PROFANITY_DATA = {
 "bampot","beaner","beartrap","bollox","butt plug","butt-pirate","buttfucka",
 "chesticle","chinc",
 "dick-sneeze",
-"clitweasel","clusterfuck","cockass","cockbite","cockburger","cockface","cockfucker","cockjockey","cockknoker","cockmaster","cockmongruel","cockmonkey","cockmuncher","cocknugget","cockshit","cocksmoke","cocksniffer","cockwaffle","coochie","coochy","cooter","cracker","cumslut","cumtart","cunnie","cuntass","cuntbubble","cuntface","cunthole","cuntlicker","cuntrag","cuntslut"
+"clitweasel","clusterfuck","cockass","cockbite","cockburger","cockface","cockfucker","cockjockey","cockknoker","cockmaster","cockmongruel","cockmonkey","cockmuncher","cocknugget","cockshit","cocksmoke","cocksniffer","cockwaffle","coochie","coochy","cooter","cracker","cumslut","cumtart","cunnie","cuntass","cuntbubble","cuntface","cunthole","cuntlicker","cuntrag","cuntslut",
+"fagfucker","faggit","fagnut","fuckass","fuckboy","fuckbrain","fuckbutt","fuckersucker","fucknose","fucknut","fucknutt","fucktart","fuckup",
+"gaybob","gaydo","gayfuckist","gaytard","gaylord","gaywad",
+"gooch","goopchute","guido",
+"hard on","hoe","homodumbshit","humping",
+"jagoff",
+"kooch","kootch",
+"lameass","lardass","lesbian",
+"mcfagget","minge","munging",
+"panooch","penisbanger","penisfucker","penispuffer","polesmoker","poonany","punanny","punta","pussylicking","puto",
+"queerbait","queerhole",
+"renob","ruski",
+"scrote","shitbagger","shitbrains","shitcanned","shitspitter","shittiest","shiz","shiznit","skullfuck","smeg","spook","suckass",
+"thundercunt","tittyfuck","twatlips",
+"uglyfuck","unclefucker",
+"va-j-j","vajayjay","vjayjay"
   ],
 
   // Regex patterns for evasion techniques not covered by the word list
