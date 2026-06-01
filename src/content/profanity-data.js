@@ -758,8 +758,11 @@ const _wordRegex = new RegExp(
 
 // ── Build evasion regex (allows non‑letter characters between letters) ──────
 function buildEvasionPattern(word) {
+  // Allow any number of non‑alphabetic characters between the letters,
+  // but do not allow an extra alphabetic character before each letter
+  // (prevents false positives for words like “fxuck”).
   const chars = word.split('').map(ch => {
-    if (/[a-zA-Z]/.test(ch)) return `[a-zA-Z]?${escapeRegExp(ch)}`;
+    if (/[a-zA-Z]/.test(ch)) return escapeRegExp(ch);
     return escapeRegExp(ch);
   });
   const separator = '[^a-zA-Z]*';
