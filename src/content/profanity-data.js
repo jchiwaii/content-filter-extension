@@ -755,6 +755,21 @@ const _wordRegex = new RegExp(
   'gi'
 );
 
+// ── Build evasion regex (allows non‑letter characters between letters) ──────
+function buildEvasionPattern(word) {
+  const chars = word.split('').map(ch => {
+    if (/[a-zA-Z]/.test(ch)) return `[a-zA-Z]?${escapeRegExp(ch)}`;
+    return escapeRegExp(ch);
+  });
+  const separator = '[^a-zA-Z]*';
+  return `\\b${chars.join(separator)}\\b`;
+}
+
+const _evasionPatterns = _filteredWords
+  .filter(w => w.length > 2)
+  .map(buildEvasionPattern);
+const _evasionRegex = new RegExp(_evasionPatterns.join('|'), 'gi');
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Returns true if text contains any profanity
@@ -763,6 +778,9 @@ function containsProfanity(text, customWords) {
 
   _wordRegex.lastIndex = 0;
   if (_wordRegex.test(text)) return true;
+
+  _evasionRegex.lastIndex = 0;
+  if (_evasionRegex.test(text)) return true;
 
   // Check custom words (not in pre-compiled regex)
   if (customWords && customWords.length) {
@@ -789,6 +807,9 @@ function removeProfanity(text, customWords) {
   // but we reset explicitly here for clarity
   _wordRegex.lastIndex = 0;
   let result = text.replace(_wordRegex, ' ');
+
+  _evasionRegex.lastIndex = 0;
+  result = result.replace(_evasionRegex, ' ');
 
   if (customWords && customWords.length) {
     for (const word of customWords) {
