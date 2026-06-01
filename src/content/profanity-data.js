@@ -714,13 +714,11 @@ function buildTermPattern(term) {
 // Merge ALL source lists (full PROFANITY_DATA.words, LDNOOBW, and CORE list),
 // deduplicate, remove exceptions, and sort longest first.
 const _allSources = [...new Set([
-  // PROFANITY_DATA.words excluded for performance – the core list + LDNOOBW
-  // already covers the vast majority of real‑world profanity.
-  // Any rarely‑used words that slip through will still be caught by the
-  // CORE_TEXT_FILTER_WORDS fallback loop below (see containsProfanity and
-  // removeProfanity).
+  // Include the full PROFANITY_DATA.words list so that all user‑submitted words
+  // from noswearing.com are actually matched.
   ...CORE_TEXT_FILTER_WORDS,
-  ..._ldnoobwWords
+  ..._ldnoobwWords,
+  ...PROFANITY_DATA.words
 ])];
 const _filteredWords = _allSources
   .filter(w => w && !PROFANITY_DATA.exceptions.has(w.toLowerCase()))
