@@ -39,6 +39,7 @@ const BlocklistData = {
         'youporn.com', 'spankbang.com', 'beeg.com', 'porn.com', 'eporner.com',
         'onlyfans.com', 'fansly.com', 'chaturbate.com', 'livejasmin.com',
         'stripchat.com', 'brazzers.com', 'realitykings.com', 'bangbros.com',
+        'xxx.com', 'analvids.com', 'xvideos.red',
         'rule34.xxx', 'e621.net', 'nhentai.net', 'hentaihaven.xxx', 'literotica.com'
       ];
 
