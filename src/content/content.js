@@ -149,6 +149,7 @@ function filterExistingContent() {
 
   if (config.filterText) {
     filterTextContent();
+    filterPlaceholders();
   }
 
   syncImageFiltering();
@@ -260,6 +261,22 @@ function filterTextContent() {
   }
   if (!document.body) return;
   walkTextNodes(document.body, filterNode);
+}
+
+// Filter placeholder attributes (visible in form elements)
+function filterPlaceholders() {
+  if (!window.removeProfanity || !window.containsProfanity) return;
+  const elements = document.querySelectorAll('input[placeholder], textarea[placeholder]');
+  for (const el of elements) {
+    const ph = el.getAttribute('placeholder');
+    if (!ph) continue;
+    if (window.containsProfanity(ph, config.customWords)) {
+      const cleaned = window.removeProfanity(ph, config.customWords);
+      el.setAttribute('placeholder', cleaned);
+      statistics.wordsFiltered++;
+      maybeFlushStats();
+    }
+  }
 }
 
 // Walk through text nodes
