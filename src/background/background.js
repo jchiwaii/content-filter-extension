@@ -150,6 +150,127 @@ const BlocklistData = {
   }
 };
 
+// Synchronous version of adult domain check (for use in blocking listeners)
+const adultDomainsSync = [
+  'pornhub.com', 'xvideos.com', 'xnxx.com', 'xhamster.com', 'redtube.com',
+  'youporn.com', 'spankbang.com', 'beeg.com', 'porn.com', 'eporner.com',
+  'onlyfans.com', 'fansly.com', 'chaturbate.com', 'livejasmin.com',
+  'stripchat.com', 'brazzers.com', 'realitykings.com', 'bangbros.com',
+  'xxx.com', 'analvids.com', 'xvideos.red',
+  'rule34.xxx', 'e621.net', 'nhentai.net', 'hentaihaven.xxx', 'literotica.com',
+  'adultbooks.com','adultmovietheaters.com','adultmovietheatre.com','asianchics.com','asiansluts.com',
+  'assarama.com','assholeoftheday.com','asskissing.com','assonline.com',
+  'asszone.com',
+  'ballme.com','barepussy.com','beatingoff.com','beefcakebeach.com','beefcakecity.com',
+  'bestass.com','bestcock.com','bestcocks.com','bestfuckshow.com','bestfuckshows.com',
+  'bestpussy.com','biggestass.com','biggestasses.com','biggestasshole.com','biggestassholes.com',
+  'biggestballs.com','biggestbreast.com','biggestcocks.com','biggestdicks.com',
+  'biggesthooters.com','biggestjugs.com','biggesttitscontest.com','biggesttittscontest.com',
+  'bighardcock.com','bigshit.com','bipussy.com','bootypoodle.com',
+  'cheapdate.com','cheapdates.com','cheating.com','cockteasers.com','cockteasing.com',
+  'cybercock.com','cyberdaily.com',
+  'dancerswanted.com','dickmoney.com','dickworld.com','dirtybitch.com','dirtychat.com',
+  'dirtynurses.com','dirtyphoto.com','dirtyphotographs.com','dirtypics.com','dirtypicts.com',
+  'dirtypicture.com','dirtysites.com','dirtyslut.com','dirtysluts.com',
+  'easywomen.com','eroticgaysex.com','erotichotline.com','eroticphotos.com','eroticsites.com',
+  'erotimes.com',
+  'fistme.com','flipoff.com','freesex-pics.com','frenchwhore.com','frenchwhores.com',
+  'fullynude.com',
+  'gaybar.com','gaycock.com','gaycore.com','gaydates.com','gaydick.com','gayfilm.com',
+  'gayfuckshows.com','gayghetto.com','gaylive.com','gayqueen.com','gaystuds.com',
+  'gaywhore.com','gaywhores.com','getbabes.com','geterotic.com','gethead.com',
+  'gethorny.com','gethot.com','getlaid.com','gianthooters.com','girlienight.com',
+  'girliepics.com','girlieshows.com','girls.net','girlswanted.com','girlwatch.com',
+  'girlwatchers.com','girlwatching.com','goldentouchmedia.com','gotoppless.com',
+  'greatass.com','hardsex.com','homos.com','homosexuality.com','hornymen.com',
+  'hornymilf.com','hornymodels.com','hornynymphos.com','hornyvirgins.com','hornywidows.com',
+  'hornywives.com','hornywomen.com','hotass.com','hotbitch.com','hotcock.com',
+  'hotcunt.com','hotflirting.com','hotgaymen.com','hotpasswords.com','hotshit.com',
+  'hotsnatch.com','hottestass.com','hottestcock.com','hottestcocks.com','hottestfantasy.com',
+  'hottestgay.com','hottestgaybar.com','hottestgaybars.com','hottestgayman.com',
+  'hottestgaymen.com','hottestgays.com','hottestladies.com','hottestlegs.com',
+  'hottestpinupgirl.com','hottestpinupgirls.com','hottestporno.com','hottestpornography.com',
+  'hottestpornsites.com','hottestpornstar.com','hottestpornstars.com','hottestportals.com',
+  'hotteststripper.com','hotteststrippers.com','hottestwhores.com','hottestwives.com',
+  'hottetphonesex.com','humps.com',
+  'iwantsex.com',
+  'jackmeoff.com','jackpotbingo.com','jackpotslots.com','jailinmates.com',
+  'jailqueen.com','jailqueens.com','jerkingoff.com','jerkmeoff.com','jerkoffcam.com',
+  'kinkysex.com',
+  'ladies.org','lickass.com','lickmyass.com','lickmyballs.com','lickmycock.com',
+  'lickmypussy.com','lickpenis.com','lickpussy.com','licktwat.com','loveads.com',
+  'loveliest.com',
+  'males.com','malesex.com','malestrip.com','malestud.com','maritalaids.com',
+  'misstresswanted.com','mistresscam.com','mlm.org',
+  'niceass.com','nicehooters.com','nicepussy.com','nicesttits.com','nudemodels.com',
+  'nudistcolony.com','numnuts.com','nutso.com','nymphos.com',
+  'onlinefantasy.com','onlinelive.com','orientalgirls.com','orientalpornos.com','orientalsluts.com',
+  'partypersonals.com','partyporn.com','partysluts.com','porncash.com','porncentral.tv',
+  'pornflix.com','pornhotline.com','pornjewelery.com','pornmags.com','pornmodel.com',
+  'pornnews.com','pornobroker.com','pornoclub.com','pornodollars.com','pornofilms.com',
+  'pornographey.com','pornographia.com','pornojewelery.com','pornojewelry.com',
+  'pornoking.com','pornolist.com','pornoman.com','pornomodels.com','pornomoviestar.com',
+  'pornonews.com','pornoonline.com','pornopasswords.com','pornopersonals.com',
+  'pornopic.com','pornosluts.com','pornostarcam.com','pornostudio.com','pornostudios.com',
+  'pornotape.com','pornoticket.com','pornotime.com','pornotokens.com','pornovault.com',
+  'pornovideos.com','pornowebsites.com','pornqueen.com','pornslut.com','pornsluts.com',
+  'pornstar.org','pornstore.com','porntapes.com','porntimes.com','porntraffic.com',
+  'pornwatching.com','pornwebsites.com','prisonsex.com','privatedancing.com',
+  'pussycity.com','pussyeaters.com','pussyfart.com','pussyfever.com','pussyforsale.com',
+  'pussyhotline.com','pussyonline.com','pussyworld.com','pussyzilla.com','puta.com',
+  'ratedxxx.com','rectal.com','roughsex.com','russiansluts.com',
+  'scorezilla.com','screwed.com','screwing.com','screwit.com','screwme.com','screwus.com',
+  'secretpasswords.com','sexfetish.com','sexgod.com','sexgoddess.com','sexmenu.com',
+  'sexo.com','sexoholic.com','sexqueen.com','sexrelated.com','sexscandal.com',
+  'sexspecialist.com','sexspecialists.com','sextrips.com','sexualacts.com','sexualdesire.com',
+  'sexualmaniac.com','sexydancing.com','sexydate.com','sexydates.com','sexyfemalescort.com',
+  'sexyfemalescorts.com','sexymodels.com','sexynudemodels.com','sexyoldladies.com',
+  'sexyoldlady.com','shavedbeavers.com','shavedtwat.com','shavedtwats.com','shemaleshows.com',
+  'showering.com','sirlove.com','sitecop.com','skintone.com','sleazybitch.com','sob.com',
+  'startstripping.com','stickytracker.com','streaking.com','stripcam.com','stripjobs.com',
+  'stripjoints.com','stripshows.com','stripteaseshows.com','stud.com','studking.com',
+  'studworld.com','studzone.com','stupidass.com','submissive.com',
+  'titdoc.com','titdoctor.com','titjobs.com','titqueen.com','tstv.com',
+  'undressing.com',
+  'vbanks.com','vbingo.com','vcasinos.com','vdate.com','vdates.com','vdealer.com',
+  'vicesquad.com','videodates.com','virginpussy.com','virgins.com','virtualass.com',
+  'virtualasshole.com','virtualcock.com','virtualcunt.com','virtualpussy.com',
+  'virtualstud.com','virtualsucker.com','virtualwhore.com','virtualwhorehouse.com',
+  'virtualwhores.com','virtualwoman.com','vulgarity.com',
+  'wackit.com','wackoff.com','wackychicks.com','wackygirls.com','webparties.com',
+  'wetcunt.com','wetgirls.com','wetvirgins.com','whitechicks.com','whitefemale.com',
+  'whorehousing.com','whoreoftheweek.com','wifeswap.com','wifeswapper.com',
+  'xxxcashier.com','xxxfilmstar.com','xxxflicks.com','xxxfreeporno.com',
+  'xxxfuckshows.com','xxxgaysex.com','xxxhardcore.com','xxxmoviestar.com',
+  'xxxphotos.com','xxxsexshow.com','xxxstar.com','xxxvideos.com'
+];
+
+function isAdultDomainSync(url) {
+  try {
+    const urlObj = new URL(url);
+    const hostname = normalizeHostname(urlObj.hostname);
+    for (const domain of adultDomainsSync) {
+      if (domainMatches(hostname, domain)) return true;
+    }
+  } catch {}
+  return false;
+}
+
+// Block adult sites at request level (guarantees blocking even if webNavigation fails)
+chrome.webRequest.onBeforeRequest.addListener(
+  (details) => {
+    if (details.type !== 'main_frame') return;
+    if (isAdultDomainSync(details.url)) {
+      const blockedUrl = chrome.runtime.getURL(
+        `pages/blocked/blocked.html?url=${encodeURIComponent(details.url)}&category=adult&reason=Adult%20content`
+      );
+      return { redirectUrl: blockedUrl };
+    }
+  },
+  { urls: ["http://*/*", "https://*/*"] },
+  ["blocking"]
+);
+
 // Minimal safe search enforcement
 const SafeSearch = {
   _blockedTermsPromise: null,
