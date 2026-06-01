@@ -543,7 +543,9 @@ function removeProfanity(text, customWords) {
   if (result === text) return text;
 
   // Collapse runs of spaces/tabs left by removed words (preserve newlines)
-  return result.replace(/[ \t]{2,}/g, ' ');
+  result = result.replace(/[ \t]{2,}/g, ' ');
+  // Remove leading and trailing whitespace for a cleaner result
+  return result.trim();
 }
 
 // Export to window for use by content.js and platform scripts
