@@ -497,7 +497,10 @@ const PROFANITY_DATA = {
 "thundercunt","tittyfuck","twatlips",
 "uglyfuck","unclefucker",
 "va-j-j","vajayjay","vjayjay",
-"nigaboo","niggerish","nut sack","nutsack"
+"nigaboo","niggerish","nut sack","nutsack",
+"arsehead","bloody","brotherfucker","chigga","childfucker","damned",
+"dickhead","fatherfucker","godsdamn","hell","jackoff","pigfucker",
+"sisterfuck","sisterfucker","spastic"
   ],
 
   // Regex patterns for evasion techniques not covered by the word list
