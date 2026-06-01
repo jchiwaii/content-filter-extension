@@ -468,6 +468,13 @@ const PROFANITY_DATA = {
 
     // Spaced-out letters (f u c k, s h i t, etc.)
     /\bf\s+u\s+c\s+k\b/gi,
+    /\bf[\-_]+u[\-_]+c[\-_]+k\b/gi,
+    /\bs[\-_]+h[\-_]+i[\-_]+t\b/gi,
+    /\bb[\-_]+i[\-_]+t[\-_]+c[\-_]+h\b/gi,
+    /\bd[\-_]+i[\-_]+c[\-_]+k\b/gi,
+    /\bp[\-_]+u[\-_]+s[\-_]+s[\-_]+y\b/gi,
+    /\bc[\-_]+u[\-_]+n[\-_]+t\b/gi,
+    /\bc[\-_]+o[\-_]+c[\-_]+k\b/gi,
     /\bs\s+h\s+i\s+t\b/gi,
     /\bb\s+i\s+t\s+c\s+h\b/gi,
     /\bd\s+i\s+c\s+k\b/gi,
