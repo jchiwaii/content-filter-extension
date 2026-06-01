@@ -525,6 +525,21 @@ const PROFANITY_DATA = {
     /\bc[\-_]+o[\-_]+c[\-_]+k[\-_]+w[\-_]+o[\-_]+m[\-_]+b[\-_]+l[\-_]+e\b/gi,
     /\bb\s+i\s+m\s+b\s+o\b/gi,
     /\bc\s+o\s+c\s+k\s+w\s+o\s+m\s+b\s+l\s+e\b/gi,
+    // Asterisk substitutions (f*ck, c*nt, etc.)
+    /\bf\*ck\b/gi,
+    /\bf\*cking\b/gi,
+    /\bf\*cked\b/gi,
+    /\bf\*cker(s)?\b/gi,
+    /\bf\*ckers\b/gi,
+    /\bc\*nt\b/gi,
+    /\bs\*i?t\b/gi,
+    /\bb\*itch\b/gi,
+    /\bd\*ck\b/gi,
+    /\ba\*ss\b/gi,
+    /\bp\*ssy\b/gi,
+    /\bc\*ck\b/gi,
+    /\bw\*ore\b/gi,
+    /\bs\*ut\b/gi,
   ],
 
   // Words that appear in the word list above but are legitimate in most contexts.
