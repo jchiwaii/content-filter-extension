@@ -67,6 +67,19 @@ function initializeFilter() {
   // Setup SPA detection
   setupSPADetection();
 
+  // Periodic re‑scan to catch late‑arriving AI / AJAX content
+  let scanAttempts = 0;
+  const maxAttempts = 10;               // scan up to 10 times (2 sec apart)
+  const scanInterval = 2000;            // milliseconds
+  const scanTimer = setInterval(() => {
+    scanAttempts++;
+    if (!isProtectionActive() || scanAttempts > maxAttempts) {
+      clearInterval(scanTimer);
+      return;
+    }
+    filterExistingContent();
+  }, scanInterval);
+
   // Initialize image detector
   syncImageFiltering();
   setupFormProtection();
@@ -279,9 +292,13 @@ function filterPlaceholders() {
   }
 }
 
-// Walk through text nodes
-function walkTextNodes(element, callback) {
+// Walk through text nodes (including shadow DOM roots)
+function walkTextNodes(element, callback, visitedWeakSet = new WeakSet()) {
   if (!element || !element.nodeType) return;
+
+  // Prevent infinite loops from circular references
+  if (visitedWeakSet.has(element)) return;
+  visitedWeakSet.add(element);
 
   if (element.nodeType === 3) {
     callback(element);
@@ -289,8 +306,15 @@ function walkTextNodes(element, callback) {
     const skipTags = ['SCRIPT', 'STYLE', 'INPUT', 'TEXTAREA', 'CODE', 'PRE', 'NOSCRIPT', 'SVG'];
     if (!skipTags.includes(element.tagName)) {
       if (!element.isContentEditable) {
+        // Walk normal child nodes
         for (let child of element.childNodes) {
-          walkTextNodes(child, callback);
+          walkTextNodes(child, callback, visitedWeakSet);
+        }
+        // Walk shadow root children (if any)
+        if (element.shadowRoot) {
+          for (let child of element.shadowRoot.childNodes) {
+            walkTextNodes(child, callback, visitedWeakSet);
+          }
         }
       }
     }
