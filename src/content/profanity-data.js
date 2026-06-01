@@ -480,7 +480,8 @@ const PROFANITY_DATA = {
 "asses","asslick","asslicker","assmonkey","assmunch","assmuncher","asspirate","asswipe",
 "bampot","beaner","beartrap","bollox","butt plug","butt-pirate","buttfucka",
 "chesticle","chinc",
-"dick-sneeze"
+"dick-sneeze",
+"clitweasel","clusterfuck","cockass","cockbite","cockburger","cockface","cockfucker","cockjockey","cockknoker","cockmaster","cockmongruel","cockmonkey","cockmuncher","cocknugget","cockshit","cocksmoke","cocksniffer","cockwaffle","coochie","coochy","cooter","cracker","cumslut","cumtart","cunnie","cuntass","cuntbubble","cuntface","cunthole","cuntlicker","cuntrag","cuntslut"
   ],
 
   // Regex patterns for evasion techniques not covered by the word list
