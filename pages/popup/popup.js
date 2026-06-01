@@ -379,7 +379,7 @@ async function resumeProtection() {
   reloadActiveTab();
 }
 
-// Whitelist current site
+// Whitelist / unwhitelist current site (toggle)
 async function whitelistCurrentSite() {
   const tabs = await extensionApi.tabs.query({ active: true, currentWindow: true });
   if (!tabs[0]?.url) return;
@@ -387,14 +387,21 @@ async function whitelistCurrentSite() {
   try {
     const url = new URL(tabs[0].url);
     const hostname = normalizeHostname(url.hostname);
+    if (!hostname) return;
 
-    if (!config.whitelistedDomains.some(domain => domainMatches(hostname, domain))) {
+    const index = config.whitelistedDomains.findIndex(domain => domainMatches(hostname, domain));
+    if (index !== -1) {
+      // Remove from whitelist
+      config.whitelistedDomains.splice(index, 1);
+    } else {
+      // Add to whitelist
       config.whitelistedDomains.push(hostname);
-      await saveConfiguration();
-      displayWhitelist();
-      updateWhitelistButton();
-      reloadActiveTab();
     }
+
+    await saveConfiguration();
+    displayWhitelist();
+    updateWhitelistButton();
+    reloadActiveTab();
   } catch (e) {
     // Invalid URL
   }
