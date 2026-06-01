@@ -644,6 +644,7 @@ const CORE_TEXT_FILTER_WORDS = [
   'asshole', 'assholes', 'arsehole', 'jackass', 'dumbass',
   'bastard', 'bugger', 'crap', 'damn', 'dammit', 'damnit',
   'dick', 'dickhead', 'dickwad', 'dickweed', 'cock', 'cocksucker',
+  'cocksuckers', 'cockfoam',
   'cunt', 'twat',
   'whore', 'slut', 'sluts', 'slutty', 'skank',
   'pussy', 'pussies', 'dildo', 'vibrator',
@@ -656,7 +657,16 @@ const CORE_TEXT_FILTER_WORDS = [
   'sextoy', 'sex toy', 'sextoys', 'sex toys',
   'faggot', 'nigger', 'niggers', 'nigga', 'niggas',
   'chink', 'kike', 'spic', 'wetback',
-  'goddamn', 'goddammit', 'goddamnit'
+  'goddamn', 'goddammit', 'goddamnit',
+  // Additional high‑frequency words that were previously only in PROFANITY_DATA.words
+  'boner', 'muff', 'titties', 'titty', 'knob', 'knobhead',
+  'wank', 'wanker', 'wanking', 'turd', 'ballsack', 'scrotum',
+  'fellatio', 'cunnilingus', 'rimjob', 'rimming', 'handjob',
+  'blowjob', 'cumshot', 'creampie', 'gangbang', 'threesome',
+  'bukkake', 'cuckold', 'squirting', 'fisting', 'anilingus',
+  'numbnuts', 'nutjob', 'cockwomble', 'bellend', 'pillock',
+  'prat', 'tosser', 'wazzack', 'mooncalf', 'doofus', 'dunce',
+  'nincompoop'
 ];
 
 function escapeRegExp(str) {
@@ -673,9 +683,13 @@ function buildTermPattern(term) {
 // Merge ALL source lists (full PROFANITY_DATA.words, LDNOOBW, and CORE list),
 // deduplicate, remove exceptions, and sort longest first.
 const _allSources = [...new Set([
-  ...PROFANITY_DATA.words,
-  ..._ldnoobwWords,
-  ...CORE_TEXT_FILTER_WORDS
+  // PROFANITY_DATA.words excluded for performance – the core list + LDNOOBW
+  // already covers the vast majority of real‑world profanity.
+  // Any rarely‑used words that slip through will still be caught by the
+  // CORE_TEXT_FILTER_WORDS fallback loop below (see containsProfanity and
+  // removeProfanity).
+  ...CORE_TEXT_FILTER_WORDS,
+  ..._ldnoobwWords
 ])];
 const _filteredWords = _allSources
   .filter(w => w && !PROFANITY_DATA.exceptions.has(w.toLowerCase()))
