@@ -1,6 +1,6 @@
-# Safe Browse — Content Filter
+# wash-my-eyes
 
-A Chrome extension that **removes profanity and inappropriate content** from web pages as you browse — the words are deleted entirely, not replaced with `****`, because your brain reads censored text just as well as the real thing.
+A Chrome extension that **filters profanity and inappropriate content** from web pages as you browse. It is playful on the outside, practical on the inside: cleaner text, safer search, adult-site blocking, and explicit-image blurring.
 
 All filtering happens locally on your device. No data ever leaves your browser.
 
@@ -10,13 +10,11 @@ All filtering happens locally on your device. No data ever leaves your browser.
 
 **Removes profanity from text** on any website. Works on regular pages, social media feeds, comments, and dynamically loaded content (infinite scroll, SPAs). If new content loads after the page opens, it gets filtered too.
 
-**Blocks images** with suspicious metadata — checks the image URL, alt text, filename, and surrounding context for known NSFW keywords. If flagged, the image is replaced with a placeholder you can reveal.
+**Blocks images** with suspicious metadata — checks the image URL, alt text, filename, and surrounding context for known NSFW keywords. If flagged, the image is blurred.
 
 **Blocks adult websites** before they load. Redirects known adult domains to a clean "Site Blocked" page.
 
 **Enforces safe search** on Google, Bing, and DuckDuckGo so explicit results don't appear.
-
-**Platform-specific filtering** on YouTube, Twitter/X, Reddit, and Facebook/Instagram — filters comments, post titles, descriptions, bios, trending topics, and NSFW-tagged content with platform-aware logic.
 
 ---
 
@@ -44,7 +42,6 @@ manifest.json              Chrome extension manifest
 src/background/            Service worker and navigation blocking logic
 src/content/               Main content script, CSS, and profanity data
 src/modules/               Shared extension modules
-src/platforms/             YouTube, Twitter/X, Reddit, Facebook/Instagram filters
 src/data/                  Filter profile data
 pages/popup/               Toolbar popup UI
 pages/settings/            Options/settings UI
@@ -63,7 +60,7 @@ tests/                     Local smoke tests with mocked Chrome APIs
 2. Turn on **Developer mode** (top-right toggle)
 3. Click **Load unpacked**
 4. Select the `content-filter-extension` folder
-5. Click the puzzle-piece icon in your toolbar and pin Safe Browse
+5. Click the puzzle-piece icon in your toolbar and pin wash-my-eyes
 
 That's it. Filtering starts immediately on every new page you open.
 

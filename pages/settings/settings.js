@@ -650,7 +650,8 @@ async function exportSettings() {
   const syncData = await chrome.storage.sync.get(null);
 
   const exportData = {
-    type: 'safe-browse-settings',
+    type: 'wash-my-eyes-settings',
+    legacyType: 'safe-browse-settings',
     version: '2.0',
     exportDate: new Date().toISOString(),
     config: syncData.config || {},
@@ -664,7 +665,7 @@ async function exportSettings() {
 
   const a = document.createElement('a');
   a.href = url;
-  a.download = `safe-browse-settings-${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `wash-my-eyes-settings-${new Date().toISOString().split('T')[0]}.json`;
   a.click();
 
   URL.revokeObjectURL(url);
@@ -681,7 +682,7 @@ function handleImportFile(e) {
   reader.onload = (event) => {
     try {
       importData = JSON.parse(event.target.result);
-      if (importData.type !== 'safe-browse-settings') {
+      if (!['wash-my-eyes-settings', 'safe-browse-settings'].includes(importData.type)) {
         alert('Invalid settings file');
         importData = null;
         return;

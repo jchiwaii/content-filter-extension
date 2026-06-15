@@ -308,7 +308,7 @@ const defaultStats = {
 
 // Initialize extension on install
 chrome.runtime.onInstalled.addListener(async (details) => {
-  console.log('[Safe Browse] Extension installed/updated:', details.reason);
+  console.log('[wash-my-eyes] Extension installed/updated:', details.reason);
 
   // Set default configuration
   const syncResult = await chrome.storage.sync.get(['config']);
@@ -502,7 +502,7 @@ async function updateBadge() {
     if (count > 0) {
       const text = count > 999 ? '999+' : count.toString();
       chrome.action.setBadgeText({ text });
-      chrome.action.setBadgeBackgroundColor({ color: '#2838e3' });
+      chrome.action.setBadgeBackgroundColor({ color: '#ff8a2a' });
     } else {
       chrome.action.setBadgeText({ text: '' });
     }
@@ -803,4 +803,3 @@ chrome.commands.onCommand.addListener(async (command) => {
 
 // Initial badge update
 updateBadge();
-

@@ -3,21 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Site Blocked - Safe Browse</title>
-  <link rel="icon" href="../../assets/icons/safe-browse-logo.svg" type="image/svg+xml">
+  <title>Site Blocked - wash-my-eyes</title>
+  <link rel="icon" href="../../assets/icons/wash-my-eyes-logo.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #040404;
-      --text: #ffffff;
-      --muted: #93969f;
-      --line: rgba(217, 217, 217, 0.24);
-      --safe-green: #4cd971;
-      --blue: #2838e3;
-      --yellow: #ffb700;
-      --font: "Azeret Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --bg: #fff7ea;
+      --surface: #fffaf1;
+      --text: #2b2520;
+      --muted: #74675e;
+      --line: #2b2520;
+      --safe-green: #7bd66f;
+      --blue: #57c8ff;
+      --yellow: #ff8a2a;
+      --danger: #ef4f44;
+      --shadow: #2b2520;
+      --font: "Roboto", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
     }
 
     * {
@@ -45,7 +48,9 @@
       min-height: 100svh;
       display: flex;
       flex-direction: column;
-      background: var(--bg);
+      background:
+        linear-gradient(135deg, rgba(43, 37, 32, 0.06) 25%, transparent 25%) 0 0 / 30px 30px,
+        var(--bg);
     }
 
     .blocked-header {
@@ -55,7 +60,8 @@
       justify-content: space-between;
       gap: 24px;
       padding: 0 max(clamp(24px, 5.56vw, 80px), calc((100vw - 1440px) / 2 + 80px));
-      border-bottom: 1px solid var(--line);
+      border-bottom: 3px solid var(--line);
+      background: var(--yellow);
     }
 
     .brand {
@@ -63,16 +69,16 @@
       align-items: center;
       gap: 14px;
       color: var(--text);
-      font-size: clamp(21px, 2.22vw, 32px);
-      font-weight: 400;
+      font-size: clamp(20px, 2.22vw, 30px);
+      font-weight: 900;
       line-height: 1.25;
       text-decoration: none;
       text-transform: lowercase;
     }
 
     .brand img {
-      width: 28px;
-      height: 37px;
+      width: 36px;
+      height: 36px;
       display: block;
       object-fit: contain;
     }
@@ -100,9 +106,9 @@
       align-items: center;
       gap: 12px;
       margin: 0;
-      color: var(--safe-green);
-      font-size: clamp(16px, 2.2vw, 24px);
-      font-weight: 500;
+      color: var(--text);
+      font-size: clamp(22px, 3vw, 34px);
+      font-weight: 900;
       line-height: 1.2;
       text-align: center;
       text-transform: uppercase;
@@ -113,7 +119,7 @@
       content: "";
       width: clamp(34px, 6vw, 64px);
       height: 2px;
-      background: var(--safe-green);
+      background: var(--danger);
     }
 
     .actions {
@@ -130,27 +136,29 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      border: 3px solid var(--line);
       border-radius: 999px;
       padding: 0 24px;
       cursor: pointer;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 900;
       white-space: nowrap;
-      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+      box-shadow: 4px 4px 0 var(--shadow);
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
     }
 
     .btn:hover {
-      transform: translateY(-1px);
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--shadow);
     }
 
     .btn-primary {
-      background: var(--blue);
+      background: var(--yellow);
       color: var(--text);
     }
 
     .btn-quiet {
-      border: 1px solid var(--line);
-      background: transparent;
+      background: var(--surface);
       color: var(--text);
     }
 
@@ -190,8 +198,8 @@
   <div class="blocked-shell">
     <header class="blocked-header">
       <a class="brand" href="../../site/index.html">
-        <img src="../../assets/icons/safe-browse-logo.svg" alt="" width="28" height="37">
-        <span>safe browse</span>
+        <img src="../../assets/icons/wash-my-eyes-logo.svg" alt="" width="36" height="36">
+        <span>wash-my-eyes</span>
       </a>
     </header>
 
@@ -200,39 +208,39 @@
         <title id="illustrationTitle">Blocked page illustration</title>
         <defs>
           <linearGradient id="beam" x1="680" y1="160" x2="730" y2="900" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stop-color="#4cd971" stop-opacity=".04"/>
-            <stop offset=".52" stop-color="#4cd971" stop-opacity=".22"/>
-            <stop offset="1" stop-color="#4cd971" stop-opacity=".03"/>
+            <stop offset="0" stop-color="#ff8a2a" stop-opacity=".06"/>
+            <stop offset=".52" stop-color="#ff8a2a" stop-opacity=".22"/>
+            <stop offset="1" stop-color="#ff8a2a" stop-opacity=".03"/>
           </linearGradient>
           <linearGradient id="ground" x1="250" y1="870" x2="1180" y2="940" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stop-color="#2838e3" stop-opacity=".9"/>
-            <stop offset="1" stop-color="#4cd971" stop-opacity=".72"/>
+            <stop offset="0" stop-color="#57c8ff" stop-opacity=".9"/>
+            <stop offset="1" stop-color="#7bd66f" stop-opacity=".72"/>
           </linearGradient>
         </defs>
 
         <g opacity=".9">
-          <circle class="star" cx="244" cy="198" r="5" fill="#4cd971"/>
-          <circle class="star" cx="1196" cy="226" r="6" fill="#ffb700" style="animation-delay: 400ms"/>
-          <circle class="star" cx="1028" cy="124" r="4" fill="#93969f" style="animation-delay: 800ms"/>
-          <circle class="star" cx="428" cy="118" r="4" fill="#93969f" style="animation-delay: 1200ms"/>
+          <circle class="star" cx="244" cy="198" r="5" fill="#7bd66f"/>
+          <circle class="star" cx="1196" cy="226" r="6" fill="#ff8a2a" style="animation-delay: 400ms"/>
+          <circle class="star" cx="1028" cy="124" r="4" fill="#74675e" style="animation-delay: 800ms"/>
+          <circle class="star" cx="428" cy="118" r="4" fill="#74675e" style="animation-delay: 1200ms"/>
         </g>
 
         <g opacity=".92">
           <path fill="#111111" stroke="rgba(217,217,217,.24)" stroke-width="2" d="M1125 418c-8-16-8-29 0-40 13-18 39-22 57-9 16 12 20 34 9 51 16 15 25 36 25 59 0 11-3 23-8 35 16 18 25 42 25 68 0 18-5 35-14 50 16 22 25 48 25 76 0 55-42 100-94 100s-94-45-94-100c0-28 9-54 25-76-9-15-14-32-14-50 0-26 9-50 25-68-5-12-8-24-8-35 0-25 14-48 36-61Z"/>
-          <path fill="none" stroke="#4cd971" stroke-width="5" stroke-linecap="round" d="M1150 854V596m0 49 35-43m-35 129-36-39m36-96-34-44"/>
+          <path fill="none" stroke="#7bd66f" stroke-width="5" stroke-linecap="round" d="M1150 854V596m0 49 35-43m-35 129-36-39m36-96-34-44"/>
         </g>
 
         <g opacity=".92">
           <path fill="#0d0d0d" stroke="rgba(217,217,217,.22)" stroke-width="2" d="M303 594c4-23 24-40 48-40 27 0 49 22 49 49 0 12-4 24-12 33 12 15 19 34 19 55 0 11-2 23-7 35 11 16 18 36 18 58 0 47-37 85-82 85s-82-38-82-85c0-22 7-42 18-58-5-12-7-24-7-35 0-47 36-86 80-88Z"/>
-          <path fill="none" stroke="#4cd971" stroke-width="5" stroke-linecap="round" d="M336 878V702m0 69-37-38m37-7 33-42"/>
+          <path fill="none" stroke="#7bd66f" stroke-width="5" stroke-linecap="round" d="M336 878V702m0 69-37-38m37-7 33-42"/>
         </g>
 
         <path fill="url(#beam)" d="M665 133h106l113 786H552L665 133Z"/>
 
         <g>
           <ellipse cx="720" cy="151" rx="196" ry="45" fill="#111111" stroke="rgba(217,217,217,.28)" stroke-width="2"/>
-          <ellipse cx="720" cy="139" rx="196" ry="45" fill="#2838e3"/>
-          <path fill="#040404" stroke="#4cd971" stroke-width="3" d="M803 119c0-46-37-83-83-83s-83 37-83 83c0 17 166 21 166 0Z"/>
+          <ellipse cx="720" cy="139" rx="196" ry="45" fill="#57c8ff"/>
+          <path fill="#fffaf1" stroke="#7bd66f" stroke-width="3" d="M803 119c0-46-37-83-83-83s-83 37-83 83c0 17 166 21 166 0Z"/>
           <g fill="none" stroke="#f2f2f2" stroke-width="3" opacity=".78">
             <ellipse cx="630" cy="150" rx="19" ry="9"/>
             <ellipse cx="806" cy="150" rx="19" ry="9"/>
@@ -240,7 +248,7 @@
             <ellipse cx="578" cy="128" rx="19" ry="9"/>
             <ellipse cx="715" cy="161" rx="19" ry="9"/>
           </g>
-          <g fill="none" stroke="#4cd971" stroke-width="3" stroke-linecap="round" opacity=".72">
+          <g fill="none" stroke="#7bd66f" stroke-width="3" stroke-linecap="round" opacity=".72">
             <path d="M649 474 605 859"/>
             <path d="M765 246 790 441"/>
             <path d="M806 587 816 679"/>
@@ -252,30 +260,30 @@
         <g opacity=".8">
           <path fill="url(#ground)" d="M238 886c16-27 40-32 72-15 31-24 64-20 98 11 38-22 78-18 120 12 20-14 43-12 69 7 17 12 25 22 22 29H216c-12-8-5-22 22-44Z"/>
           <path fill="url(#ground)" d="M838 878c40-32 82-31 126 2 36-27 75-25 117 6 25-14 55-13 91 3 27 13 39 26 35 39H818c-12-10-5-27 20-50Z"/>
-          <ellipse cx="720" cy="919" rx="168" ry="39" fill="#4cd971" opacity=".32"/>
+          <ellipse cx="720" cy="919" rx="168" ry="39" fill="#7bd66f" opacity=".32"/>
         </g>
 
         <g transform="translate(585 460)">
           <path fill="#f2f2f2" d="M64 190c-3-30-4-48-2-55 2-8 29-34 38-39 7-4 14 0 12 9-1 9-25 31-35 38 3 13-5 53-6 57 2 3 2 7 0 11-5 10-8 14-10 14-2-1 2-9 1-10-1 0-5 9-7 9-2-1 3-9 2-10-1 0-5 8-7 7-2 0 4-8 3-8-1-1-5 5-6 4-1-1 4-5 4-8 2-8 5-16 13-19Z"/>
           <path fill="#f2f2f2" d="M201 205c-3-11-10-42-7-53-10-7-34-28-35-37-1-10 6-10 12-8 6 3 37 30 38 40 1 6 0 24-3 55 3 5 4 11 2 17-1 3 2 7 1 8-2 2-5-6-5-5 0 2 2 9 1 10-2 0-3-10-4-10s1 11-1 10c-2 0-2-10-3-10s0 9-2 9s-2-10-2-12c0-2-3 4-4 2-1-2 4-9 12-16Z"/>
-          <path fill="#4cd971" d="M109 59c13-14 55-10 66 5 4 6-3 3-3 5 0 1 3 2 3 4 4 18 2 36-10 49-13 13-50 5-64-8-9-8 0-28 3-42 .2-1-5-1-4-4 2-4 6-7 9-9Z"/>
+          <path fill="#7bd66f" d="M109 59c13-14 55-10 66 5 4 6-3 3-3 5 0 1 3 2 3 4 4 18 2 36-10 49-13 13-50 5-64-8-9-8 0-28 3-42 .2-1-5-1-4-4 2-4 6-7 9-9Z"/>
           <path fill="#f2f2f2" d="M134 41c13 4 25 31 22 44-3 12-17 20-30 16s-20-17-17-30c4-13 12-34 25-30Z"/>
           <path fill="#111111" d="M116 69c4-12 19-17 34-10 1-10 8-15 17-8 8 7 0 20-2 26 7 16-1 29-15 33 2 10-3 17-16 19-13 1-20-5-20-18-12 4-21-2-26-18-7-22 19-34 28-24Z"/>
-          <g fill="#2838e3">
+          <g fill="#57c8ff">
             <path d="M142 119c-4 26-4 44 0 54 3 8 5 22 8 32-8 4-24 3-32-3-4-27-11-83-8-92 4-11 30-8 32 9Z"/>
             <path d="M171 119c11 5 4 74 4 75 7 20 6 50 2 69-3 16-10 30-16 32-11 4-35 6-43-3 5-31 8-74 21-88 2-19 9-75 32-85Z"/>
           </g>
-          <g fill="#93969f">
+          <g fill="#74675e">
             <path d="M122 293c8 2 8 10 1 16-2 2-4-3-7-4-2-1-5 4-8 3-8-4-18-11-22-14-6-5-6-7-1-9 5-2 29 5 37 8Z"/>
             <path d="M177 293c5 5 2 11-7 14-2 1-1-4-4-7-1-1-7 1-8-1-5-8-9-19-11-23-2-7-1-9 4-8s21 20 26 25Z"/>
           </g>
         </g>
 
         <g transform="translate(820 820)">
-          <path fill="#ffb700" d="M44 31c12 12 18 19 17 20-1 2-12 6-18 2-5-3-7-14-8-17s-6-5-10-7c-4-2-5-5-4-7 1-1 4-1 10 0 5 1 9 4 13 9Z"/>
-          <path fill="#ffb700" d="M49 15c0-6-20-12-21-14-1-2 16 1 22 6s36 37 51 22 28-3 36 6c4 4 0 9 2 11 2 1 7 11 8 13s-7 8-10 8c-7-1-17-9-22-10s-17 11-20 13c-2 2-5 3-10 2-2 3-2 4-2 4 1 3 3 6 6 9 4 2 5 5 3 8-3 0-7-1-10-2-5-2-4-4-4-5s-3-2-5-10c-1-2 0-5 0-11-2-1-12-10-13-13-1-2-10-8-11-9s-3-1-5 0c-3 2-9 1-11 2s-5 6-5 6c0 0-6 2-6 3 0 3 2 7-4 6-5 0-4-8-2-10 1-3 4-2 11-18 8-16 15-15 22-17Z"/>
+          <path fill="#ff8a2a" d="M44 31c12 12 18 19 17 20-1 2-12 6-18 2-5-3-7-14-8-17s-6-5-10-7c-4-2-5-5-4-7 1-1 4-1 10 0 5 1 9 4 13 9Z"/>
+          <path fill="#ff8a2a" d="M49 15c0-6-20-12-21-14-1-2 16 1 22 6s36 37 51 22 28-3 36 6c4 4 0 9 2 11 2 1 7 11 8 13s-7 8-10 8c-7-1-17-9-22-10s-17 11-20 13c-2 2-5 3-10 2-2 3-2 4-2 4 1 3 3 6 6 9 4 2 5 5 3 8-3 0-7-1-10-2-5-2-4-4-4-5s-3-2-5-10c-1-2 0-5 0-11-2-1-12-10-13-13-1-2-10-8-11-9s-3-1-5 0c-3 2-9 1-11 2s-5 6-5 6c0 0-6 2-6 3 0 3 2 7-4 6-5 0-4-8-2-10 1-3 4-2 11-18 8-16 15-15 22-17Z"/>
           <path fill="#111111" d="M138 56c2-1 7 2 7 3 1 2-3 4-4 3-1-1-4-5-3-6Z"/>
-          <path d="M96 83c4-5 7-9 7-12M47 42c3-2 5-5 6-8M111 50c1 2 2 4 4 5" fill="none" stroke="#040404" stroke-width="3" stroke-linecap="round"/>
+          <path d="M96 83c4-5 7-9 7-12M47 42c3-2 5-5 6-8M111 50c1 2 2 4 4 5" fill="none" stroke="#2b2520" stroke-width="3" stroke-linecap="round"/>
         </g>
 
       </svg>

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Safe Browse - Content Filter",
+  "name": "wash-my-eyes",
   "version": "2.0.0",
-  "description": "Privacy-focused content filter that blocks profanity, explicit images, adult sites, and enforces safe search.",
+  "description": "Playful Chrome filter that blocks profanity, explicit images, adult sites, and unsafe search while you browse.",
 
   "permissions": [
     "storage",
@@ -39,7 +39,7 @@
       "48": "assets/icons/icon48.png",
       "128": "assets/icons/icon128.png"
     },
-    "default_title": "Safe Browse - Content Filter"
+    "default_title": "wash-my-eyes"
   },
 
   "icons": {

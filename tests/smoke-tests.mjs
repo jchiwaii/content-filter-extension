@@ -166,7 +166,7 @@ async function runProfanityChecks() {
 
   assert.equal(context.window.containsProfanity('clean sentence'), false);
   assert.equal(context.window.containsProfanity('that was shit'), true);
-  assert.equal(context.window.removeProfanity('that was shit'), 'that was ');
+  assert.equal(context.window.removeProfanity('that was shit'), 'that was');
   assert.equal(context.window.containsProfanity('hello pineapple', ['pineapple']), true);
 
   const safeTexts = [
@@ -233,15 +233,15 @@ async function runSafeSearchAndBlocklistChecks() {
   assert.equal(adultBlock.blocked, true);
   assert.equal(adultBlock.category, 'adult');
 
-  const googleRedirect = background.SafeSearch.processSearchUrl('https://www.google.com/search?q=weather');
+  const googleRedirect = await background.SafeSearch.processSearchUrl('https://www.google.com/search?q=weather');
   assert.equal(googleRedirect.action, 'redirect');
   assert.equal(new URL(googleRedirect.url).searchParams.get('safe'), 'active');
 
-  const blockedSearch = background.SafeSearch.processSearchUrl('https://www.google.com/search?q=porn');
+  const blockedSearch = await background.SafeSearch.processSearchUrl('https://www.google.com/search?q=porn');
   assert.equal(blockedSearch.action, 'block');
   assert.equal(blockedSearch.reason, 'blocked_search');
 
-  const ordinaryUrl = background.SafeSearch.processSearchUrl('https://example.com/?q=porn');
+  const ordinaryUrl = await background.SafeSearch.processSearchUrl('https://example.com/?q=porn');
   assert.equal(ordinaryUrl.action, 'none');
 
   const navListener = chrome.__listeners.find(([type]) => type === 'navigation')?.[1];

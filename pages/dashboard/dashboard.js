@@ -11,14 +11,14 @@ const storage = {
 };
 
 const chartColors = {
-  bg: '#040404',
-  text: '#ffffff',
-  muted: '#93969f',
-  line: 'rgba(217, 217, 217, 0.18)',
-  green: '#4cd971',
-  blue: '#2838e3',
-  yellow: '#ffb700',
-  danger: '#ff5555'
+  bg: '#fff7ea',
+  text: '#2b2520',
+  muted: '#74675e',
+  line: 'rgba(43, 37, 32, 0.22)',
+  green: '#7bd66f',
+  blue: '#57c8ff',
+  yellow: '#ff8a2a',
+  danger: '#ef4f44'
 };
 
 // Initialize dashboard
@@ -140,7 +140,7 @@ async function initCharts() {
   const result = await storage.local.get(['weeklyStats']);
   const weeklyStats = result.weeklyStats || generateEmptyWeekStats();
   const chartFont = {
-    family: '"Azeret Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+    family: '"Roboto", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif',
     size: 11
   };
   const legend = {
@@ -282,7 +282,7 @@ async function exportData() {
 
   const a = document.createElement('a');
   a.href = url;
-  a.download = `safe-browse-stats-${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `wash-my-eyes-stats-${new Date().toISOString().split('T')[0]}.json`;
   a.click();
 
   URL.revokeObjectURL(url);

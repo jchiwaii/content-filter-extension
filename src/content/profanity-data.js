@@ -737,14 +737,12 @@ function buildTermPattern(term) {
 // ── Pre-compile regex at module load — avoids creating thousands of RegExp
 //    objects on every text node check (major performance fix) ─────────────────
 
-// Merge ALL source lists (full PROFANITY_DATA.words, LDNOOBW, and CORE list),
-// deduplicate, remove exceptions, and sort longest first.
+// Merge conservative runtime sources, deduplicate, remove exceptions, and sort longest first.
+// Keep the broad source list above for reference/metadata, but do not run it directly
+// against page text; it contains many ordinary words, names, places, and religious terms.
 const _allSources = [...new Set([
-  // Include the full PROFANITY_DATA.words list so that all user‑submitted words
-  // from noswearing.com are actually matched.
   ...CORE_TEXT_FILTER_WORDS,
-  ..._ldnoobwWords,
-  ...PROFANITY_DATA.words
+  ..._ldnoobwWords
 ])];
 const _filteredWords = _allSources
   .filter(w => w && !PROFANITY_DATA.exceptions.has(w.toLowerCase()))
