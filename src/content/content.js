@@ -112,7 +112,7 @@ function initialize() {
       isPaused = pauseResult.isPaused && pauseResult.pauseUntil > Date.now();
 
       if (!isProtectionActive()) {
-        console.log('[wash-my-eyes] Protection is paused or disabled');
+        console.log('[SafeBrowse] Protection is paused or disabled');
         return;
       }
 
@@ -131,12 +131,12 @@ initialize();
 function initializeFilter() {
   if (!isProtectionActive()) {
     if (isWhitelisted()) {
-      console.log('[wash-my-eyes] Site is whitelisted');
+      console.log('[SafeBrowse] Site is whitelisted');
     }
     return;
   }
 
-  console.log('[wash-my-eyes] Initializing content filter');
+  console.log('[SafeBrowse] Initializing content filter');
 
   // Filter existing content
   filterExistingContent();
@@ -351,7 +351,7 @@ function filterNode(node) {
 // Filter text content
 function filterTextContent() {
   if (!window.removeProfanity) {
-    console.error('[wash-my-eyes] Profanity functions not available');
+    console.error('[SafeBrowse] Profanity functions not available');
     return;
   }
   if (!document.body) return;
@@ -527,4 +527,4 @@ function setupFormProtection() {
   });
 }
 
-console.log('[wash-my-eyes] Content script loaded');
+console.log('[SafeBrowse] Content script loaded');

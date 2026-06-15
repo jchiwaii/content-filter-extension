@@ -140,7 +140,7 @@ async function initCharts() {
   const result = await storage.local.get(['weeklyStats']);
   const weeklyStats = result.weeklyStats || generateEmptyWeekStats();
   const chartFont = {
-    family: '"Roboto", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif',
+    family: '"Urbanist", "Avenir Next", "Inter", "SF Pro Text", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif',
     size: 11
   };
   const legend = {
@@ -282,7 +282,7 @@ async function exportData() {
 
   const a = document.createElement('a');
   a.href = url;
-  a.download = `wash-my-eyes-stats-${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `safebrowse-stats-${new Date().toISOString().split('T')[0]}.json`;
   a.click();
 
   URL.revokeObjectURL(url);

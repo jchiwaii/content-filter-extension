@@ -308,7 +308,7 @@ const defaultStats = {
 
 // Initialize extension on install
 chrome.runtime.onInstalled.addListener(async (details) => {
-  console.log('[wash-my-eyes] Extension installed/updated:', details.reason);
+  console.log('[SafeBrowse] Extension installed/updated:', details.reason);
 
   // Set default configuration
   const syncResult = await chrome.storage.sync.get(['config']);

@@ -1,3 +1,65 @@
+@font-face {
+  font-family: "Luxury Script";
+  src:
+    url("../../assets/fonts/luxury/ShouldbeComebackBrushClean.woff2") format("woff2"),
+    url("../../assets/fonts/luxury/ShouldbeComebackBrushClean.woff") format("woff"),
+    url("../../assets/fonts/luxury/ShouldbeComebackBrushClean.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Luxury";
+  src:
+    url("../../assets/fonts/luxury/ShouldbeComebackSans.woff2") format("woff2"),
+    url("../../assets/fonts/luxury/ShouldbeComebackSans.woff") format("woff"),
+    url("../../assets/fonts/luxury/ShouldbeComebackSans.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Anthony";
+  src:
+    url("../../assets/fonts/Anthony/Anthony-Regular.woff") format("woff"),
+    url("../../assets/fonts/Anthony/Anthony-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "CS Dovie";
+  src:
+    url("../../assets/fonts/CS Dovie/CSDovie-Regular.woff2") format("woff2"),
+    url("../../assets/fonts/CS Dovie/CSDovie-Regular.woff") format("woff"),
+    url("../../assets/fonts/CS Dovie/CSDovie-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "CrushFont";
+  src: url("../../assets/fonts/CrushFont.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Raelina";
+  src:
+    url("../../assets/fonts/Raelina-Regular.woff2") format("woff2"),
+    url("../../assets/fonts/Raelina-Regular.woff") format("woff"),
+    url("../../assets/fonts/Raelina-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg: #fff7ea;
   --surface: #fffaf1;
@@ -13,7 +75,8 @@
   --danger: #ef4f44;
   --shadow: #2b2520;
   --radius: 14px;
-  --font: "Roboto", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
+  --font: "Urbanist", "Avenir Next", "Inter", "SF Pro Text", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  --display-font: "Luxury Script", "Anthony", "CS Dovie", cursive;
 }
 
 body.dark-mode {
@@ -163,9 +226,10 @@ button {
 .header-text h1 {
   margin-bottom: 6px;
   color: var(--text);
-  font-size: 17px;
-  font-weight: 900;
-  line-height: 1.05;
+  font-family: var(--display-font);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1;
   letter-spacing: 0;
 }
 

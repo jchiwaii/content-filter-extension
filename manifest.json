@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "wash-my-eyes",
+  "name": "SafeBrowse – Profanity & NSFW Filter",
+  "short_name": "SafeBrowse",
   "version": "2.0.0",
-  "description": "Playful Chrome filter that blocks profanity, explicit images, adult sites, and unsafe search while you browse.",
+  "description": "Soap For The Internet. Blocks profanity, explicit images, adult sites, and unsafe search while you browse.",
 
   "permissions": [
     "storage",
@@ -39,7 +40,7 @@
       "48": "assets/icons/icon48.png",
       "128": "assets/icons/icon128.png"
     },
-    "default_title": "wash-my-eyes"
+    "default_title": "SafeBrowse"
   },
 
   "icons": {
@@ -57,6 +58,10 @@
         "pages/dashboard/dashboard.html",
         "pages/settings/settings.html",
         "assets/icons/*",
+        "assets/fonts/*",
+        "assets/fonts/luxury/*",
+        "assets/fonts/Anthony/*",
+        "assets/fonts/CS Dovie/*",
         "assets/vendor/*"
       ],
       "matches": ["<all_urls>"]

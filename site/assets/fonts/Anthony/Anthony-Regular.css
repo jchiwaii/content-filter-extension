@@ -1,0 +1,11 @@
+/* Webfont: AnthonyRegular */@font-face {
+    font-family: 'Anthony';
+    src: url('Anthony-Regular.eot'); /* IE9 Compat Modes */
+    src: url('Anthony-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('Anthony-Regular.woff') format('woff'), /* Modern Browsers */
+         url('Anthony-Regular.ttf') format('truetype'); /* Safari, Android, iOS */
+             font-style: normal;
+    font-weight: normal;
+    text-rendering: optimizeLegibility;
+}
+

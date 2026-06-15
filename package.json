@@ -1,13 +1,13 @@
 {
-  "name": "wash-my-eyes",
+  "name": "safebrowse-filter",
   "version": "1.0.0",
-  "description": "A playful Chrome extension that filters profanity, explicit images, adult sites, and unsafe search.",
-  "author": "wash-my-eyes",
+  "description": "Soap For The Internet. A Chrome extension that filters profanity, explicit images, adult sites, and unsafe search.",
+  "author": "SafeBrowse",
   "license": "MIT",
-  "homepage": "https://github.com/yourusername/wash-my-eyes",
+  "homepage": "https://github.com/yourusername/safebrowse-filter",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/wash-my-eyes.git"
+    "url": "https://github.com/yourusername/safebrowse-filter.git"
   },
   "keywords": [
     "content-filter",
@@ -22,17 +22,17 @@
   ],
   "browser_specific_settings": {
     "gecko": {
-      "id": "wash-my-eyes@example.com",
+      "id": "safebrowse-filter@example.com",
       "strict_min_version": "109.0"
     }
   },
   "scripts": {
-    "build": "zip -rFS wash-my-eyes.zip manifest.json package.json README.md src pages assets -x '*.git*' '*.py' '*.zip' '.DS_Store'",
+    "build": "zip -rFS safebrowse-filter.zip manifest.json package.json README.md src pages assets -x '*.git*' '*.py' '*.zip' '.DS_Store'",
     "test": "node tests/smoke-tests.mjs",
     "icons": "python3 generate_icons.py"
   },
   "devDependencies": {},
   "bugs": {
-    "url": "https://github.com/yourusername/wash-my-eyes/issues"
+    "url": "https://github.com/yourusername/safebrowse-filter/issues"
   }
 }

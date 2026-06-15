@@ -3,12 +3,71 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Site Blocked - wash-my-eyes</title>
+  <title>Site Blocked - SafeBrowse</title>
   <link rel="icon" href="../../assets/icons/wash-my-eyes-logo.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
   <style>
+    @font-face {
+      font-family: "Luxury Script";
+      src:
+        url("../../assets/fonts/luxury/ShouldbeComebackBrushClean.woff2") format("woff2"),
+        url("../../assets/fonts/luxury/ShouldbeComebackBrushClean.woff") format("woff"),
+        url("../../assets/fonts/luxury/ShouldbeComebackBrushClean.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Luxury";
+      src:
+        url("../../assets/fonts/luxury/ShouldbeComebackSans.woff2") format("woff2"),
+        url("../../assets/fonts/luxury/ShouldbeComebackSans.woff") format("woff"),
+        url("../../assets/fonts/luxury/ShouldbeComebackSans.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Anthony";
+      src:
+        url("../../assets/fonts/Anthony/Anthony-Regular.woff") format("woff"),
+        url("../../assets/fonts/Anthony/Anthony-Regular.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "CS Dovie";
+      src:
+        url("../../assets/fonts/CS Dovie/CSDovie-Regular.woff2") format("woff2"),
+        url("../../assets/fonts/CS Dovie/CSDovie-Regular.woff") format("woff"),
+        url("../../assets/fonts/CS Dovie/CSDovie-Regular.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "CrushFont";
+      src: url("../../assets/fonts/CrushFont.otf") format("opentype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Raelina";
+      src:
+        url("../../assets/fonts/Raelina-Regular.woff2") format("woff2"),
+        url("../../assets/fonts/Raelina-Regular.woff") format("woff"),
+        url("../../assets/fonts/Raelina-Regular.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
     :root {
       --bg: #fff7ea;
       --surface: #fffaf1;
@@ -20,7 +79,8 @@
       --yellow: #ff8a2a;
       --danger: #ef4f44;
       --shadow: #2b2520;
-      --font: "Roboto", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
+      --font: "Urbanist", "Avenir Next", "Inter", "SF Pro Text", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+      --display-font: "Luxury Script", "Anthony", "CS Dovie", cursive;
     }
 
     * {
@@ -70,10 +130,11 @@
       gap: 14px;
       color: var(--text);
       font-size: clamp(20px, 2.22vw, 30px);
-      font-weight: 900;
+      font-family: var(--display-font);
+      font-weight: 400;
       line-height: 1.25;
       text-decoration: none;
-      text-transform: lowercase;
+      text-transform: none;
     }
 
     .brand img {
@@ -107,11 +168,12 @@
       gap: 12px;
       margin: 0;
       color: var(--text);
-      font-size: clamp(22px, 3vw, 34px);
-      font-weight: 900;
-      line-height: 1.2;
+      font-family: var(--display-font);
+      font-size: clamp(38px, 5.2vw, 72px);
+      font-weight: 400;
+      line-height: 1;
       text-align: center;
-      text-transform: uppercase;
+      text-transform: none;
     }
 
     .page-title::before,
@@ -199,7 +261,7 @@
     <header class="blocked-header">
       <a class="brand" href="../../site/index.html">
         <img src="../../assets/icons/wash-my-eyes-logo.svg" alt="" width="36" height="36">
-        <span>wash-my-eyes</span>
+        <span>SafeBrowse</span>
       </a>
     </header>
 

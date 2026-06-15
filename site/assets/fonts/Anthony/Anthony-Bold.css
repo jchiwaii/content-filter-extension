@@ -1,0 +1,11 @@
+/* Webfont: Anthony-Bold */@font-face {
+    font-family: 'Anthony';
+    src: url('Anthony-Bold.eot'); /* IE9 Compat Modes */
+    src: url('Anthony-Bold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('Anthony-Bold.woff') format('woff'), /* Modern Browsers */
+         url('Anthony-Bold.ttf') format('truetype'); /* Safari, Android, iOS */
+             font-style: normal;
+    font-weight: bold;
+    text-rendering: optimizeLegibility;
+}
+

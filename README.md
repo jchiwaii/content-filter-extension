@@ -1,4 +1,6 @@
-# wash-my-eyes
+# SafeBrowse – Profanity & NSFW Filter
+
+Soap For The Internet.
 
 A Chrome extension that **filters profanity and inappropriate content** from web pages as you browse. It is playful on the outside, practical on the inside: cleaner text, safer search, adult-site blocking, and explicit-image blurring.
 
@@ -60,7 +62,7 @@ tests/                     Local smoke tests with mocked Chrome APIs
 2. Turn on **Developer mode** (top-right toggle)
 3. Click **Load unpacked**
 4. Select the `content-filter-extension` folder
-5. Click the puzzle-piece icon in your toolbar and pin wash-my-eyes
+5. Click the puzzle-piece icon in your toolbar and pin SafeBrowse
 
 That's it. Filtering starts immediately on every new page you open.
 
