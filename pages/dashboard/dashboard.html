@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Statistics Dashboard - Safe Browse</title>
   <link rel="icon" href="../../assets/images/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
   <div class="dashboard-shell">
     <header class="dashboard-header">
       <a class="brand-link" href="../../site/index.html#top" aria-label="Safe Browse home">
-        <img class="brand-logo" src="../../assets/images/logo.svg" alt="" width="36" height="36">
         <span>Safe Browse</span>
       </a>
       <div class="dashboard-actions">
@@ -23,40 +25,40 @@
     <main class="dashboard-main">
       <section class="dashboard-hero">
         <div>
-          <p class="dashboard-kicker">Local statistics</p>
-          <h1>Safe Browse dashboard</h1>
+          <p class="dashboard-kicker">Local Statistics</p>
+          <h1>Dashboard</h1>
           <p>Review what was filtered, export local stats, and jump into settings when you want tighter control.</p>
         </div>
         <div class="hero-status" aria-label="Privacy status">
           <span class="status-dot"></span>
-          <span>stored locally</span>
+          <span>Stored Locally</span>
         </div>
       </section>
 
       <section class="stats-overview" aria-label="Stats overview">
         <div class="stat-card">
-          <div class="stat-icon">Tx</div>
+          <div class="stat-icon">txt</div>
           <div class="stat-content">
             <span class="stat-value" id="totalWordsFiltered">0</span>
             <span class="stat-label">Words Filtered</span>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">Web</div>
+          <div class="stat-icon">web</div>
           <div class="stat-content">
             <span class="stat-value" id="totalSitesBlocked">0</span>
             <span class="stat-label">Sites Blocked</span>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">Img</div>
+          <div class="stat-icon">img</div>
           <div class="stat-content">
             <span class="stat-value" id="totalImagesBlocked">0</span>
             <span class="stat-label">Images Blocked</span>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">Hrs</div>
+          <div class="stat-icon">hrs</div>
           <div class="stat-content">
             <span class="stat-value" id="hoursProtected">0</span>
             <span class="stat-label">Hours Protected</span>
@@ -66,11 +68,11 @@
 
       <section class="charts-section">
         <div class="dashboard-panel chart-container">
-          <h2>Filtering Activity (Last 7 Days)</h2>
+          <h2>Filtering Activity <span class="header-sub">Last 7 Days</span></h2>
           <canvas id="activityChart"></canvas>
         </div>
         <div class="dashboard-panel chart-container compact-chart">
-          <h2>Content Types Filtered</h2>
+          <h2>Content Filtered</h2>
           <canvas id="typeChart"></canvas>
         </div>
       </section>

@@ -3,19 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Settings - Safe Browse</title>
+  <title>Preferences - Safe Browse</title>
   <link rel="icon" href="../../assets/images/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="settings.css">
 </head>
 <body>
   <!-- Password Lock Overlay -->
   <div id="passwordOverlay" class="password-overlay hidden">
     <div class="password-dialog">
-      <img class="password-logo" src="../../assets/images/logo.svg" alt="" width="52" height="52">
       <h2>Settings Locked</h2>
       <p>Enter your password to access settings</p>
       <input type="password" id="passwordInput" placeholder="Enter password" autofocus>
-      <button id="unlockBtn" class="btn btn-primary">Unlock</button>
+      <button id="unlockBtn" class="btn btn-primary">Unlock Settings</button>
       <p class="error-message hidden" id="passwordError">Incorrect password</p>
     </div>
   </div>
@@ -24,40 +26,39 @@
     <!-- Sidebar -->
     <nav class="settings-sidebar">
       <div class="sidebar-header">
-        <img class="brand-logo" src="../../assets/images/logo.svg" alt="" width="36" height="36">
         <h1>Safe Browse</h1>
       </div>
       <ul class="nav-menu">
         <li class="nav-item active" data-section="general">
-          <span class="nav-icon">01</span>
+          <span class="nav-icon">gen</span>
           <span>General</span>
         </li>
         <li class="nav-item" data-section="profiles">
-          <span class="nav-icon">02</span>
+          <span class="nav-icon">pro</span>
           <span>Profiles</span>
         </li>
         <li class="nav-item" data-section="filtering">
-          <span class="nav-icon">Tx</span>
+          <span class="nav-icon">txt</span>
           <span>Text Filtering</span>
         </li>
         <li class="nav-item" data-section="sites">
-          <span class="nav-icon">Web</span>
+          <span class="nav-icon">sit</span>
           <span>Site Blocking</span>
         </li>
         <li class="nav-item" data-section="images">
-          <span class="nav-icon">Img</span>
+          <span class="nav-icon">img</span>
           <span>Image Filtering</span>
         </li>
         <li class="nav-item" data-section="parental">
-          <span class="nav-icon">Key</span>
+          <span class="nav-icon">sec</span>
           <span>Parental Controls</span>
         </li>
         <li class="nav-item" data-section="backup">
-          <span class="nav-icon">Bak</span>
+          <span class="nav-icon">bak</span>
           <span>Backup & Restore</span>
         </li>
         <li class="nav-item" data-section="about">
-          <span class="nav-icon">Info</span>
+          <span class="nav-icon">inf</span>
           <span>About</span>
         </li>
       </ul>
@@ -67,7 +68,8 @@
     <main class="settings-main">
       <!-- General Section -->
       <section id="section-general" class="settings-section active">
-        <h2>General Settings</h2>
+        <h2>General</h2>
+        <p class="section-description">Manage core behavior and visibility of the extension.</p>
 
         <div class="setting-group">
           <div class="setting-item">
@@ -96,18 +98,19 @@
 
       <!-- Profiles Section -->
       <section id="section-profiles" class="settings-section">
-        <h2>Filter Profiles</h2>
-        <p class="section-description">Choose a pre-configured filtering profile or create your own.</p>
+        <h2>Profiles</h2>
+        <p class="section-description">Choose a pre-configured filtering profile or create your own custom setup.</p>
 
         <div class="profiles-grid" id="profilesGrid">
           <!-- Profiles will be loaded here -->
         </div>
 
         <div class="setting-group">
-          <h3>Create Custom Profile</h3>
-          <div class="setting-item">
-            <input type="text" id="customProfileName" class="text-input" placeholder="Profile name">
-            <button id="createProfileBtn" class="btn btn-secondary">Create Profile</button>
+          <h3>Custom Profile</h3>
+          <p class="setting-description">Start a new blank configuration to fine-tune your exact needs.</p>
+          <div class="input-with-button">
+            <input type="text" id="customProfileName" class="text-input" placeholder="Name your profile">
+            <button id="createProfileBtn" class="btn btn-secondary">Create</button>
           </div>
         </div>
       </section>
@@ -115,26 +118,26 @@
       <!-- Text Filtering Section -->
       <section id="section-filtering" class="settings-section">
         <h2>Text Filtering</h2>
+        <p class="section-description">Automatically sanitize web pages by detecting and masking profanity.</p>
 
         <div class="setting-group">
           <div class="setting-item">
             <div class="setting-info">
               <label>Enable Text Filtering</label>
-              <p>Filter profanity and inappropriate text</p>
+              <p>Filter profanity and inappropriate text globally</p>
             </div>
             <label class="toggle">
               <input type="checkbox" id="filterText" checked>
               <span class="toggle-slider"></span>
             </label>
           </div>
-
         </div>
 
         <div class="setting-group">
           <h3>Custom Words</h3>
-          <p class="setting-description">Add your own words to filter</p>
+          <p class="setting-description">Add specific words or phrases you want completely hidden.</p>
           <div class="input-with-button">
-            <input type="text" id="customWordInput" class="text-input" placeholder="Enter a word">
+            <input type="text" id="customWordInput" class="text-input" placeholder="Type a word...">
             <button id="addWordBtn" class="btn btn-primary">Add</button>
           </div>
           <div class="tags-container" id="customWordsList"></div>
@@ -144,12 +147,13 @@
       <!-- Site Blocking Section -->
       <section id="section-sites" class="settings-section">
         <h2>Site Blocking</h2>
+        <p class="section-description">Control what websites can be accessed and enforce safe search engines.</p>
 
         <div class="setting-group">
           <div class="setting-item">
             <div class="setting-info">
               <label>Enable Site Blocking</label>
-              <p>Block access to inappropriate websites</p>
+              <p>Block access to known inappropriate websites</p>
             </div>
             <label class="toggle">
               <input type="checkbox" id="blockSites" checked>
@@ -160,7 +164,7 @@
           <div class="setting-item">
             <div class="setting-info">
               <label>Enforce Safe Search</label>
-              <p>Force safe search on Google, Bing, etc.</p>
+              <p>Force safe mode on Google, Bing, and other engines</p>
             </div>
             <label class="toggle">
               <input type="checkbox" id="safeSearch" checked>
@@ -171,20 +175,20 @@
 
         <div class="setting-group">
           <h3>Whitelist</h3>
-          <p class="setting-description">Sites that bypass all filtering</p>
+          <p class="setting-description">Sites listed here will never be blocked or filtered.</p>
           <div class="input-with-button">
             <input type="text" id="whitelistInput" class="text-input" placeholder="example.com">
-            <button id="addWhitelistBtn" class="btn btn-primary">Add</button>
+            <button id="addWhitelistBtn" class="btn btn-primary">Allow</button>
           </div>
           <div class="list-container" id="whitelistList"></div>
         </div>
 
         <div class="setting-group">
           <h3>Custom Blocklist</h3>
-          <p class="setting-description">Additional sites to block</p>
+          <p class="setting-description">Forcefully block specific domains across the web.</p>
           <div class="input-with-button">
             <input type="text" id="blocklistInput" class="text-input" placeholder="example.com">
-            <button id="addBlocklistBtn" class="btn btn-primary">Add</button>
+            <button id="addBlocklistBtn" class="btn btn-danger">Block</button>
           </div>
           <div class="list-container" id="blocklistList"></div>
         </div>
@@ -193,12 +197,13 @@
       <!-- Image Filtering Section -->
       <section id="section-images" class="settings-section">
         <h2>Image Filtering</h2>
+        <p class="section-description">Protect against explicit media using metadata and pattern recognition.</p>
 
         <div class="setting-group">
           <div class="setting-item">
             <div class="setting-info">
               <label>Enable Image Filtering</label>
-              <p>Block inappropriate images based on metadata</p>
+              <p>Block inappropriate images based on heuristics</p>
             </div>
             <label class="toggle">
               <input type="checkbox" id="filterImages" checked>
@@ -209,7 +214,7 @@
           <div class="setting-item">
             <div class="setting-info">
               <label>Check URL Patterns</label>
-              <p>Block images from NSFW URL patterns</p>
+              <p>Aggressively block images from known NSFW paths</p>
             </div>
             <label class="toggle">
               <input type="checkbox" id="checkUrlPatterns" checked>
@@ -222,13 +227,15 @@
       <!-- Parental Controls Section -->
       <section id="section-parental" class="settings-section">
         <h2>Parental Controls</h2>
+        <p class="section-description">Secure the extension so settings cannot be modified without permission.</p>
 
         <div class="setting-group">
           <h3>Password Protection</h3>
+          <p class="setting-description">Require a password to access this dashboard.</p>
           <div class="setting-item">
             <div class="setting-info">
               <label>Lock Settings</label>
-              <p>Require password to change settings</p>
+              <p>Secure preferences behind a password</p>
             </div>
             <label class="toggle">
               <input type="checkbox" id="passwordEnabled">
@@ -237,10 +244,10 @@
           </div>
 
           <div id="passwordSettings" class="hidden">
-            <div class="setting-item">
-              <input type="password" id="newPassword" class="text-input" placeholder="New password (min 4 characters)">
+            <div class="input-with-button" style="margin-top: 16px;">
+              <input type="password" id="newPassword" class="text-input" placeholder="New password (min 4 chars)">
             </div>
-            <div class="setting-item">
+            <div class="input-with-button">
               <input type="password" id="confirmPassword" class="text-input" placeholder="Confirm password">
             </div>
             <button id="setPasswordBtn" class="btn btn-primary">Set Password</button>
@@ -251,48 +258,50 @@
       <!-- Backup Section -->
       <section id="section-backup" class="settings-section">
         <h2>Backup & Restore</h2>
+        <p class="section-description">Save your configuration locally or restore it on a new machine.</p>
 
         <div class="setting-group">
           <h3>Export Settings</h3>
-          <p class="setting-description">Download your settings as a JSON file</p>
-          <button id="exportSettingsBtn" class="btn btn-primary">Export Settings</button>
+          <p class="setting-description">Download your configuration file as a JSON payload.</p>
+          <button id="exportSettingsBtn" class="btn btn-secondary">Download Export</button>
         </div>
 
         <div class="setting-group">
           <h3>Import Settings</h3>
-          <p class="setting-description">Restore settings from a backup file</p>
-          <input type="file" id="importFile" accept=".json" class="file-input">
-          <label for="importFile" class="btn btn-secondary">Choose File</label>
-          <button id="importSettingsBtn" class="btn btn-primary" disabled>Import</button>
+          <p class="setting-description">Restore settings from a previously downloaded JSON file.</p>
+          <div class="input-with-button">
+            <input type="file" id="importFile" accept=".json" class="file-input">
+            <label for="importFile" class="btn btn-secondary" style="flex:1; text-align:center;">Select File</label>
+            <button id="importSettingsBtn" class="btn btn-primary" disabled>Import</button>
+          </div>
         </div>
 
         <div class="setting-group">
-          <h3>Reset</h3>
-          <p class="setting-description">Reset all settings to defaults</p>
-          <button id="resetSettingsBtn" class="btn btn-danger">Reset All Settings</button>
+          <h3>Factory Reset</h3>
+          <p class="setting-description">Permanently wipe all custom words, profiles, and blocklists.</p>
+          <button id="resetSettingsBtn" class="btn btn-danger">Reset Everything</button>
         </div>
       </section>
 
       <!-- About Section -->
       <section id="section-about" class="settings-section">
-        <h2>About Safe Browse</h2>
+        <h2>About</h2>
+        <p class="section-description">Version information and credits.</p>
 
         <div class="about-content">
-          <img class="about-logo" src="../../assets/images/logo.svg" alt="" width="78" height="78">
           <h3>Safe Browse</h3>
           <p class="version">Version 2.0.0</p>
 
           <div class="about-description">
-            <p>Safe Browse is Soap For The Internet: a playful content filter for profanity, adult sites, explicit images, and unsafe search results.</p>
-            <p>It is built to keep browsing calmer without turning the extension into another noisy app.</p>
+            <p>Safe Browse is Soap For The Internet: an elegant, invisible content filter designed to keep your browsing experience calm, safe, and focused.</p>
           </div>
 
           <div class="about-links">
-            <a href="../dashboard/dashboard.html" class="btn btn-secondary">View Dashboard</a>
+            <a href="../dashboard/dashboard.html" class="btn btn-secondary">View Analytics</a>
           </div>
 
           <div class="about-footer">
-            <p>Made for a safer internet</p>
+            <p>Designed for a cleaner web</p>
           </div>
         </div>
       </section>

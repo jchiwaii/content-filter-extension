@@ -4,16 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Safe Browse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="icon" href="../../assets/images/logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <div id="passwordLock" class="password-lock hidden">
     <div class="lock-content">
-      <img class="lock-logo" src="../../assets/images/logo.svg" alt="" width="48" height="48">
-      <h3>Settings locked</h3>
-      <input type="password" id="passwordInput" placeholder="Enter password">
-      <button id="unlockBtn" class="btn btn-primary">Unlock</button>
+      <h3>Settings Locked</h3>
+      <div class="input-group">
+        <input type="password" id="passwordInput" placeholder="Enter Password">
+      </div>
+      <button id="unlockBtn" class="btn btn-primary">Unlock Settings</button>
       <p class="error hidden" id="passwordError">Incorrect password</p>
     </div>
   </div>
@@ -21,14 +25,11 @@
   <div class="popup-container" id="mainContent">
     <header class="header">
       <div class="header-left">
-        <img class="popup-logo" src="../../assets/images/logo.svg" alt="" width="44" height="44">
-        <div class="header-text">
-          <div class="header-title-line">
-            <h1>Safe Browse</h1>
-            <span class="status-badge" id="statusBadge">Active</span>
-          </div>
-          <p>Soap For The Internet</p>
+        <div class="header-title-line">
+          <h1>Safe Browse</h1>
+          <span class="status-badge" id="statusBadge">Active</span>
         </div>
+        <p>Soap For The Internet</p>
       </div>
       <div class="header-right">
         <label class="main-toggle">
@@ -65,7 +66,7 @@
         <span>Whitelist</span>
       </button>
       <button class="action-btn" id="dashboardBtn">
-        <span class="action-icon">Stats</span>
+        <span class="action-icon">⚲</span>
         <span>Dashboard</span>
       </button>
     </section>
@@ -73,42 +74,42 @@
     <section class="settings-section">
       <div class="setting-row">
         <div class="setting-info">
-          <span class="setting-icon">Text</span>
+          <span class="setting-icon">txt</span>
           <span>Text filtering</span>
         </div>
         <label class="toggle">
           <input type="checkbox" id="filterTextToggle" checked>
-          <span class="toggle-slider small"></span>
+          <span class="toggle-slider"></span>
         </label>
       </div>
       <div class="setting-row">
         <div class="setting-info">
-          <span class="setting-icon">Image</span>
+          <span class="setting-icon">img</span>
           <span>Image filtering</span>
         </div>
         <label class="toggle">
           <input type="checkbox" id="filterImagesToggle" checked>
-          <span class="toggle-slider small"></span>
+          <span class="toggle-slider"></span>
         </label>
       </div>
       <div class="setting-row">
         <div class="setting-info">
-          <span class="setting-icon">Search</span>
+          <span class="setting-icon">src</span>
           <span>Safe search</span>
         </div>
         <label class="toggle">
           <input type="checkbox" id="safeSearchToggle" checked>
-          <span class="toggle-slider small"></span>
+          <span class="toggle-slider"></span>
         </label>
       </div>
       <div class="setting-row">
         <div class="setting-info">
-          <span class="setting-icon">Sites</span>
+          <span class="setting-icon">sit</span>
           <span>Site blocking</span>
         </div>
         <label class="toggle">
           <input type="checkbox" id="blockSitesToggle" checked>
-          <span class="toggle-slider small"></span>
+          <span class="toggle-slider"></span>
         </label>
       </div>
     </section>
@@ -116,11 +117,11 @@
     <section class="collapsible-section">
       <button class="collapsible-header" id="customWordsHeader">
         <span>Custom words</span>
-        <span class="collapse-icon">v</span>
+        <span class="collapse-icon">▼</span>
       </button>
       <div class="collapsible-content" id="customWordsContent">
         <div class="input-group">
-          <input type="text" id="customWordInput" placeholder="Add word">
+          <input type="text" id="customWordInput" placeholder="Add a word...">
           <button id="addWordBtn" class="btn btn-small">Add</button>
         </div>
         <div class="tags-list" id="customWordsList"></div>
@@ -130,7 +131,7 @@
     <section class="collapsible-section">
       <button class="collapsible-header" id="whitelistHeader">
         <span>Whitelisted sites</span>
-        <span class="collapse-icon">v</span>
+        <span class="collapse-icon">▼</span>
       </button>
       <div class="collapsible-content" id="whitelistContent">
         <div class="whitelist-list" id="whitelistList"></div>
@@ -138,7 +139,7 @@
     </section>
 
     <footer class="footer">
-      <button class="footer-link" id="settingsLink">Settings</button>
+      <button class="footer-link" id="settingsLink">Preferences</button>
     </footer>
   </div>
 
