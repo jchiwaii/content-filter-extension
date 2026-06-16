@@ -88,7 +88,7 @@ button {
 
 .password-logo {
   display: block;
-  width: 58px;
+  width: 104px;
   height: 58px;
   margin: 0 auto 18px;
   object-fit: contain;
@@ -148,8 +148,8 @@ button {
 }
 
 .brand-logo {
-  width: 40px;
-  height: 40px;
+  width: 86px;
+  height: 48px;
   display: block;
   flex: 0 0 auto;
   object-fit: contain;
@@ -616,8 +616,8 @@ input[type="number"]:focus {
 }
 
 .about-logo {
-  width: 84px;
-  height: 84px;
+  width: 140px;
+  height: 78px;
   display: block;
   margin: 0 0 20px;
   object-fit: contain;

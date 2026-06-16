@@ -153,10 +153,10 @@ iframe[data-filtered="true"] {
 
 .safe-mode-indicator::before {
   content: "";
-  width: 14px;
+  width: 32px;
   height: 18px;
   display: inline-block;
-  background-image: url("../../assets/icons/wash-my-eyes-logo.svg");
+  background-image: url("../../assets/images/logo.svg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
