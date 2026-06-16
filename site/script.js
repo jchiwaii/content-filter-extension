@@ -3,19 +3,28 @@ const smoothRoot = document.querySelector("[data-smooth-scroll]");
 const header = document.querySelector(".site-header");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-const revealObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.16 }
-);
+document.documentElement.classList.add("js-reveal");
 
-revealItems.forEach((item) => revealObserver.observe(item));
+if (reducedMotion.matches) {
+  revealItems.forEach((item) => item.classList.add("visible"));
+} else {
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.18, rootMargin: "0px 0px -8% 0px" }
+  );
+
+  revealItems.forEach((item, index) => {
+    item.style.setProperty("--reveal-delay", `${Math.min(index * 80, 280)}ms`);
+    revealObserver.observe(item);
+  });
+}
 
 if (smoothRoot && !reducedMotion.matches) {
   const root = document.documentElement;
