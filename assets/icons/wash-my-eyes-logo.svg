@@ -1,9 +1,9 @@
-<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SafeBrowse logo">
-  <rect x="7" y="7" width="74" height="74" rx="18" fill="#FF8A2A" stroke="#2B2520" stroke-width="4"/>
-  <rect x="15" y="15" width="74" height="74" rx="18" fill="#FFF7EA" stroke="#2B2520" stroke-width="4"/>
-  <path d="M22 52C30.5 39.5 42 33.5 56.5 33.5C71 33.5 82 39.5 89 52C82 64.5 71 70.5 56.5 70.5C42 70.5 30.5 64.5 22 52Z" fill="#FFFFFF" stroke="#2B2520" stroke-width="4" stroke-linejoin="round"/>
-  <circle cx="56.5" cy="52" r="13" fill="#7BD66F" stroke="#2B2520" stroke-width="4"/>
-  <circle cx="60.5" cy="48" r="4" fill="#2B2520"/>
-  <path d="M30 24L37 31M28 33L38 35M76 24L69 31M78 33L68 35" stroke="#2B2520" stroke-width="4" stroke-linecap="round"/>
-  <path d="M51 79C51 79 45 84.5 45 89C45 92.3 47.7 95 51 95C54.3 95 57 92.3 57 89C57 84.5 51 79 51 79Z" fill="#57C8FF" stroke="#2B2520" stroke-width="4" stroke-linejoin="round"/>
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Safe Browse logo">
+  <rect x="7" y="7" width="74" height="74" rx="18" fill="#90DDF0" stroke="#0A090C" stroke-width="4"/>
+  <rect x="15" y="15" width="74" height="74" rx="18" fill="#F0EDEE" stroke="#0A090C" stroke-width="4"/>
+  <path d="M22 52C30.5 39.5 42 33.5 56.5 33.5C71 33.5 82 39.5 89 52C82 64.5 71 70.5 56.5 70.5C42 70.5 30.5 64.5 22 52Z" fill="#FFFFFF" stroke="#0A090C" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="56.5" cy="52" r="13" fill="#2C666E" stroke="#0A090C" stroke-width="4"/>
+  <circle cx="60.5" cy="48" r="4" fill="#0A090C"/>
+  <path d="M30 24L37 31M28 33L38 35M76 24L69 31M78 33L68 35" stroke="#0A090C" stroke-width="4" stroke-linecap="round"/>
+  <path d="M51 79C51 79 45 84.5 45 89C45 92.3 47.7 95 51 95C54.3 95 57 92.3 57 89C57 84.5 51 79 51 79Z" fill="#90DDF0" stroke="#0A090C" stroke-width="4" stroke-linejoin="round"/>
 </svg>

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "SafeBrowse – Profanity & NSFW Filter",
-  "short_name": "SafeBrowse",
+  "name": "Safe Browse – Profanity & NSFW Filter",
+  "short_name": "Safe Browse",
   "version": "2.0.0",
   "description": "Soap For The Internet. Blocks profanity, explicit images, adult sites, and unsafe search while you browse.",
 
@@ -40,7 +40,7 @@
       "48": "assets/icons/icon48.png",
       "128": "assets/icons/icon128.png"
     },
-    "default_title": "SafeBrowse"
+    "default_title": "Safe Browse"
   },
 
   "icons": {
