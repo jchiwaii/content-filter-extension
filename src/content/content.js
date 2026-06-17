@@ -113,6 +113,18 @@ let config = {
 
 let isPaused = false;
 let imageObserverReady = false;
+let textMutationObserver = null;
+let mutationFlushTimer = null;
+const pendingTextMutations = [];
+const observedMutationRoots = new WeakSet();
+
+const TEXT_MUTATION_OPTIONS = {
+  childList: true,
+  subtree: true,
+  characterData: true,
+  attributes: true,
+  attributeFilter: ['placeholder', 'title', 'aria-label']
+};
 
 // Statistics for this session
 let statistics = {
@@ -264,7 +276,7 @@ function filterExistingContent() {
 
   if (config.filterText) {
     filterTextContent();
-    filterPlaceholders();
+    filterTextAttributes();
   }
 
   syncImageFiltering();
@@ -380,19 +392,41 @@ function filterTextContent() {
   walkTextNodes(document.body, filterNode);
 }
 
-// Filter placeholder attributes (visible in form elements)
-function filterPlaceholders() {
+function filterElementTextAttributes(element) {
+  if (!element || element.nodeType !== 1) return;
   if (typeof removeProfanity !== 'function' || typeof containsProfanity !== 'function') return;
-  const elements = document.querySelectorAll('input[placeholder], textarea[placeholder]');
-  for (const el of elements) {
-    const ph = el.getAttribute('placeholder');
-    if (!ph) continue;
-    if (containsProfanity(ph, config.customWords)) {
-      const cleaned = removeProfanity(ph, config.customWords);
-      el.setAttribute('placeholder', cleaned);
+
+  const attributes = ['placeholder', 'title', 'aria-label'];
+  for (const attribute of attributes) {
+    if (element.tagName === 'IMG' && attribute === 'title') continue;
+
+    const value = element.getAttribute?.(attribute);
+    if (!value || !containsProfanity(value, config.customWords)) continue;
+
+    const cleaned = removeProfanity(value, config.customWords);
+    if (cleaned !== value) {
+      element.setAttribute(attribute, cleaned);
       statistics.wordsFiltered++;
       maybeFlushStats();
     }
+  }
+}
+
+// Filter visible text attributes without disturbing image-classification metadata.
+function filterTextAttributes(root = document) {
+  if (!root) return;
+  const elements = [];
+
+  if (root.nodeType === 1) {
+    elements.push(root);
+  }
+
+  if (typeof root.querySelectorAll === 'function') {
+    elements.push(...root.querySelectorAll('[placeholder], [title], [aria-label]'));
+  }
+
+  for (const el of elements) {
+    filterElementTextAttributes(el);
   }
 }
 
@@ -425,30 +459,57 @@ function walkTextNodes(element, callback, visitedWeakSet = new WeakSet()) {
   }
 }
 
-// Setup mutation observer for dynamic content
-function setupMutationObserver() {
-  const observer = new MutationObserver((mutations) => {
-    let hasNewContent = false;
+function observeMutationRoot(root) {
+  if (!textMutationObserver || !root || observedMutationRoots.has(root)) return;
+  textMutationObserver.observe(root, TEXT_MUTATION_OPTIONS);
+  observedMutationRoots.add(root);
+}
 
+function observeOpenShadowRoots(root) {
+  if (!root) return;
+
+  if (root.nodeType === 1 && root.shadowRoot) {
+    observeMutationRoot(root.shadowRoot);
+    observeOpenShadowRoots(root.shadowRoot);
+  }
+
+  if (typeof root.querySelectorAll !== 'function') return;
+  for (const element of root.querySelectorAll('*')) {
+    if (element.shadowRoot) {
+      observeMutationRoot(element.shadowRoot);
+      observeOpenShadowRoots(element.shadowRoot);
+    }
+  }
+}
+
+function queueTextMutations(mutations) {
+  pendingTextMutations.push(...mutations);
+  clearTimeout(mutationFlushTimer);
+  mutationFlushTimer = setTimeout(() => {
+    mutationFlushTimer = null;
+    const batch = pendingTextMutations.splice(0, pendingTextMutations.length);
+    filterDynamicContent(batch);
+  }, 75);
+}
+
+// Setup mutation observer for dynamic content and open shadow DOM roots.
+function setupMutationObserver() {
+  if (textMutationObserver || !document.body) return;
+
+  textMutationObserver = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
-      if (mutation.addedNodes.length > 0) {
-        hasNewContent = true;
-        break;
+      for (const node of mutation.addedNodes || []) {
+        if (node.nodeType === 1) {
+          observeOpenShadowRoots(node);
+        }
       }
     }
 
-    if (hasNewContent) {
-      clearTimeout(window.filterDebounce);
-      window.filterDebounce = setTimeout(() => {
-        filterDynamicContent(mutations);
-      }, 100);
-    }
+    queueTextMutations(mutations);
   });
 
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
+  observeMutationRoot(document.body);
+  observeOpenShadowRoots(document.body);
 }
 
 // Filter dynamically added content
@@ -456,9 +517,20 @@ function filterDynamicContent(mutations) {
   if (!isProtectionActive() || !config.filterText) return;
 
   mutations.forEach((mutation) => {
-    mutation.addedNodes.forEach((node) => {
-      if (node.nodeType === 1) {
+    if (mutation.type === 'characterData' && mutation.target?.nodeType === 3) {
+      filterNode(mutation.target);
+    }
+
+    if (mutation.type === 'attributes' && mutation.target?.nodeType === 1) {
+      filterElementTextAttributes(mutation.target);
+    }
+
+    (mutation.addedNodes || []).forEach((node) => {
+      if (node.nodeType === 3) {
+        filterNode(node);
+      } else if (node.nodeType === 1) {
         walkTextNodes(node, filterNode);
+        filterTextAttributes(node);
       }
     });
   });

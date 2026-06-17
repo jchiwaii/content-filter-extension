@@ -163,11 +163,63 @@ async function runManifestChecks() {
 async function runProfanityChecks() {
   const context = vm.createContext({ window: {} });
   vm.runInContext(await read('src/content/profanity-data.js'), context);
+  const { containsProfanity, removeProfanity, PROFANITY_DATA } = context.window;
 
-  assert.equal(context.window.containsProfanity('clean sentence'), false);
-  assert.equal(context.window.containsProfanity('that was shit'), true);
-  assert.equal(context.window.removeProfanity('that was shit'), 'that was');
-  assert.equal(context.window.containsProfanity('hello pineapple', ['pineapple']), true);
+  assert.equal(containsProfanity('clean sentence'), false);
+  assert.equal(containsProfanity('that was shit'), true);
+  assert.equal(removeProfanity('that was shit'), 'that was');
+  assert.equal(containsProfanity('hello pineapple', ['pineapple']), true);
+  assert.equal(containsProfanity('hello pineapple and mango', ['pineapple, mango']), true);
+  assert.equal(containsProfanity('hide this custom-phrase now', ['custom phrase']), true);
+  assert.equal(removeProfanity('hide this custom-phrase now', ['custom phrase']), 'hide this now');
+  assert.equal(containsProfanity('ticket ABC-4821 is visible', ['/ABC-\\d+/i']), true);
+  assert.equal(removeProfanity('ticket ABC-4821 is visible', ['/ABC-\\d+/i']), 'ticket is visible');
+  assert.equal(containsProfanity('a cybersex portal'), true);
+
+  for (const term of Array.from(PROFANITY_DATA.textWords)) {
+    const sample = `before ${term} after`;
+    assert.equal(containsProfanity(sample), true, `Runtime word was not detected: ${term}`);
+    assert.equal(removeProfanity(sample), 'before after', `Runtime word was not fully removed: ${term}`);
+
+    if (/[\s_-]/.test(term)) {
+      for (const separator of ['-', '_', '   ']) {
+        const variant = term.replace(/[\s_-]+/g, separator);
+        assert.equal(containsProfanity(`before ${variant} after`), true, `Variant was not detected: ${variant}`);
+        assert.equal(removeProfanity(`before ${variant} after`), 'before after', `Variant was not removed: ${variant}`);
+      }
+    }
+  }
+
+  const edgeCases = [
+    ['uppercase', 'This is SHIT.', 'This is.'],
+    ['punctuation', 'Hello shit, world.', 'Hello, world.'],
+    ['parentheses', 'Hello (shit) world.', 'Hello world.'],
+    ['repeated matches', 'shit, shit and shit!', ', and!'],
+    ['underscore boundary', 'before_shit_after', 'before_ _after'],
+    ['zero-width evasion', 'before s\u200Bh\u200Bi\u200Bt after', 'before after'],
+    ['spaced evasion', 'before s h i t after', 'before after'],
+    ['fullwidth evasion', 'before ＦＵＣＫ after', 'before after'],
+    ['asterisk evasion', 'before f*ck after', 'before after']
+  ];
+
+  for (const [label, input, expected] of edgeCases) {
+    assert.equal(containsProfanity(input), true, `${label} was not detected`);
+    assert.equal(removeProfanity(input), expected, `${label} was not cleaned correctly`);
+  }
+
+  assert.equal(removeProfanity('hello shit '), 'hello ', 'Trailing author whitespace must be preserved');
+  assert.equal(removeProfanity(' shit world'), ' world', 'Leading author whitespace must be preserved');
+  assert.equal(removeProfanity('shit'), '', 'A fully filtered node should become empty');
+
+  assert.equal(containsProfanity('literal c++ entry', ['c++']), true);
+  assert.equal(removeProfanity('literal c++ entry', ['c++']), 'literal entry');
+  assert.equal(containsProfanity('unsafe aaaaaaaaaaaaaaaaaaaaa!', ['/(a+)+$/']), false);
+  assert.equal(containsProfanity('malformed pattern stays harmless', ['/[invalid/']), false);
+
+  PROFANITY_DATA.patterns.push('[invalid');
+  assert.equal(containsProfanity('clean text after invalid pattern'), false);
+  PROFANITY_DATA.patterns.push('\\bsourcepattern\\b');
+  assert.equal(containsProfanity('sourcepattern should match'), true);
 
   const safeTexts = [
     'God is good',
@@ -187,8 +239,24 @@ async function runProfanityChecks() {
   ];
 
   for (const text of safeTexts) {
-    assert.equal(context.window.containsProfanity(text), false, `False positive: ${text}`);
-    assert.equal(context.window.removeProfanity(text), text, `Safe text changed: ${text}`);
+    assert.equal(containsProfanity(text), false, `False positive: ${text}`);
+    assert.equal(removeProfanity(text), text, `Safe text changed: ${text}`);
+  }
+
+  const substringSafeTexts = [
+    'class assignment assistant assessment',
+    'classic glass passage compass',
+    'mass grass bass brass',
+    'Dickinson and Dickens',
+    'Scunthorpe, Penistone, Essex and Sussex',
+    'αshitβ',
+    'クラシック',
+    'home homeowner'
+  ];
+
+  for (const text of substringSafeTexts) {
+    assert.equal(containsProfanity(text), false, `Substring false positive: ${text}`);
+    assert.equal(removeProfanity(text), text, `Substring-safe text changed: ${text}`);
   }
 
   const blockedTexts = [
@@ -203,10 +271,10 @@ async function runProfanityChecks() {
   ];
 
   for (const text of blockedTexts) {
-    assert.equal(context.window.containsProfanity(text), true, `Missed profanity: ${text}`);
+    assert.equal(containsProfanity(text), true, `Missed profanity: ${text}`);
   }
 
-  assert.equal(context.window.removeProfanity('that was fucking awful'), 'that was awful');
+  assert.equal(removeProfanity('that was fucking awful'), 'that was awful');
 }
 
 async function runSafeSearchAndBlocklistChecks() {
@@ -246,6 +314,27 @@ async function runSafeSearchAndBlocklistChecks() {
 
   const navListener = chrome.__listeners.find(([type]) => type === 'navigation')?.[1];
   assert.equal(typeof navListener, 'function');
+
+  const {
+    chrome: boundaryChrome,
+    background: boundaryBackground
+  } = await createBackgroundContext({
+    sync: { config: {} },
+    local: { combinedProfanityWords: ['ass', 'butt plug', 'shit'] }
+  });
+  assert.equal(await boundaryBackground.SafeSearch.containsBlockedTerm('ass'), true);
+  assert.equal(await boundaryBackground.SafeSearch.containsBlockedTerm('buy a butt-plug'), true);
+  assert.equal(await boundaryBackground.SafeSearch.containsBlockedTerm('s h i t'), true);
+  assert.equal(await boundaryBackground.SafeSearch.containsBlockedTerm('class assignment'), false);
+  assert.equal(await boundaryBackground.SafeSearch.containsBlockedTerm('shitake mushrooms'), false);
+
+  boundaryChrome.storage.local.data.combinedProfanityWords = ['butt'];
+  const storageListener = boundaryChrome.__listeners.find(([type]) => type === 'storageChanged')?.[1];
+  storageListener?.({
+    combinedProfanityWords: { oldValue: ['ass'], newValue: ['butt'] }
+  }, 'local');
+  assert.equal(await boundaryBackground.SafeSearch.containsBlockedTerm('ass'), false);
+  assert.equal(await boundaryBackground.SafeSearch.containsBlockedTerm('butt'), true);
 
   await navListener({ frameId: 0, tabId: 1, url: 'https://sub.example.com/path' });
   assert.equal(chrome.__tabUpdates.length, 1);
@@ -367,6 +456,148 @@ globalThis.__content = { isWhitelisted, domainMatches, normalizeHostname, config
   assert.equal(context.__content.isWhitelisted(), true);
 }
 
+async function runDynamicTextFilteringChecks() {
+  const chrome = createChromeMock({
+    sync: { config: { enabled: true, filterText: true, filterImages: false, customWords: ['hidden phrase'] } },
+    local: {}
+  });
+  chrome.runtime.sendMessage = () => Promise.resolve();
+  const observerInstances = [];
+  const shadowRoot = {
+    nodeType: 11,
+    childNodes: [],
+    querySelectorAll: () => []
+  };
+  const shadowHost = {
+    nodeType: 1,
+    tagName: 'SAFE-WIDGET',
+    isContentEditable: false,
+    childNodes: [],
+    shadowRoot,
+    querySelectorAll: () => []
+  };
+  const body = {
+    nodeType: 1,
+    tagName: 'BODY',
+    isContentEditable: false,
+    childNodes: [],
+    querySelectorAll: selector => selector === '*' ? [shadowHost] : []
+  };
+
+  class TestMutationObserver {
+    constructor(callback) {
+      this.callback = callback;
+      this.observations = [];
+      observerInstances.push(this);
+    }
+
+    observe(root, options) {
+      this.observations.push({ root, options });
+    }
+  }
+
+  const context = vm.createContext({
+    chrome,
+    window: {
+      location: { hostname: 'example.com' },
+      addEventListener: () => {}
+    },
+    location: { href: 'https://example.com/page' },
+    history: { pushState: () => {}, replaceState: () => {} },
+    document: {
+      readyState: 'complete',
+      visibilityState: 'visible',
+      addEventListener: () => {},
+      querySelectorAll: () => [],
+      body
+    },
+    MutationObserver: TestMutationObserver,
+    URL,
+    Date,
+    setTimeout,
+    clearTimeout,
+    setInterval: () => 0,
+    clearInterval: () => {},
+    requestAnimationFrame: callback => callback(),
+    console: { log: () => {}, warn: () => {}, error: () => {} }
+  });
+
+  vm.runInContext(`${await read('src/content/profanity-data.js')}
+${await read('src/content/content.js')}
+globalThis.__content = {
+  filterDynamicContent,
+  filterTextAttributes,
+  setupMutationObserver
+};`, context);
+
+  const textObserver = observerInstances.find(observer =>
+    observer.observations.some(observation => observation.options.characterData)
+  );
+  assert.ok(textObserver, 'Text mutation observer was not created');
+  assert.equal(
+    textObserver.observations.some(observation => observation.root === shadowRoot),
+    true,
+    'Open shadow roots must be observed'
+  );
+
+  const textNode = { nodeType: 3, textContent: 'A hidden-phrase arrived later.' };
+  context.__content.filterDynamicContent([{ addedNodes: [textNode] }]);
+  assert.equal(textNode.textContent, 'A arrived later.');
+
+  const changedTextNode = { nodeType: 3, textContent: 'This hidden phrase changed in place.' };
+  context.__content.filterDynamicContent([{
+    type: 'characterData',
+    target: changedTextNode,
+    addedNodes: []
+  }]);
+  assert.equal(changedTextNode.textContent, 'This changed in place.');
+
+  const firstRapidNode = { nodeType: 3, textContent: 'First hidden phrase.' };
+  const secondRapidNode = { nodeType: 3, textContent: 'Second hidden phrase.' };
+  textObserver.callback([{ type: 'childList', addedNodes: [firstRapidNode] }]);
+  textObserver.callback([{ type: 'childList', addedNodes: [secondRapidNode] }]);
+  await new Promise(resolve => setTimeout(resolve, 100));
+  assert.equal(firstRapidNode.textContent, 'First.');
+  assert.equal(secondRapidNode.textContent, 'Second.');
+
+  const attributes = {
+    placeholder: 'Enter hidden phrase here',
+    title: 'A shit title',
+    'aria-label': 'Open shit menu'
+  };
+  const attributeElement = {
+    nodeType: 1,
+    tagName: 'BUTTON',
+    isContentEditable: false,
+    childNodes: [],
+    querySelectorAll: () => [],
+    getAttribute: name => attributes[name] ?? null,
+    setAttribute: (name, value) => {
+      attributes[name] = value;
+    }
+  };
+  context.__content.filterDynamicContent([{
+    type: 'attributes',
+    target: attributeElement,
+    addedNodes: []
+  }]);
+  assert.equal(attributes.placeholder, 'Enter here');
+  assert.equal(attributes.title, 'A title');
+  assert.equal(attributes['aria-label'], 'Open menu');
+
+  const imageAttributes = { title: 'shit image metadata' };
+  const imageElement = {
+    ...attributeElement,
+    tagName: 'IMG',
+    getAttribute: name => imageAttributes[name] ?? null,
+    setAttribute: (name, value) => {
+      imageAttributes[name] = value;
+    }
+  };
+  context.__content.filterTextAttributes(imageElement);
+  assert.equal(imageAttributes.title, 'shit image metadata');
+}
+
 async function runImageDetectorChecks() {
   const sentMessages = [];
   const chrome = createChromeMock({ sync: { imageDetectorConfig: { enabled: true, placeholderEnabled: false } } });
@@ -469,6 +700,8 @@ async function runStaticRegressionChecks() {
   const settingsHtml = await read('pages/settings/settings.html');
   const dashboardHtml = await read('pages/dashboard/dashboard.html');
   const contentCss = await read('src/content/content.css');
+  const profanityData = await read('src/content/profanity-data.js');
+  const background = await read('src/background/background.js');
   const imageDetector = await read('src/modules/image-detector.js');
   const pkg = JSON.parse(await read('package.json'));
 
@@ -482,6 +715,9 @@ async function runStaticRegressionChecks() {
   assert.doesNotMatch(imageDetector, /Show Image|Image Blocked|showPlaceholder/);
   assert.doesNotMatch(settings, /imagePlaceholder/);
   assert.doesNotMatch(settingsHtml, /imagePlaceholder|Show Placeholder/);
+  assert.match(profanityData, /chrome\.storage\.local/);
+  assert.doesNotMatch(profanityData, /chrome\.storage\.sync\.set\(\{ combinedProfanityWords/);
+  assert.match(background, /chrome\.storage\.local\.get\(\['combinedProfanityWords'\]\)/);
 }
 
 await runManifestChecks();
@@ -490,6 +726,7 @@ await runSafeSearchAndBlocklistChecks();
 await runStatisticsAndBadgeChecks();
 await runProfileChecks();
 await runContentWhitelistChecks();
+await runDynamicTextFilteringChecks();
 await runImageDetectorChecks();
 await runStaticRegressionChecks();
 

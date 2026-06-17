@@ -27,7 +27,7 @@
     }
   },
   "scripts": {
-    "build": "zip -rFS safebrowse-filter.zip manifest.json package.json README.md src pages assets -x '*.git*' '*.py' '*.zip' '.DS_Store'",
+    "build": "zip -rFS safebrowse-filter.zip manifest.json package.json README.md src pages assets -x '*.git*' '*.py' '*.zip' '.DS_Store' '*/.DS_Store' 'desktop.ini' '*/desktop.ini'",
     "test": "node tests/smoke-tests.mjs",
     "icons": "python3 generate_icons.py"
   },

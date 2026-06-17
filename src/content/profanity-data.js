@@ -598,6 +598,92 @@ const PROFANITY_DATA = {
     /\bs\*ut\b/gi,
   ],
 
+  // Site-wide text additions that should always run against page text.
+  // Keep PROFANITY_DATA.words broad for reference; add deliberate runtime terms here.
+  textWords: [
+    'anus', 'arse', 'arsehole', 'ass', 'ass hat', 'ass jabber', 'ass pirate',
+    'assbag', 'assbandit', 'assbanger', 'assbite', 'assclown', 'asscock',
+    'asscracker', 'asses', 'assface', 'assfuck', 'assfucker', 'assgoblin',
+    'asshat', 'asshead', 'asshole', 'asshopper', 'assjacker', 'asslick',
+    'asslicker', 'assmonkey', 'assmunch', 'assmuncher', 'assnigger',
+    'asspirate', 'assshit', 'assshole', 'asssucker', 'asswad', 'asswipe',
+    'axwound',
+
+    'bampot', 'bastard', 'beaner', 'beartrap', 'bitch', 'bitchass',
+    'bitches', 'bitchtits', 'bitchy', 'blow job', 'blowjob', 'bollocks',
+    'bollox', 'boner', 'bullshit', 'butt plug', 'butt pirate', 'buttfuck',
+    'buttfucka', 'buttfucker',
+
+    'camel toe', 'cameltoe', 'carpet muncher', 'carpetmuncher', 'chesticle',
+    'chinc', 'chink', 'choad', 'chode', 'circle jerk', 'circlejerk', 'clit',
+    'clitface', 'clitfuck', 'clitweasel', 'clusterfuck',
+    'cock', 'cockass', 'cockbite', 'cockburger', 'cockface', 'cockfucker',
+    'cockhead', 'cockjockey', 'cockknob', 'cockknoker', 'cockmaster',
+    'cockmongruel', 'cockmonkey', 'cockmuncher', 'cocknugget', 'cockshit',
+    'cocksmoke', 'cocksniffer', 'cocksucker', 'cockwaffle',
+    'coochie', 'coochy', 'coon', 'cooter', 'cracker',
+    'cumbubble', 'cumdumpster', 'cumguzzler', 'cumjockey', 'cumslut',
+    'cumtart', 'cunnie', 'cunnilingus', 'cunt', 'cuntass', 'cuntbubble',
+    'cuntface', 'cunthole', 'cuntlicker', 'cuntrag', 'cuntslut',
+
+    'dago', 'damn', 'deggo', 'dick', 'dick sneeze', 'dickbag', 'dickbeaters',
+    'dickface', 'dickfuck', 'dickfucker', 'dickhead', 'dickhole', 'dickjuice',
+    'dickmilk', 'dickmonger', 'dicks', 'dickslap', 'dicksucker', 'dickwad',
+    'dickweasel', 'dike', 'dildo', 'dipshit', 'docking', 'doochbag', 'dookie',
+    'douche', 'douche fag', 'douchebag', 'douchewaffle', 'dumass', 'dumbass',
+    'dumbfuck', 'dumbshit', 'dumshit', 'dyke',
+
+    'fag', 'fagbag', 'fagfucker', 'fagging', 'faggit', 'faggot', 'faggots',
+    'fagnut', 'fagtard', 'fatass', 'feltch', 'feltcher', 'feltching',
+    'flamer', 'fudge packer', 'fudgepacker', 'fuck',
+    'fuckass', 'fuckboy', 'fuckbrain', 'fuckbutt', 'fucked', 'fucker',
+    'fuckers', 'fuckersucker', 'fuckface', 'fuckhead', 'fucking', 'fucknose',
+    'fucknut', 'fucknutt', 'fuckoff', 'fucks', 'fucktard', 'fucktart',
+    'fuckup',
+
+    'gay', 'gayass', 'gaybob', 'gaydo', 'gayfuckist', 'gaylord', 'gaytard',
+    'gaywad', 'gook', 'gooks', 'gooch', 'goopchute', 'gringo', 'gringos',
+    'guido', 'hand job', 'handjob', 'hard on', 'heeb', 'heebs', 'ho', 'hoe',
+    'hoes', 'homo', 'homodumbshit', 'honkey', 'honkeys', 'humping',
+    'jap', 'japs', 'jerkass', 'jigaboo', 'jigaboos', 'jungle bunny',
+    'jungle bunnies', 'junglebunny', 'junglebunnies',
+    'kooch', 'kootch', 'kraut', 'krauts', 'kunt', 'kyke', 'kykes',
+    'lameass', 'lardass', 'lesbian', 'lesbo', 'lezzie', 'lezzies',
+    'masturbate', 'masturbated', 'masturbates', 'masturbating',
+    'mcfagget', 'mick', 'micks', 'minge', 'muff diver', 'muffdiver',
+    'muffdiving', 'munging',
+
+    'nazi', 'nazis', 'negro', 'negroes', 'negroid', 'negros',
+    'nig', 'nigaboo', 'nigga', 'niggah', 'niggas', 'niggaz', 'nigger',
+    'niggerish', 'niggers', 'nigguh', 'niggur', 'niglet', 'nignog',
+    'nig nog', 'nut sack', 'nutsack',
+    'paki', 'pakis', 'panooch', 'pecker', 'peckerhead', 'peckerheads',
+    'penis', 'penises', 'penisbanger', 'penisfucker', 'penispuffer',
+    'piss', 'pissed', 'pissed off', 'pisses', 'pissflaps', 'pissing',
+    'polesmoker', 'pollock', 'pollocks',
+    'poon', 'poonani', 'poonany', 'poontang', 'punanny', 'punta',
+    'porch monkey', 'porch monkeys', 'porchmonkey', 'porchmonkeys',
+    'prick', 'pricks', 'pussylicking', 'puto',
+    'queef', 'queer', 'queers', 'queerbait', 'queerhole',
+    'renob', 'ruski',
+
+    'scrote', 'shit', 'shitbagger', 'shitbrains', 'shitcanned', 'shitspitter',
+    'shittiest', 'shiz', 'shiznit', 'skullfuck', 'smeg', 'spook', 'suckass',
+    'tard', 'tards', 'testicle', 'testicles',
+    'tit', 'titfuck', 'titfucker', 'titjob', 'titlicker', 'tits',
+    'thundercunt', 'tittyfuck',
+    'twat', 'twatlips', 'twatwaffle', 'twit', 'twits',
+    'uglyfuck', 'unclefucker',
+    'vag', 'vagina', 'vaginal', 'vaginas', 'va j j', 'vajayjay', 'vjayjay',
+    'wank', 'wanked', 'wanker', 'wanking', 'wank job', 'wankjob',
+    'wetback', 'wetbacks', 'whore', 'whores', 'wop', 'wops',
+
+    'bloody', 'brotherfucker', 'chigga', 'childfucker', 'damned',
+    'fatherfucker', 'godsdamn', 'hell', 'jackoff', 'pigfucker',
+    'sisterfuck', 'sisterfucker', 'spastic'
+  ],
+  textPatterns: [],
+
   // Words that appear in the word list above but are legitimate in most contexts.
   // These are excluded when building the filter regex.
   exceptions: new Set([
@@ -730,47 +816,289 @@ function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+function normalizeTerm(term) {
+  return String(term || '').normalize('NFKC').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
 function buildTermPattern(term) {
-  return escapeRegExp(term.trim()).replace(/\s+/g, '[\\s-]+');
+  const normalized = normalizeTerm(term);
+  return escapeRegExp(normalized).replace(/[\s_-]+/g, '[\\s\\-_]+');
+}
+
+const UNICODE_WORD_LEFT_BOUNDARY = '(?<![\\p{L}\\p{N}])';
+const UNICODE_WORD_RIGHT_BOUNDARY = '(?![\\p{L}\\p{N}])';
+
+function mergeRegexFlags(existingFlags, requiredFlags) {
+  const flags = new Set(`${existingFlags || ''}${requiredFlags || ''}`.split(''));
+  if (flags.has('v')) flags.delete('u');
+  return [...flags].join('');
+}
+
+function buildLiteralTermRegex(term, flags = 'gi') {
+  const source = buildTermPattern(term);
+  if (!source) return null;
+  return new RegExp(
+    `${UNICODE_WORD_LEFT_BOUNDARY}${source}${UNICODE_WORD_RIGHT_BOUNDARY}`,
+    mergeRegexFlags(flags, 'u')
+  );
+}
+
+const HIGH_CONFIDENCE_SOURCE_ROOTS = /(?:fuck|shit|cunt|cock|dick|pussy|slut|whore|porn|xxx|nsfw|nude|nudity|naked|hentai|dildo|vibrator|blowjob|handjob|deepthroat|fellatio|cunnilingus|jizz|semen|bukkake|creampie|gangbang|orgy|erotic|cybersex|sexcam|sexhouse|sexkitten|sexpot|sexslave|sextoy|onlyfans|faggot|nigger|nigga|chink|kike|spic|wetback|pedo|rape|rapist|incest|bestial|zoophilia|rimjob|rimming|upskirt|voyeur|topless|titt|boob)/i;
+
+const SOURCE_WORD_DENYLIST = new Set([
+  'adult', 'sex', 'sexed', 'sexing', 'sexual', 'sexually', 'sexy',
+  'god', 'jesus', 'jesuschrist', 'allah',
+  'cocky', 'cumquat', 'kumquat', 'nigerian', 'nigerians'
+]);
+
+function shouldUseBroadSourceWord(word) {
+  const term = normalizeTerm(word);
+  if (!term || term.length < 3) return false;
+  if (PROFANITY_DATA.exceptions.has(term) || SOURCE_WORD_DENYLIST.has(term)) return false;
+  return HIGH_CONFIDENCE_SOURCE_ROOTS.test(term);
+}
+
+function cloneRegex(regex, flags) {
+  const mergedFlags = mergeRegexFlags(regex.flags, flags);
+  return new RegExp(regex.source, mergedFlags);
+}
+
+function isSafeRegexSource(source) {
+  if (!source || source.length > 256) return false;
+  if (/\\[1-9]/.test(source)) return false;
+  if (/\(\?<([=!])/.test(source)) return false;
+  if (/\([^)]*(?:\+|\*|\{\d+(?:,\d*)?\})[^)]*\)(?:\+|\*|\{\d+(?:,\d*)?\})/.test(source)) {
+    return false;
+  }
+  if (/(?:\.\*|\.\+){2,}/.test(source)) return false;
+  return true;
+}
+
+function parseSlashRegex(value, flags) {
+  if (!value.startsWith('/')) return null;
+  const lastSlash = value.lastIndexOf('/');
+  if (lastSlash <= 0) return null;
+
+  const source = value.slice(1, lastSlash);
+  const suppliedFlags = value.slice(lastSlash + 1);
+  if (!isSafeRegexSource(source) || /[^gimsuyv]/.test(suppliedFlags)) return null;
+
+  const mergedFlags = mergeRegexFlags(suppliedFlags, flags);
+  try {
+    return new RegExp(source, mergedFlags);
+  } catch {
+    return null;
+  }
+}
+
+function splitCustomEntry(entry) {
+  if (entry instanceof RegExp) return [entry];
+  const value = String(entry || '').trim();
+  if (!value) return [];
+  if (value.startsWith('/')) return [value];
+  return value
+    .split(/[\n,]+/)
+    .map(part => part.trim())
+    .filter(Boolean);
+}
+
+function normalizeCustomEntries(customWords) {
+  if (!customWords) return [];
+  const values = Array.isArray(customWords) ? customWords : [customWords];
+  return values.flatMap(splitCustomEntry);
+}
+
+function buildCustomRegex(entry, flags = 'gi') {
+  if (entry instanceof RegExp) {
+    return cloneRegex(entry, flags);
+  }
+
+  const rawValue = String(entry || '').trim();
+  if (!rawValue) return null;
+
+  const slashRegex = parseSlashRegex(rawValue, flags);
+  if (slashRegex) return slashRegex;
+
+  const value = normalizeTerm(rawValue);
+  return buildLiteralTermRegex(value, flags);
+}
+
+function buildSourcePatternRegex(pattern, flags = 'gi') {
+  if (pattern instanceof RegExp) {
+    return cloneRegex(pattern, flags);
+  }
+
+  const value = String(pattern || '').trim();
+  if (!value) return null;
+
+  const slashRegex = parseSlashRegex(value, flags);
+  if (slashRegex) return slashRegex;
+
+  if (!isSafeRegexSource(value)) return null;
+
+  try {
+    return new RegExp(value, flags);
+  } catch {
+    return null;
+  }
+}
+
+const _customRegexCache = new Map();
+const _sourcePatternRegexCache = new Map();
+
+function getCachedRegex(cache, key, flags, builder) {
+  let variants = cache.get(key);
+  if (!variants) {
+    variants = new Map();
+    cache.set(key, variants);
+  }
+
+  if (!variants.has(flags)) {
+    variants.set(flags, builder(key, flags));
+  }
+
+  return variants.get(flags);
+}
+
+function getCustomRegex(entry, flags) {
+  return getCachedRegex(_customRegexCache, entry, flags, buildCustomRegex);
+}
+
+function getSourcePatternRegex(pattern, flags) {
+  return getCachedRegex(_sourcePatternRegexCache, pattern, flags, buildSourcePatternRegex);
+}
+
+function testRegex(regex, text) {
+  if (!regex) return false;
+  regex.lastIndex = 0;
+  return regex.test(text);
+}
+
+function hasUnicodeWordBoundary(text, index, matchLength) {
+  const before = text.slice(0, index);
+  const after = text.slice(index + matchLength);
+  return !/[\p{L}\p{N}]$/u.test(before) && !/^[\p{L}\p{N}]/u.test(after);
+}
+
+function testSourcePattern(regex, text) {
+  if (!regex) return false;
+
+  const matcher = regex.global ? regex : cloneRegex(regex, 'g');
+  matcher.lastIndex = 0;
+  let match;
+
+  while ((match = matcher.exec(text)) !== null) {
+    if (hasUnicodeWordBoundary(text, match.index, match[0].length)) return true;
+    if (match[0] === '') matcher.lastIndex++;
+  }
+
+  return false;
+}
+
+function replaceRegex(text, regex) {
+  if (!regex) return text;
+  regex.lastIndex = 0;
+  return text.replace(regex, ' ');
+}
+
+function replaceSourcePattern(text, regex) {
+  if (!regex) return text;
+  const matcher = regex.global ? regex : cloneRegex(regex, 'g');
+  matcher.lastIndex = 0;
+  return text.replace(matcher, (match, ...args) => {
+    const offset = args[args.length - 2];
+    return hasUnicodeWordBoundary(text, offset, match.length) ? ' ' : match;
+  });
+}
+
+function cleanFilteredText(originalText, filteredText) {
+  const leadingWhitespace = originalText.match(/^\s+/)?.[0] || '';
+  const trailingWhitespace = originalText.match(/\s+$/)?.[0] || '';
+
+  let core = filteredText
+    .replace(/^\s+|\s+$/g, '')
+    .replace(/[ \t\f\v]{2,}/g, ' ')
+    .replace(/[ \t\f\v]+([,.;:!?%)\]}])/g, '$1')
+    .replace(/([(\[{])[ \t\f\v]+/g, '$1')
+    .replace(/([(\[{])\s*([)\]}])/g, '')
+    .replace(/[ \t\f\v]{2,}/g, ' ')
+    .replace(/[ \t\f\v]+\n/g, '\n')
+    .replace(/\n[ \t\f\v]+/g, '\n');
+
+  if (!core) return '';
+
+  core = `${leadingWhitespace}${core}${trailingWhitespace}`;
+  return core;
 }
 
 // ── Pre-compile regex at module load — avoids creating thousands of RegExp
 //    objects on every text node check (major performance fix) ─────────────────
 
-// Merge conservative runtime sources, deduplicate, remove exceptions, and sort longest first.
-// Keep the broad source list above for reference/metadata, but do not run it directly
-// against page text; it contains many ordinary words, names, places, and religious terms.
+// Merge runtime sources, deduplicate, remove exceptions, and sort longest first.
+// The broad source list is gated to high-confidence terms to avoid false positives.
 const _allSources = [...new Set([
   ...CORE_TEXT_FILTER_WORDS,
-  ..._ldnoobwWords
+  ..._ldnoobwWords,
+  ...(PROFANITY_DATA.textWords || []),
+  ...(PROFANITY_DATA.words || []).filter(shouldUseBroadSourceWord)
 ])];
 const _filteredWords = _allSources
-  .filter(w => w && !PROFANITY_DATA.exceptions.has(w.toLowerCase()))
+  .map(normalizeTerm)
+  .filter(w => w && !PROFANITY_DATA.exceptions.has(w) && !SOURCE_WORD_DENYLIST.has(w))
   .sort((a, b) => b.length - a.length);
 
-// Single combined regex: one pass replaces all matches (includes CORE, LDNOOBW, and PROFANITY_DATA.words)
+// Single combined regex: one pass replaces all high-confidence runtime matches.
 const _wordRegex = new RegExp(
-  `\\b(${_filteredWords.map(buildTermPattern).join('|')})\\b`,
-  'gi'
+  `${UNICODE_WORD_LEFT_BOUNDARY}(${_filteredWords.map(buildTermPattern).join('|')})${UNICODE_WORD_RIGHT_BOUNDARY}`,
+  'giu'
 );
 
 // ── Build evasion regex (allows non‑letter characters between letters) ──────
 function buildEvasionPattern(word) {
-  // Allow any number of non‑alphabetic characters between the letters,
-  // but do not allow an extra alphabetic character before each letter
-  // (prevents false positives for words like “fxuck”).
-  const chars = word.split('').map(ch => {
-    if (/[a-zA-Z]/.test(ch)) return escapeRegExp(ch);
-    return escapeRegExp(ch);
-  });
-  const separator = '[^a-zA-Z]*';
-  return `\\b${chars.join(separator)}\\b`;
+  const chars = normalizeTerm(word)
+    .replace(/[\s_-]+/g, '')
+    .split('')
+    .map(ch => {
+      if (!/[a-z0-9]/.test(ch)) return escapeRegExp(ch);
+
+      const fullwidthLower = String.fromCharCode(ch.charCodeAt(0) + 0xFEE0);
+      if (!/[a-z]/.test(ch)) {
+        return `[${escapeRegExp(ch)}${escapeRegExp(fullwidthLower)}]`;
+      }
+
+      const upper = ch.toUpperCase();
+      const fullwidthUpper = String.fromCharCode(upper.charCodeAt(0) + 0xFEE0);
+      return `[${escapeRegExp(ch)}${escapeRegExp(fullwidthLower)}${escapeRegExp(fullwidthUpper)}]`;
+    });
+  const separator = '[^\\p{L}\\p{N}]*';
+  return `${UNICODE_WORD_LEFT_BOUNDARY}${chars.join(separator)}${UNICODE_WORD_RIGHT_BOUNDARY}`;
 }
 
-const _evasionPatterns = _filteredWords
-  .filter(w => w.length > 2)
+const COMMON_EVASION_WORDS = [
+  'anus', 'arse', 'ass', 'asshole', 'bastard', 'bitch', 'bollocks',
+  'cock', 'coon', 'cunt', 'dick', 'dildo', 'douchebag', 'dyke',
+  'fag', 'faggot', 'fuck', 'gay', 'gook', 'heeb', 'homo', 'jap',
+  'kike', 'nazi', 'negro', 'nigga', 'nigger', 'paki', 'penis',
+  'piss', 'porn', 'prick', 'pussy', 'queer', 'shit', 'slut',
+  'spic', 'tard', 'tit', 'tits', 'twat', 'vag', 'vagina',
+  'wank', 'wetback', 'whore', 'wop'
+];
+
+// Obfuscation matching is intentionally focused. Running every dictionary term
+// through one permissive regex creates severe backtracking on normal page text.
+const _evasionSources = [...new Set([
+  ...CORE_TEXT_FILTER_WORDS,
+  ...COMMON_EVASION_WORDS
+])]
+  .map(normalizeTerm)
+  .filter(w => w.length > 2 && !SOURCE_WORD_DENYLIST.has(w));
+
+const _evasionPatterns = _evasionSources
   .map(buildEvasionPattern);
-const _evasionRegex = new RegExp(_evasionPatterns.join('|'), 'gi');
+const _evasionRegex = new RegExp(_evasionPatterns.join('|'), 'giu');
+const PATTERN_EVASION_MARKERS = /[*_#@!0-9$]/;
+const POSSIBLE_EVASION_MARKERS = /[\u200B-\u200D\u2060\uFEFF\uFF01-\uFF5E]|[\p{L}][*_.\-@#$!]+[\p{L}]|\b[\p{L}](?:\s+[\p{L}]){2,}\b/u;
+const BUILTIN_PATTERN_COUNT = PROFANITY_DATA.patterns.length;
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -781,20 +1109,34 @@ function containsProfanity(text, customWords) {
   _wordRegex.lastIndex = 0;
   if (_wordRegex.test(text)) return true;
 
-  _evasionRegex.lastIndex = 0;
-  if (_evasionRegex.test(text)) return true;
+  if (POSSIBLE_EVASION_MARKERS.test(text)) {
+    _evasionRegex.lastIndex = 0;
+    if (_evasionRegex.test(text)) return true;
+  }
 
-  // Check custom words (not in pre-compiled regex)
-  if (customWords && customWords.length) {
-    for (const word of customWords) {
-      if (!word) continue;
-      if (new RegExp(`\\b${escapeRegExp(word)}\\b`, 'i').test(text)) return true;
+  // Check custom entries (literal words/phrases, comma/newline pasted lists, or /regex/flags).
+  for (const entry of normalizeCustomEntries(customWords)) {
+    const regex = getCustomRegex(entry, 'i');
+    if (testRegex(regex, text)) return true;
+  }
+
+  if (PATTERN_EVASION_MARKERS.test(text)) {
+    for (const pattern of PROFANITY_DATA.patterns.slice(0, BUILTIN_PATTERN_COUNT)) {
+      const regex = getSourcePatternRegex(pattern, 'gi');
+      if (testSourcePattern(regex, text)) return true;
     }
   }
 
-  for (const pattern of PROFANITY_DATA.patterns) {
-    pattern.lastIndex = 0;
-    if (pattern.test(text)) return true;
+  for (const pattern of PROFANITY_DATA.patterns.slice(BUILTIN_PATTERN_COUNT)) {
+    const regex = getSourcePatternRegex(pattern, 'gi');
+    if (testSourcePattern(regex, text)) return true;
+  }
+
+  if (PROFANITY_DATA.textPatterns && PROFANITY_DATA.textPatterns.length) {
+    for (const pattern of PROFANITY_DATA.textPatterns) {
+      const regex = getSourcePatternRegex(pattern, 'gi');
+      if (testSourcePattern(regex, text)) return true;
+    }
   }
 
   return false;
@@ -810,29 +1152,36 @@ function removeProfanity(text, customWords) {
   _wordRegex.lastIndex = 0;
   let result = text.replace(_wordRegex, ' ');
 
-  _evasionRegex.lastIndex = 0;
-  result = result.replace(_evasionRegex, ' ');
+  if (POSSIBLE_EVASION_MARKERS.test(result)) {
+    _evasionRegex.lastIndex = 0;
+    result = result.replace(_evasionRegex, ' ');
+  }
 
-  if (customWords && customWords.length) {
-    for (const word of customWords) {
-      if (!word) continue;
-      result = result.replace(new RegExp(`\\b${escapeRegExp(word)}\\b`, 'gi'), ' ');
+  for (const entry of normalizeCustomEntries(customWords)) {
+    result = replaceRegex(result, getCustomRegex(entry, 'gi'));
+  }
+
+  if (PATTERN_EVASION_MARKERS.test(result)) {
+    for (const pattern of PROFANITY_DATA.patterns.slice(0, BUILTIN_PATTERN_COUNT)) {
+      result = replaceSourcePattern(result, getSourcePatternRegex(pattern, 'gi'));
     }
   }
 
-  for (const pattern of PROFANITY_DATA.patterns) {
-    pattern.lastIndex = 0;
-    result = result.replace(pattern, ' ');
+  for (const pattern of PROFANITY_DATA.patterns.slice(BUILTIN_PATTERN_COUNT)) {
+    result = replaceSourcePattern(result, getSourcePatternRegex(pattern, 'gi'));
+  }
+
+  if (PROFANITY_DATA.textPatterns && PROFANITY_DATA.textPatterns.length) {
+    for (const pattern of PROFANITY_DATA.textPatterns) {
+      result = replaceSourcePattern(result, getSourcePatternRegex(pattern, 'gi'));
+    }
   }
 
   // Return original if nothing changed — avoids triggering unnecessary DOM
   // writes and preserves whitespace-only text nodes exactly as-is
   if (result === text) return text;
 
-  // Collapse runs of spaces/tabs left by removed words (preserve newlines)
-  result = result.replace(/[ \t]{2,}/g, ' ');
-  // Remove leading and trailing whitespace for a cleaner result
-  return result.trim();
+  return cleanFilteredText(text, result);
 }
 
 // Export to window for use by content.js and platform scripts
@@ -840,11 +1189,38 @@ window.PROFANITY_DATA = PROFANITY_DATA;
 window.containsProfanity = containsProfanity;
 window.removeProfanity = removeProfanity;
 
-// Store filtered word list in extension storage so background service worker can use it.
-if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+function hashWordList(words) {
+  let hash = 2166136261;
+  for (const word of words) {
+    for (let index = 0; index < word.length; index++) {
+      hash ^= word.charCodeAt(index);
+      hash = Math.imul(hash, 16777619);
+    }
+  }
+  return (hash >>> 0).toString(16);
+}
+
+// Keep the expanded list in local storage. Sync storage has a small per-item
+// quota and silently drops large dictionaries.
+if (
+  typeof chrome !== 'undefined'
+  && chrome.storage?.local
+  && typeof window !== 'undefined'
+  && window.top === window
+) {
   try {
-    chrome.storage.sync.set({ combinedProfanityWords: _filteredWords }).catch(() => {});
-  } catch (e) {
-    // Ignore
+    const combinedProfanityWordsHash = hashWordList(_filteredWords);
+    chrome.storage.local
+      .get(['combinedProfanityWordsHash'])
+      .then(result => {
+        if (result.combinedProfanityWordsHash === combinedProfanityWordsHash) return;
+        return chrome.storage.local.set({
+          combinedProfanityWords: _filteredWords,
+          combinedProfanityWordsHash
+        });
+      })
+      .catch(() => {});
+  } catch {
+    // Storage availability must never stop page filtering.
   }
 }

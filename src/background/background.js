@@ -160,7 +160,7 @@ const SafeSearch = {
     if (this._blockedTermsPromise) return this._blockedTermsPromise;
     this._blockedTermsPromise = (async () => {
       try {
-        const result = await chrome.storage.sync.get(['combinedProfanityWords']);
+        const result = await chrome.storage.local.get(['combinedProfanityWords']);
         const stored = result.combinedProfanityWords;
         if (stored && Array.isArray(stored) && stored.length) {
           this._blockedTerms = stored;
@@ -185,42 +185,44 @@ const SafeSearch = {
     if (this._patternCache) return this._patternCache;
     const terms = await this._ensureTerms();
     const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const patterns = terms.map(term => {
-      const escaped = escapeRegExp(term);
-      const leet = escaped
-        .replace(/[a]/g, '[a@4]')
-        .replace(/[e]/g, '[e3]')
-        .replace(/[i]/g, '[i1!]')
-        .replace(/[o]/g, '[o0]')
-        .replace(/[s]/g, '[s5$]')
-        .replace(/[t]/g, '[t7]')
-        .replace(/[u]/g, '[u]')
-        .replace(/[ck]/g, '[ck]');
-      const spaced = leet.replace(/(.)/g, '$1[\\s-]*');
-      return `\\b${spaced}\\b`;
-    });
+    const leftBoundary = '(?<![\\p{L}\\p{N}])';
+    const rightBoundary = '(?![\\p{L}\\p{N}])';
+    const patterns = terms
+      .map(term => String(term || '').normalize('NFKC').trim().toLowerCase())
+      .filter(Boolean)
+      .map(term => {
+        const escaped = escapeRegExp(term).replace(/[\s_-]+/g, '[\\s\\-_]+');
+        return new RegExp(`${leftBoundary}${escaped}${rightBoundary}`, 'giu');
+      });
     const asteriskPatterns = [
       /\bf\*ck\b/gi, /\bs\*[i!]t\b/gi, /\bc\*nt\b/gi, /\bb\*tch\b/gi, /\bd\*ck\b/gi, /\bp\*rn\b/gi, /\ba\*ss\b/gi
     ];
+    const evasionPatterns = [
+      /\bf[^a-z0-9]*u[^a-z0-9]*c[^a-z0-9]*k\b/giu,
+      /\bs[^a-z0-9]*h[^a-z0-9]*i[^a-z0-9]*t\b/giu,
+      /\bb[^a-z0-9]*i[^a-z0-9]*t[^a-z0-9]*c[^a-z0-9]*h\b/giu,
+      /\bp[^a-z0-9]*o[^a-z0-9]*r[^a-z0-9]*n\b/giu,
+      /\bc[^a-z0-9]*u[^a-z0-9]*n[^a-z0-9]*t\b/giu
+    ];
     this._patternCache = {
-      patterns: patterns.map(p => new RegExp(p, 'gi')),
-      asteriskPatterns
+      patterns,
+      asteriskPatterns,
+      evasionPatterns
     };
     return this._patternCache;
   },
 
   async containsBlockedTerm(query) {
-    const terms = await this._ensureTerms();
-    const lower = query.toLowerCase();
-    for (const term of terms) {
-      if (lower.includes(term.toLowerCase())) return true;
-    }
     const cache = await this._buildPatterns();
     for (const regex of cache.patterns) {
       regex.lastIndex = 0;
       if (regex.test(query)) return true;
     }
     for (const regex of cache.asteriskPatterns) {
+      regex.lastIndex = 0;
+      if (regex.test(query)) return true;
+    }
+    for (const regex of cache.evasionPatterns) {
       regex.lastIndex = 0;
       if (regex.test(query)) return true;
     }
@@ -495,6 +497,12 @@ async function updateBadge() {
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === 'sync' && changes.config) {
     updateBadge();
+  }
+
+  if (namespace === 'local' && changes.combinedProfanityWords) {
+    SafeSearch._blockedTerms = null;
+    SafeSearch._blockedTermsPromise = null;
+    SafeSearch._patternCache = null;
   }
 });
 

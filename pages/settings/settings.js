@@ -461,19 +461,33 @@ async function addCustomWord() {
   if (!(await ensureSettingsUnlocked())) return;
 
   const input = document.getElementById('customWordInput');
-  const word = input.value.trim().toLowerCase();
+  const entries = parseCustomWordInput(input.value);
 
-  if (!word) return;
+  if (!entries.length) return;
 
   config.customWords = config.customWords || [];
-  if (!config.customWords.includes(word)) {
-    config.customWords.push(word);
+  const existing = new Set(config.customWords);
+  const additions = entries.filter(entry => !existing.has(entry));
+
+  if (additions.length) {
+    config.customWords.push(...additions);
     await chrome.storage.sync.set({ config });
     displayCustomWords(config.customWords);
     notifyContentScripts();
   }
 
   input.value = '';
+}
+
+function parseCustomWordInput(value) {
+  const input = String(value || '').trim();
+  if (!input) return [];
+  if (input.startsWith('/')) return [input];
+
+  return input
+    .split(/[\n,]+/)
+    .map(entry => entry.trim().toLowerCase())
+    .filter(Boolean);
 }
 
 function displayCustomWords(words) {

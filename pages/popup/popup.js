@@ -422,14 +422,29 @@ async function updateWhitelistButton() {
 
 // Add custom word
 async function addCustomWord() {
-  const word = elements.customWordInput.value.trim().toLowerCase();
-  if (!word || config.customWords.includes(word)) return;
+  const entries = parseCustomWordInput(elements.customWordInput.value);
+  if (!entries.length) return;
 
-  config.customWords.push(word);
+  const existing = new Set(config.customWords);
+  const additions = entries.filter(entry => !existing.has(entry));
+  if (!additions.length) return;
+
+  config.customWords.push(...additions);
   elements.customWordInput.value = '';
   await saveConfiguration();
   displayCustomWords();
   reloadActiveTab();
+}
+
+function parseCustomWordInput(value) {
+  const input = String(value || '').trim();
+  if (!input) return [];
+  if (input.startsWith('/')) return [input];
+
+  return input
+    .split(/[\n,]+/)
+    .map(entry => entry.trim().toLowerCase())
+    .filter(Boolean);
 }
 
 // Display custom words
