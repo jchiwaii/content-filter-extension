@@ -279,16 +279,16 @@ async function syncImageFiltering() {
 
 // Check if text contains profanity
 function checkProfanity(text) {
-  if (window.containsProfanity) {
-    return window.containsProfanity(text, config.customWords);
+  if (typeof containsProfanity === 'function') {
+    return containsProfanity(text, config.customWords);
   }
   return false;
 }
 
 // Remove all profanity from text
 function cleanProfanity(text) {
-  if (window.removeProfanity) {
-    return window.removeProfanity(text, config.customWords);
+  if (typeof removeProfanity === 'function') {
+    return removeProfanity(text, config.customWords);
   }
   return text;
 }
@@ -350,7 +350,7 @@ function filterNode(node) {
 
 // Filter text content
 function filterTextContent() {
-  if (!window.removeProfanity) {
+  if (typeof removeProfanity !== 'function') {
     console.error('[Safe Browse] Profanity functions not available');
     return;
   }
@@ -360,13 +360,13 @@ function filterTextContent() {
 
 // Filter placeholder attributes (visible in form elements)
 function filterPlaceholders() {
-  if (!window.removeProfanity || !window.containsProfanity) return;
+  if (typeof removeProfanity !== 'function' || typeof containsProfanity !== 'function') return;
   const elements = document.querySelectorAll('input[placeholder], textarea[placeholder]');
   for (const el of elements) {
     const ph = el.getAttribute('placeholder');
     if (!ph) continue;
-    if (window.containsProfanity(ph, config.customWords)) {
-      const cleaned = window.removeProfanity(ph, config.customWords);
+    if (containsProfanity(ph, config.customWords)) {
+      const cleaned = removeProfanity(ph, config.customWords);
       el.setAttribute('placeholder', cleaned);
       statistics.wordsFiltered++;
       maybeFlushStats();
@@ -509,15 +509,15 @@ function setupFormProtection() {
     const profanityElements = [];
     const elements = form.querySelectorAll('input[type=text], input[type=email], input[type=url], input[type=search], textarea');
     elements.forEach(el => {
-      if (el.value && window.containsProfanity && window.containsProfanity(el.value, config.customWords)) {
+      if (el.value && typeof containsProfanity === 'function' && containsProfanity(el.value, config.customWords)) {
         profanityElements.push(el);
       }
     });
     if (profanityElements.length === 0) return;
     event.preventDefault();
     profanityElements.forEach(el => {
-      if (window.removeProfanity) {
-        const cleaned = window.removeProfanity(el.value, config.customWords);
+      if (typeof removeProfanity === 'function') {
+        const cleaned = removeProfanity(el.value, config.customWords);
         el.value = cleaned;
       }
     });
