@@ -80,6 +80,28 @@ window.ImageDetector = (() => {
   };
 })();
 
+// ── Fallback profanity functions (if profanity-data.js is not loaded) ──
+if (typeof containsProfanity === 'undefined') {
+  containsProfanity = function(text, customWords) {
+    if (!text) return false;
+    const lower = text.toLowerCase();
+    return (customWords || []).some(word => lower.includes(word.toLowerCase()));
+  };
+}
+if (typeof removeProfanity === 'undefined') {
+  removeProfanity = function(text, customWords) {
+    if (!text) return text;
+    let result = text;
+    for (const word of (customWords || [])) {
+      const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp(escaped, 'gi');
+      result = result.replace(re, ' ');
+    }
+    return result;
+  };
+}
+// ── End fallback ──
+
 // ── Configuration ────────────────────────────────────────────────────────────
 let config = {
   enabled: true,
