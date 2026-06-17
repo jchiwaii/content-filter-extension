@@ -1,151 +1,47 @@
-# Safe Browse – Profanity & NSFW Filter
+# Safe Browse
 
 Soap For The Internet.
 
-A Chrome extension that **filters profanity and inappropriate content** from web pages as you browse. It is playful on the outside, practical on the inside: cleaner text, safer search, adult-site blocking, and explicit-image blurring.
+Safe Browse is a Chrome extension for people who want the web to feel a little cleaner. It helps hide profanity, block adult pages, blur explicit images, and keep search results safer while you browse.
 
-All filtering happens locally on your device. No data ever leaves your browser.
+It is made for everyday browsing: search pages, social feeds, comment sections, news sites, forums, and the random tabs you open without knowing what is waiting on the other side.
 
----
+## What Safe Browse Does
 
-## What it does
+Safe Browse removes rude and explicit words from pages before they take over the screen.
 
-**Removes profanity from text** on any website. Works on regular pages, social media feeds, comments, and dynamically loaded content (infinite scroll, SPAs). If new content loads after the page opens, it gets filtered too.
+It blocks known adult websites before they open.
 
-**Blocks images** with suspicious metadata — checks the image URL, alt text, filename, and surrounding context for known NSFW keywords. If flagged, the image is blurred.
+It blurs images when the surrounding page, filename, alt text, or image source suggests explicit content.
 
-**Blocks adult websites** before they load. Redirects known adult domains to a clean "Site Blocked" page.
+It keeps supported search engines in safe mode so explicit results are less likely to appear.
 
-**Enforces safe search** on Google, Bing, and DuckDuckGo so explicit results don't appear.
+It lets you add your own blocked words, allow trusted sites, and pause filtering when you need full control.
 
----
+## Why Install It
 
-## How it works
+Because the web can get messy fast.
 
-When you visit a page:
+One minute you are reading, searching, scrolling, or handing your laptop to someone else. The next minute something crude, explicit, or uncomfortable is on the page. Safe Browse is there for that moment.
 
-1. The word list loads (1,600+ English terms from two open-source lists merged together)
-2. Every text node on the page is scanned with a pre-compiled regex — one pass, fast
-3. Matched words are removed and adjacent extra spaces are collapsed
-4. A MutationObserver watches for new content and filters it as it appears
-5. Your custom words (if any) are checked on every scan too
-
-The word list comes from two sources merged at startup:
-
-- **cuss** project (MIT) — ~1,500 words including leetspeak and censored variants
-- **LDNOOBW** (CC-BY-4.0) — ~120 additional terms including multi-word phrases like "blow job", "gang bang", "barely legal"
-
----
-
-## Project structure
-
-```text
-manifest.json              Chrome extension manifest
-src/background/            Service worker and navigation blocking logic
-src/content/               Main content script, CSS, and profanity data
-src/modules/               Shared extension modules
-src/data/                  Filter profile data
-pages/popup/               Toolbar popup UI
-pages/settings/            Options/settings UI
-pages/dashboard/           Statistics dashboard UI
-pages/blocked/             Blocked-site interstitial page
-assets/icons/              Extension icons
-assets/vendor/             Bundled third-party browser assets
-tests/                     Local smoke tests with mocked Chrome APIs
-```
-
----
-
-## Installation (unpacked / developer mode)
-
-1. Go to `chrome://extensions/`
-2. Turn on **Developer mode** (top-right toggle)
-3. Click **Load unpacked**
-4. Select the `content-filter-extension` folder
-5. Click the puzzle-piece icon in your toolbar and pin Safe Browse
-
-That's it. Filtering starts immediately on every new page you open.
-
----
-
-## Using the popup
-
-Click the shield icon in your toolbar to open the control panel.
-
-| Control       | What it does                                                        |
-| ------------- | ------------------------------------------------------------------- |
-| Main toggle   | Turn all filtering on or off                                        |
-| Filter Text   | Toggle the word removal on/off                                      |
-| Filter Images | Toggle NSFW image blocking on/off                                   |
-| Safe Search   | Toggle search engine safe mode on/off                               |
-| Block Sites   | Toggle the adult domain blocklist on/off                            |
-| Pause 1hr     | Suspend everything for one hour                                     |
-| Whitelist     | Add the current site to your safe list (filtering never runs there) |
-| Custom Words  | Add your own words to always remove                                 |
-| Stats         | Open the dashboard to see how much has been filtered                |
-
-The **profile buttons** (Child / Teen / Work / Light) are presets that toggle groups of settings at once.
-
----
-
-## Adding custom words
-
-In the popup, expand **Custom Words**, type the word, and press Enter or click +. It's saved immediately and takes effect on the next page load. Remove a custom word by clicking the × next to it.
-
-Custom words support the same matching as the built-in list — whole-word only, case-insensitive.
-
----
-
-## Whitelisting a site
-
-Two ways:
-
-- Click **Whitelist** in the popup while on that site
-- Right-click anywhere on the page → _Whitelist this site_
-
-To remove a site from the whitelist, expand the Whitelist section in the popup and click × next to the domain.
-
----
-
-## Settings page
-
-Open from the extension's Chrome options page or from the blocked page when you need to adjust rules. Covers:
-
-- Profile management (create, edit, and switch between custom filter profiles)
-- Site blocking categories and custom blocked domains
-- Image detection sensitivity
-- Parental controls and password protection
-- Backup / restore your configuration
-
----
-
-## Keyboard shortcuts
-
-| Shortcut      | Action                        |
-| ------------- | ----------------------------- |
-| `Alt+Shift+S` | Toggle filtering on/off       |
-| `Alt+Shift+D` | Open the statistics dashboard |
-
----
+It does not try to turn the internet into a locked-down classroom. It simply helps reduce the stuff you did not want to see in the first place.
 
 ## Privacy
 
-- **No network requests.** The extension never calls any external server.
-- **No tracking.** Your browsing history, the content you visit, and what gets filtered is never recorded or sent anywhere.
-- **Local storage only.** Configuration and statistics stay in your browser's `chrome.storage`.
-- **Open source word lists.** Both word lists used (cuss/MIT and LDNOOBW/CC-BY-4.0) are public and auditable.
+Safe Browse works inside your browser.
 
----
+Your browsing history is not sent anywhere.
 
-## What it does NOT do
+Your page content is not uploaded to a server.
 
-- It does not analyze image pixels (no ML/AI — removed to keep the extension fast and simple)
-- It does not block based on page category or AI classification
-- It does not filter inside iframes on other origins
-- It does not work on Chrome's built-in pages (`chrome://`, `chrome-extension://`)
+Your settings stay in Chrome storage on your device.
 
----
+The extension needs access to web pages so it can filter them, but the filtering itself happens locally.
 
-## License
+## Basic Use
 
-MIT
+Install the extension, pin it to Chrome if you like, and browse normally.
+
+Use the popup to turn filtering on or off, pause protection, whitelist a trusted site, or add custom words.
+
+If Safe Browse blocks a page, it shows a simple blocked page instead of loading the site.
