@@ -11,7 +11,7 @@
   --accent-muted: rgba(0, 0, 0, 0.04);
   --danger: #d96c75;
   --danger-muted: rgba(217, 108, 117, 0.1);
-  --safe-green: #38a169;
+  --safe-green: #2B6E44;
   
   --radius-xl: 24px;
   --radius-lg: 16px;
@@ -218,7 +218,7 @@ button, a {
   height: 8px;
   border-radius: 50%;
   background: var(--safe-green);
-  box-shadow: 0 0 8px rgba(56, 161, 105, 0.4);
+  box-shadow: 0 0 8px rgba(43, 110, 68, 0.34);
 }
 
 /* Common Panel Styling */

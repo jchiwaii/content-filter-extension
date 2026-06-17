@@ -52,13 +52,13 @@
 /* Content Filter Styles */
 
 :root {
-  --safe-browse-bg: #fff7ea;
-  --safe-browse-surface: #fffaf1;
-  --safe-browse-text: #2b2520;
-  --safe-browse-muted: #74675e;
-  --safe-browse-line: #2b2520;
-  --safe-browse-green: #7bd66f;
-  --safe-browse-danger: #ef4f44;
+  --safe-browse-bg: #f8f7f4;
+  --safe-browse-surface: #ffffff;
+  --safe-browse-text: #1a1918;
+  --safe-browse-muted: #8a8784;
+  --safe-browse-line: #111111;
+  --safe-browse-green: #2b6e44;
+  --safe-browse-danger: #d96c75;
   --safe-browse-font: "Urbanist", "Avenir Next", "Inter", "SF Pro Text", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -69,7 +69,7 @@
 
 /* Warning overlay */
 .content-filter-overlay {
-  background: rgba(255, 247, 234, 0.94);
+  background: rgba(248, 247, 244, 0.94);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -118,7 +118,7 @@ iframe[data-filtered="true"] {
 
 /* Text replacement highlight */
 .filtered-text {
-  background-color: rgba(255, 138, 42, 0.24);
+  background-color: rgba(192, 92, 29, 0.18);
   color: var(--safe-browse-text);
   border-radius: 3px;
   padding: 0 2px;
@@ -148,7 +148,7 @@ iframe[data-filtered="true"] {
 
 .safe-mode-indicator:hover {
   opacity: 1;
-  background: #fffaf1;
+  background: #ffffff;
 }
 
 .safe-mode-indicator::before {
@@ -156,7 +156,7 @@ iframe[data-filtered="true"] {
   width: 32px;
   height: 18px;
   display: inline-block;
-  background-image: url("../../assets/images/logo.svg");
+  background-image: url("../../assets/logo.svg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;

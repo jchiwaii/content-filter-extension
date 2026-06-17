@@ -135,8 +135,6 @@ function cacheElements() {
   elements.whitelistList = document.getElementById('whitelistList');
   elements.pauseBtn = document.getElementById('pauseBtn');
   elements.whitelistBtn = document.getElementById('whitelistBtn');
-  elements.dashboardBtn = document.getElementById('dashboardBtn');
-  elements.settingsLink = document.getElementById('settingsLink');
   elements.customWordsHeader = document.getElementById('customWordsHeader');
   elements.customWordsContent = document.getElementById('customWordsContent');
   elements.whitelistHeader = document.getElementById('whitelistHeader');
@@ -270,14 +268,6 @@ function setupEventListeners() {
   // Quick actions
   elements.pauseBtn.addEventListener('click', togglePause);
   elements.whitelistBtn.addEventListener('click', whitelistCurrentSite);
-  elements.dashboardBtn.addEventListener('click', () => {
-    extensionApi.tabs.create({ url: extensionApi.runtime.getURL('pages/dashboard/dashboard.html') });
-  });
-
-  // Footer links
-  elements.settingsLink.addEventListener('click', () => {
-    extensionApi.tabs.create({ url: extensionApi.runtime.getURL('pages/settings/settings.html') });
-  });
 
   // Collapsible sections
   elements.customWordsHeader.addEventListener('click', () => {

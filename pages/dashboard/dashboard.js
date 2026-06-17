@@ -11,14 +11,14 @@ const storage = {
 };
 
 const chartColors = {
-  bg: '#fff7ea',
-  text: '#2b2520',
-  muted: '#74675e',
-  line: 'rgba(43, 37, 32, 0.22)',
-  green: '#7bd66f',
-  blue: '#57c8ff',
-  yellow: '#ff8a2a',
-  danger: '#ef4f44'
+  bg: '#f8f7f4',
+  text: '#1a1918',
+  muted: '#8a8784',
+  line: 'rgba(0, 0, 0, 0.12)',
+  green: '#2B6E44',
+  blue: '#90ddf0',
+  yellow: '#C05C1D',
+  danger: '#d96c75'
 };
 
 // Initialize dashboard
@@ -32,14 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // Setup event listeners
 function setupEventListeners() {
   document.getElementById('exportBtn').addEventListener('click', exportData);
-  document.getElementById('settingsBtn').addEventListener('click', () => {
-    if (extensionApi?.runtime?.openOptionsPage) {
-      extensionApi.runtime.openOptionsPage();
-      return;
-    }
-
-    window.location.href = '../settings/settings.html';
-  });
   document.getElementById('clearLogBtn').addEventListener('click', clearActivityLog);
 }
 
@@ -164,7 +156,7 @@ async function initCharts() {
         label: 'Words Filtered',
         data: weeklyStats.words,
         borderColor: chartColors.green,
-        backgroundColor: 'rgba(76, 217, 113, 0.12)',
+        backgroundColor: 'rgba(43, 110, 68, 0.12)',
         fill: true,
         pointBackgroundColor: chartColors.green,
         pointBorderColor: chartColors.bg,
@@ -174,7 +166,7 @@ async function initCharts() {
         label: 'Sites Blocked',
         data: weeklyStats.sites,
         borderColor: chartColors.blue,
-        backgroundColor: 'rgba(40, 56, 227, 0.14)',
+        backgroundColor: 'rgba(144, 221, 240, 0.2)',
         fill: true,
         pointBackgroundColor: chartColors.blue,
         pointBorderColor: chartColors.bg,

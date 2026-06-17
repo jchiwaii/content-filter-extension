@@ -109,7 +109,7 @@ To remove a site from the whitelist, expand the Whitelist section in the popup a
 
 ## Settings page
 
-Open via the popup footer or right-click → _Open Settings_. Covers:
+Open from the extension's Chrome options page or from the blocked page when you need to adjust rules. Covers:
 
 - Profile management (create, edit, and switch between custom filter profiles)
 - Site blocking categories and custom blocked domains

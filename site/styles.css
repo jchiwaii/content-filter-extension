@@ -77,19 +77,19 @@
 }
 
 :root {
-  --paper: #fff7ea;
-  --paper-deep: #f3e6d4;
-  --cream: #fffaf1;
-  --ink: #2b2520;
-  --muted: #6f6259;
-  --line: #2b2520;
-  --orange: #ff8a2a;
-  --orange-deep: #f26f17;
-  --green: #7bd66f;
-  --blue: #57c8ff;
-  --red: #ef4f44;
-  --white: #fffdf8;
-  --shadow: #2b2520;
+  --paper: #f8f7f4;
+  --paper-deep: #f8f7f4;
+  --cream: #ffffff;
+  --ink: #1a1918;
+  --muted: #8a8784;
+  --line: #111111;
+  --orange: #c05c1d;
+  --orange-deep: #111111;
+  --green: #2b6e44;
+  --blue: #90ddf0;
+  --red: #c53b3b;
+  --white: #ffffff;
+  --shadow: #111111;
   --font: "Urbanist", "Avenir Next", "Inter", "SF Pro Text", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
   --display-font: "Luxury Script", "Anthony", "CS Dovie", cursive;
   --header-height: 104px;
@@ -189,6 +189,14 @@ html.has-smooth-scroll .smooth-page {
   box-shadow: none;
 }
 
+.privacy-page .smooth-page {
+  padding-top: 0;
+}
+
+html.has-smooth-scroll .privacy-page .smooth-page {
+  top: 0;
+}
+
 .brand-link {
   min-width: 0;
   display: inline-flex;
@@ -211,8 +219,8 @@ html.has-smooth-scroll .smooth-page {
 }
 
 .brand-logo {
-  width: 76px;
-  height: 43px;
+  width: 44px;
+  height: auto;
 }
 
 .header-cta,
@@ -784,8 +792,8 @@ html.has-smooth-scroll .smooth-page {
 }
 
 .footer-logo {
-  width: 92px;
-  height: 52px;
+  width: 38px;
+  height: auto;
 }
 
 .site-footer p:not(.footer-line) {
@@ -859,8 +867,8 @@ html.has-smooth-scroll .smooth-page {
   }
 
   .brand-logo {
-    width: 68px;
-    height: 38px;
+    width: 38px;
+    height: auto;
   }
 
   .hero {
@@ -940,8 +948,8 @@ html.has-smooth-scroll .smooth-page {
   }
 
   .brand-logo {
-    width: 58px;
-    height: 33px;
+    width: 32px;
+    height: auto;
   }
 
   .header-cta {

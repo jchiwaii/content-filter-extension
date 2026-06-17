@@ -308,7 +308,7 @@ const defaultStats = {
 
 // Initialize extension on install
 chrome.runtime.onInstalled.addListener(async (details) => {
-  console.log('[SafeBrowse] Extension installed/updated:', details.reason);
+  console.log('[Safe Browse] Extension installed/updated:', details.reason);
 
   // Set default configuration
   const syncResult = await chrome.storage.sync.get(['config']);
@@ -356,18 +356,6 @@ function setupContextMenus() {
     chrome.contextMenus.create({
       id: 'pause-1hour',
       title: 'Pause protection for 1 hour',
-      contexts: ['page']
-    });
-
-    chrome.contextMenus.create({
-      id: 'open-dashboard',
-      title: 'Open Dashboard',
-      contexts: ['page']
-    });
-
-    chrome.contextMenus.create({
-      id: 'open-settings',
-      title: 'Open Settings',
       contexts: ['page']
     });
   });
@@ -418,13 +406,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       });
       break;
 
-    case 'open-dashboard':
-      chrome.tabs.create({ url: chrome.runtime.getURL('pages/dashboard/dashboard.html') });
-      break;
-
-    case 'open-settings':
-      chrome.tabs.create({ url: chrome.runtime.getURL('pages/settings/settings.html') });
-      break;
   }
 });
 
@@ -502,7 +483,7 @@ async function updateBadge() {
     if (count > 0) {
       const text = count > 999 ? '999+' : count.toString();
       chrome.action.setBadgeText({ text });
-      chrome.action.setBadgeBackgroundColor({ color: '#ff8a2a' });
+      chrome.action.setBadgeBackgroundColor({ color: '#2B6E44' });
     } else {
       chrome.action.setBadgeText({ text: '' });
     }

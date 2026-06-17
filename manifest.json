@@ -58,7 +58,7 @@
         "pages/dashboard/dashboard.html",
         "pages/settings/settings.html",
         "assets/icons/*",
-        "assets/images/logo.svg",
+        "assets/logo.svg",
         "assets/fonts/*",
         "assets/fonts/luxury/*",
         "assets/fonts/Anthony/*",
