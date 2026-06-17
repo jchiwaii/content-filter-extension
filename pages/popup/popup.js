@@ -315,8 +315,10 @@ function updateUI() {
   // Pause button
   elements.pauseBtn.querySelector('span:last-child').textContent =
     isPaused ? 'Resume' : 'Pause 1hr';
-  elements.pauseBtn.querySelector('.action-icon').textContent =
-    isPaused ? 'Go' : 'II';
+  elements.pauseBtn.querySelector('.action-icon').innerHTML =
+    isPaused 
+      ? '<polygon points="6 3 20 12 6 21 6 3"/>'
+      : '<rect width="4" height="16" x="6" y="4" rx="1"/><rect width="4" height="16" x="14" y="4" rx="1"/>';
 
   // Custom words
   displayCustomWords();
@@ -419,8 +421,10 @@ async function updateWhitelistButton() {
 
     elements.whitelistBtn.querySelector('span:last-child').textContent =
       isWhitelisted ? 'Whitelisted' : 'Whitelist';
-    elements.whitelistBtn.querySelector('.action-icon').textContent =
-      isWhitelisted ? 'OK' : '+';
+    elements.whitelistBtn.querySelector('.action-icon').innerHTML =
+      isWhitelisted 
+        ? '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2-1 4-2 7-2 2.89 0 5.13 1 6.78 1.18a1 1 0 0 1 .83 1Z"/><path d="m9 12 2 2 4-4"/>'
+        : '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2-1 4-2 7-2 2.89 0 5.13 1 6.78 1.18a1 1 0 0 1 .83 1Z"/><path d="M9 12h6"/><path d="M12 9v6"/>';
   } catch (e) {
     // Invalid URL
   }
