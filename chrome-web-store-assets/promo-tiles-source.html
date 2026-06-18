@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Safe Browse Promo Tiles</title>
+  <style>
+    :root {
+      --onyx: #0a090c;
+      --platinum: #f0edee;
+      --dark-teal: #07393c;
+      --stormy-teal: #2c666e;
+      --frosted-blue: #90ddf0;
+    }
+
+    * {
+      box-sizing: border-box;
+      letter-spacing: 0;
+    }
+
+    html,
+    body {
+      margin: 0;
+      background: #b8b8b8;
+      font-family: "Avenir Next", "SF Pro Display", "Segoe UI", Arial, sans-serif;
+    }
+
+    .tile {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .small {
+      width: 440px;
+      height: 280px;
+      color: var(--onyx);
+      background: var(--frosted-blue);
+      padding: 28px 30px 24px;
+    }
+
+    .small .brand {
+      position: relative;
+      z-index: 2;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .small h1 {
+      position: relative;
+      z-index: 2;
+      width: 230px;
+      margin: 42px 0 0;
+      font-size: 39px;
+      font-weight: 500;
+      line-height: 0.98;
+    }
+
+    .small .tagline {
+      position: absolute;
+      z-index: 2;
+      left: 30px;
+      bottom: 24px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .small img {
+      position: absolute;
+      right: -36px;
+      bottom: 16px;
+      width: 275px;
+      height: auto;
+    }
+
+    .marquee {
+      width: 1400px;
+      height: 560px;
+      margin-top: 48px;
+      color: var(--dark-teal);
+      background: var(--platinum);
+      padding: 58px 76px 50px;
+    }
+
+    .marquee .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .marquee .brand::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--stormy-teal);
+    }
+
+    .marquee .copy {
+      position: relative;
+      z-index: 2;
+      width: 650px;
+      margin-top: 94px;
+    }
+
+    .marquee h1 {
+      margin: 0;
+      font-size: 77px;
+      font-weight: 500;
+      line-height: 0.96;
+    }
+
+    .marquee p {
+      width: 550px;
+      margin: 26px 0 0;
+      color: var(--stormy-teal);
+      font-size: 23px;
+      font-weight: 400;
+      line-height: 1.35;
+    }
+
+    .marquee img {
+      position: absolute;
+      right: 24px;
+      bottom: 32px;
+      width: 685px;
+      height: auto;
+    }
+
+    .marquee .tagline {
+      position: absolute;
+      left: 76px;
+      bottom: 48px;
+      font-size: 15px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <section class="tile small" id="small-tile">
+    <div class="brand">SAFE BROWSE</div>
+    <h1>Cleaner tabs.</h1>
+    <div class="tagline">Soap For The Internet</div>
+    <img src="../assets/images/404.png" alt="">
+  </section>
+
+  <section class="tile marquee" id="marquee-tile">
+    <div class="brand">SAFE BROWSE</div>
+    <div class="copy">
+      <h1>The web, without the mess.</h1>
+      <p>Profanity, explicit images, and adult sites filtered while you browse.</p>
+    </div>
+    <div class="tagline">Soap For The Internet</div>
+    <img src="../assets/images/404.png" alt="">
+  </section>
+</body>
+</html>

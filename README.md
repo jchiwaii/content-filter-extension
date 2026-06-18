@@ -2,6 +2,8 @@
 
 Soap For The Internet.
 
+Link: https://chromewebstore.google.com/detail/safe-browse-content-filte/iipiknfekcemmookpphbkdiabdaiipje
+
 Safe Browse is a Chrome extension for people who want the web to feel a little cleaner. It helps hide profanity, block adult pages, blur explicit images, and keep search results safer while you browse.
 
 It is made for everyday browsing: search pages, social feeds, comment sections, news sites, forums, and the random tabs you open without knowing what is waiting on the other side.

@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Safe Browse Store Screenshots</title>
+  <style>
+    :root {
+      --onyx: #0a090c;
+      --platinum: #f0edee;
+      --dark-teal: #07393c;
+      --stormy-teal: #2c666e;
+      --frosted-blue: #90ddf0;
+    }
+
+    * {
+      box-sizing: border-box;
+      letter-spacing: 0;
+    }
+
+    html,
+    body {
+      margin: 0;
+      background: #b8b8b8;
+      font-family: "Avenir Next", "SF Pro Display", "Segoe UI", Arial, sans-serif;
+    }
+
+    .slide {
+      position: relative;
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 68px 76px 64px;
+      isolation: isolate;
+    }
+
+    .slide + .slide {
+      margin-top: 48px;
+    }
+
+    .slide::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border: 1px solid currentColor;
+      opacity: 0.1;
+    }
+
+    .meta,
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 17px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-mark {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .sequence {
+      font-variant-numeric: tabular-nums;
+      opacity: 0.64;
+    }
+
+    .copy {
+      width: min(1060px, 100%);
+      margin: auto 0;
+      padding: 38px 0 26px;
+    }
+
+    h1 {
+      max-width: 1080px;
+      margin: 0;
+      font-size: 108px;
+      font-weight: 500;
+      line-height: 0.96;
+    }
+
+    p {
+      max-width: 730px;
+      margin: 34px 0 0;
+      font-size: 28px;
+      font-weight: 400;
+      line-height: 1.38;
+    }
+
+    .footer {
+      padding-top: 22px;
+      border-top: 1px solid currentColor;
+    }
+
+    .tagline {
+      opacity: 0.72;
+    }
+
+    .slide-1 {
+      color: var(--platinum);
+      background: var(--onyx);
+    }
+
+    .slide-1 .brand-mark {
+      background: var(--frosted-blue);
+    }
+
+    .slide-1 .accent {
+      color: var(--frosted-blue);
+    }
+
+    .slide-2 {
+      color: var(--dark-teal);
+      background: var(--platinum);
+    }
+
+    .slide-2 .brand-mark {
+      background: var(--stormy-teal);
+    }
+
+    .slide-2 .accent {
+      color: var(--stormy-teal);
+    }
+
+    .slide-3 {
+      color: var(--platinum);
+      background: var(--dark-teal);
+    }
+
+    .slide-3 .brand-mark {
+      background: var(--frosted-blue);
+    }
+
+    .slide-3 .accent {
+      color: var(--frosted-blue);
+    }
+
+    .slide-4 {
+      color: var(--onyx);
+      background: var(--frosted-blue);
+    }
+
+    .slide-4 .brand-mark {
+      background: var(--dark-teal);
+    }
+
+    .slide-4 .accent {
+      color: var(--dark-teal);
+    }
+
+    .slide-5 {
+      color: var(--platinum);
+      background: var(--stormy-teal);
+    }
+
+    .slide-5 .brand-mark {
+      background: var(--frosted-blue);
+    }
+
+    .slide-5 .accent {
+      color: var(--frosted-blue);
+    }
+  </style>
+</head>
+<body>
+  <section class="slide slide-1" id="slide-1">
+    <div class="meta">
+      <div class="brand"><span class="brand-mark"></span><span>SAFE BROWSE</span></div>
+      <span class="sequence">01 / 05</span>
+    </div>
+    <div class="copy">
+      <h1>The web, minus the <span class="accent">nasty bits.</span></h1>
+      <p>Safe Browse filters profanity, explicit images, and adult sites while you browse.</p>
+    </div>
+    <div class="footer"><span class="tagline">Soap For The Internet</span><span>Chrome extension</span></div>
+  </section>
+
+  <section class="slide slide-2" id="slide-2">
+    <div class="meta">
+      <div class="brand"><span class="brand-mark"></span><span>SAFE BROWSE</span></div>
+      <span class="sequence">02 / 05</span>
+    </div>
+    <div class="copy">
+      <h1>Rude words? <span class="accent">Gone.</span></h1>
+      <p>Profanity disappears before it takes over the page.</p>
+    </div>
+    <div class="footer"><span class="tagline">Soap For The Internet</span><span>Text filtering</span></div>
+  </section>
+
+  <section class="slide slide-3" id="slide-3">
+    <div class="meta">
+      <div class="brand"><span class="brand-mark"></span><span>SAFE BROWSE</span></div>
+      <span class="sequence">03 / 05</span>
+    </div>
+    <div class="copy">
+      <h1>Explicit images, <span class="accent">covered.</span></h1>
+      <p>Sensitive images stay hidden until you choose to reveal them.</p>
+    </div>
+    <div class="footer"><span class="tagline">Soap For The Internet</span><span>Image protection</span></div>
+  </section>
+
+  <section class="slide slide-4" id="slide-4">
+    <div class="meta">
+      <div class="brand"><span class="brand-mark"></span><span>SAFE BROWSE</span></div>
+      <span class="sequence">04 / 05</span>
+    </div>
+    <div class="copy">
+      <h1>Adult sites, <span class="accent">stopped.</span></h1>
+      <p>Known adult pages are blocked before they open.</p>
+    </div>
+    <div class="footer"><span class="tagline">Soap For The Internet</span><span>Site blocking</span></div>
+  </section>
+
+  <section class="slide slide-5" id="slide-5">
+    <div class="meta">
+      <div class="brand"><span class="brand-mark"></span><span>SAFE BROWSE</span></div>
+      <span class="sequence">05 / 05</span>
+    </div>
+    <div class="copy">
+      <h1>Your browser. <span class="accent">Your rules.</span></h1>
+      <p>Choose what gets filtered, and keep the sites you already trust.</p>
+    </div>
+    <div class="footer"><span class="tagline">Soap For The Internet</span><span>Personal controls</span></div>
+  </section>
+</body>
+</html>
