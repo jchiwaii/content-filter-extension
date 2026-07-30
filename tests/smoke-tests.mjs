@@ -527,7 +527,8 @@ ${await read('src/content/content.js')}
 globalThis.__content = {
   filterDynamicContent,
   filterTextAttributes,
-  setupMutationObserver
+  setupMutationObserver,
+  isInEditableContext
 };`, context);
 
   const textObserver = observerInstances.find(observer =>
@@ -551,6 +552,58 @@ globalThis.__content = {
     addedNodes: []
   }]);
   assert.equal(changedTextNode.textContent, 'This changed in place.');
+
+  const editableParent = {
+    nodeType: 1,
+    tagName: 'DIV',
+    isContentEditable: true,
+    childNodes: [],
+    querySelectorAll: () => []
+  };
+  const editableTextNode = {
+    nodeType: 3,
+    textContent: 'Typing shit inside an editor should stay user-controlled.',
+    parentNode: editableParent
+  };
+  context.__content.filterDynamicContent([{
+    type: 'characterData',
+    target: editableTextNode,
+    addedNodes: []
+  }]);
+  assert.equal(
+    editableTextNode.textContent,
+    'Typing shit inside an editor should stay user-controlled.',
+    'Live editor text must not be rewritten while typing'
+  );
+
+  const editableAssignmentNode = {
+    nodeType: 3,
+    textContent: 'assignment',
+    parentNode: editableParent
+  };
+  context.__content.filterDynamicContent([{
+    type: 'characterData',
+    target: editableAssignmentNode,
+    addedNodes: []
+  }]);
+  assert.equal(editableAssignmentNode.textContent, 'assignment');
+  assert.equal(context.__content.isInEditableContext(editableAssignmentNode), true);
+
+  const textboxRoleParent = {
+    nodeType: 1,
+    tagName: 'DIV',
+    isContentEditable: false,
+    getAttribute: name => name === 'role' ? 'textbox' : null,
+    childNodes: [],
+    querySelectorAll: () => []
+  };
+  const roleTextboxNode = {
+    nodeType: 3,
+    textContent: 'shit in a custom textbox stays untouched while composing',
+    parentNode: textboxRoleParent
+  };
+  context.__content.filterDynamicContent([{ addedNodes: [roleTextboxNode] }]);
+  assert.equal(roleTextboxNode.textContent, 'shit in a custom textbox stays untouched while composing');
 
   const firstRapidNode = { nodeType: 3, textContent: 'First hidden phrase.' };
   const secondRapidNode = { nodeType: 3, textContent: 'Second hidden phrase.' };
@@ -584,6 +637,21 @@ globalThis.__content = {
   assert.equal(attributes.placeholder, 'Enter here');
   assert.equal(attributes.title, 'A title');
   assert.equal(attributes['aria-label'], 'Open menu');
+
+  const inputAttributes = { placeholder: 'Enter shit here' };
+  const inputElement = {
+    nodeType: 1,
+    tagName: 'INPUT',
+    isContentEditable: false,
+    childNodes: [],
+    querySelectorAll: () => [],
+    getAttribute: name => inputAttributes[name] ?? null,
+    setAttribute: (name, value) => {
+      inputAttributes[name] = value;
+    }
+  };
+  context.__content.filterTextAttributes(inputElement);
+  assert.equal(inputAttributes.placeholder, 'Enter shit here');
 
   const imageAttributes = { title: 'shit image metadata' };
   const imageElement = {

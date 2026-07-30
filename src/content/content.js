@@ -126,6 +126,8 @@ const TEXT_MUTATION_OPTIONS = {
   attributeFilter: ['placeholder', 'title', 'aria-label']
 };
 
+const EDITABLE_TAGS = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
+
 // Statistics for this session
 let statistics = {
   wordsFiltered: 0,
@@ -327,6 +329,49 @@ function cleanProfanity(text) {
   return text;
 }
 
+function getLowerAttribute(element, attribute) {
+  const value = element?.getAttribute?.(attribute);
+  return typeof value === 'string' ? value.toLowerCase() : '';
+}
+
+function isEditableElement(element) {
+  if (!element || element.nodeType !== 1) return false;
+
+  if (EDITABLE_TAGS.has(element.tagName)) return true;
+  if (element.isContentEditable) return true;
+
+  const contentEditable = getLowerAttribute(element, 'contenteditable');
+  if (contentEditable && contentEditable !== 'false') return true;
+
+  const role = getLowerAttribute(element, 'role');
+  const ariaReadonly = getLowerAttribute(element, 'aria-readonly');
+  return role === 'textbox' && ariaReadonly !== 'true';
+}
+
+function getEditableParent(node) {
+  if (!node) return null;
+  if (node.parentElement) return node.parentElement;
+  if (node.parentNode) return node.parentNode;
+  if (node.host) return node.host;
+  return null;
+}
+
+function isInEditableContext(node) {
+  let current = node?.nodeType === 1 ? node : getEditableParent(node);
+  const seen = new WeakSet();
+
+  while (current && typeof current === 'object') {
+    if (seen.has(current)) return false;
+    seen.add(current);
+
+    if (current.nodeType === 1 && isEditableElement(current)) return true;
+
+    current = getEditableParent(current);
+  }
+
+  return false;
+}
+
 // Flush statistics to background
 function flushStats() {
   if (statsFlushTimer) {
@@ -370,6 +415,8 @@ function maybeFlushStats() {
 
 // Filter a single text node
 function filterNode(node) {
+  if (isInEditableContext(node)) return;
+
   const text = node.textContent;
   if (!text || !text.trim()) return;
   if (!checkProfanity(text)) return;
@@ -395,6 +442,7 @@ function filterTextContent() {
 function filterElementTextAttributes(element) {
   if (!element || element.nodeType !== 1) return;
   if (typeof removeProfanity !== 'function' || typeof containsProfanity !== 'function') return;
+  if (isEditableElement(element) || isInEditableContext(element)) return;
 
   const attributes = ['placeholder', 'title', 'aria-label'];
   for (const attribute of attributes) {
@@ -439,11 +487,12 @@ function walkTextNodes(element, callback, visitedWeakSet = new WeakSet()) {
   visitedWeakSet.add(element);
 
   if (element.nodeType === 3) {
+    if (isInEditableContext(element)) return;
     callback(element);
   } else if (element.nodeType === 1) {
-    const skipTags = ['SCRIPT', 'STYLE', 'INPUT', 'TEXTAREA', 'CODE', 'PRE', 'NOSCRIPT', 'SVG'];
+    const skipTags = ['SCRIPT', 'STYLE', 'INPUT', 'TEXTAREA', 'SELECT', 'CODE', 'PRE', 'NOSCRIPT', 'SVG'];
     if (!skipTags.includes(element.tagName)) {
-      if (!element.isContentEditable) {
+      if (!isEditableElement(element) && !isInEditableContext(element)) {
         // Walk normal child nodes
         for (let child of element.childNodes) {
           walkTextNodes(child, callback, visitedWeakSet);

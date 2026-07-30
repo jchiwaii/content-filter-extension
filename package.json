@@ -1,6 +1,6 @@
 {
   "name": "safebrowse-filter",
-  "version": "1.0.0",
+  "version": "3.0.1",
   "description": "Soap For The Internet. A Chrome extension that filters profanity, explicit images, adult sites, and unsafe search.",
   "author": "Safe Browse",
   "license": "MIT",

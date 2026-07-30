@@ -18,6 +18,9 @@
     <link rel="manifest" href="assets/favicon_io/site.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" href="assets/fonts/luxury/ShouldbeComebackSans.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="assets/fonts/luxury/ShouldbeComebackBrushClean.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="assets/landing.svg" as="image" fetchpriority="high" />
     <link
       href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700;800;900&display=swap"
       rel="stylesheet"
@@ -37,6 +40,8 @@
               alt="Safe Browse browsing illustration"
               width="1129"
               height="457"
+              fetchpriority="high"
+              decoding="async"
             />
           </div>
 
@@ -204,6 +209,6 @@
       </footer>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
   </body>
 </html>
