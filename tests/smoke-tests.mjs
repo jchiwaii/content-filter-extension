@@ -664,6 +664,20 @@ globalThis.__content = {
   };
   context.__content.filterTextAttributes(imageElement);
   assert.equal(imageAttributes.title, 'shit image metadata');
+
+  for (const tagName of ['SCRIPT', 'STYLE', 'CODE', 'PRE', 'NOSCRIPT', 'SVG', 'TEXTAREA', 'SELECT']) {
+    const parent = { nodeType: 1, tagName, parentElement: body };
+    const nested = { nodeType: 1, tagName: 'SPAN', parentElement: parent };
+    const protectedText = { nodeType: 3, textContent: 'shit must remain in protected content', parentElement: nested };
+    context.__content.filterDynamicContent([{ type: 'characterData', target: protectedText }]);
+    context.__content.filterDynamicContent([{ type: 'childList', addedNodes: [protectedText] }]);
+    assert.equal(protectedText.textContent, 'shit must remain in protected content', `${tagName}: dynamic text must not be rewritten`);
+  }
+  context.document.designMode = 'on';
+  const editableDocumentText = { nodeType: 3, textContent: 'shit in an editable document', parentElement: body };
+  context.__content.filterDynamicContent([{ type: 'characterData', target: editableDocumentText }]);
+  assert.equal(editableDocumentText.textContent, 'shit in an editable document');
+  context.document.designMode = 'off';
 }
 
 async function runImageDetectorChecks() {
@@ -761,6 +775,107 @@ async function runImageDetectorChecks() {
   const placeholderProofResult = await detector.processImage(placeholderProofImage);
   assert.equal(placeholderProofResult.blocked, true);
   assert.equal(placeholderProofImage.style.filter, 'blur(30px)');
+
+  const pendingImage = { ...safeImage, src: image.src, dataset: {}, style: {} };
+  const pendingResult = detector.processImage(pendingImage);
+  detector.setEnabled(false);
+  assert.equal((await pendingResult).blocked, false, 'An in-flight scan must not blur an image after protection is paused');
+  assert.equal(pendingImage.dataset.blocked, undefined);
+}
+
+async function runContentIntegrationChecks() {
+  const manifest = JSON.parse(await read('manifest.json'));
+  for (const initialState of ['images-off', 'disabled', 'paused', 'whitelisted']) {
+    const chrome = createChromeMock({
+      sync: { config: {
+        enabled: initialState !== 'disabled', filterText: true,
+        filterImages: initialState !== 'images-off',
+        whitelistedDomains: initialState === 'whitelisted' ? ['example.com'] : []
+      } },
+      local: { isPaused: initialState === 'paused', pauseUntil: Date.now() + 60000 }
+    });
+    const messages = [];
+    chrome.runtime.sendMessage = message => { messages.push(message); return Promise.resolve(); };
+    const observers = [];
+    const events = [];
+    const image = {
+      nodeType: 1, tagName: 'IMG', childNodes: [],
+      src: 'https://cdn.example.com/nsfw/photo.jpg', srcset: '',
+      alt: '', title: '', className: '', id: '', attributes: [],
+      dataset: {}, style: {}, complete: true, parentElement: null
+    };
+    const body = { nodeType: 1, tagName: 'BODY', childNodes: [image], querySelectorAll: () => [] };
+    image.parentElement = body;
+    const context = vm.createContext({
+      chrome, URL, Date,
+      window: { location: { hostname: 'example.com' }, addEventListener: name => events.push(name) },
+      location: { href: 'https://example.com/' },
+      history: { pushState() {}, replaceState() {} },
+      document: {
+        body, readyState: 'complete', visibilityState: 'visible',
+        addEventListener: name => events.push(name),
+        querySelectorAll: selector => {
+          if (selector === 'img') return [image];
+          if (selector === 'img:not([data-scanned])') return image.dataset.scanned ? [] : [image];
+          if (selector === 'img[data-blocked]') return image.dataset.blocked ? [image] : [];
+          return [];
+        }
+      },
+      MutationObserver: class {
+        constructor(callback) { this.callback = callback; this.observations = []; observers.push(this); }
+        observe(root, options) { this.observations.push({ root, options }); }
+      },
+      setTimeout: () => 1, clearTimeout() {}, setInterval: () => 1, clearInterval() {},
+      console: { log() {}, warn() {}, error() {} }
+    });
+    let originalDetector;
+    for (const script of manifest.content_scripts[0].js) {
+      vm.runInContext(await read(script), context, { filename: script });
+      if (script === 'src/modules/image-detector.js') originalDetector = context.window.ImageDetector;
+    }
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(context.window.ImageDetector, originalDetector, 'Content script must use the shipped image module');
+    assert.equal(image.dataset.blocked, undefined, `${initialState}: image must not be blocked on startup`);
+    assert.equal(messages.length, 0, `${initialState}: no blocked-image count while inactive`);
+
+    const messageListener = chrome.__listeners.find(([type]) => type === 'message')[1];
+    const activeConfig = { enabled: true, filterImages: true, whitelistedDomains: [] };
+    if (initialState === 'disabled' || initialState === 'whitelisted') {
+      for (const [type, listener] of chrome.__listeners) {
+        if (type === 'storageChanged') listener({ config: { newValue: activeConfig } }, 'sync');
+      }
+    } else {
+      messageListener({ action: 'configUpdate', config: activeConfig }, {}, () => {});
+    }
+    messageListener({ action: 'resume' }, {}, () => {});
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(image.style.filter, 'blur(30px)', `${initialState}: enabling should use module blur`);
+    assert.equal(messages.length, 1, 'Repeated scans must count a blocked image only once');
+    const textObservers = observers.filter(observer => observer.observations.some(({ options }) => options.characterData));
+    assert.equal(textObservers.length, 1, `${initialState}: dynamic text observer should start exactly once`);
+    assert.equal(events.filter(name => name === 'popstate').length, 1, 'Route hooks must not be duplicated');
+    assert.equal(events.filter(name => name === 'submit').length, 1, 'Form hooks must not be duplicated');
+    vm.runInContext('globalThis.__dynamicFilter = filterDynamicContent;', context);
+    const text = { nodeType: 3, textContent: 'A shit sentence', parentElement: body };
+    context.__dynamicFilter([{ type: 'characterData', target: text }]);
+    assert.equal(text.textContent, 'A sentence', `${initialState}: new text must be filtered after enabling`);
+
+    messageListener({ action: 'configUpdate', config: { filterImages: false } }, {}, () => {});
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(image.style.filter, 'none', 'Image toggle off must remove extension blur');
+    assert.equal(image.dataset.blocked, undefined);
+    messageListener({ action: 'configUpdate', config: { filterImages: true } }, {}, () => {});
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(image.style.filter, 'blur(30px)', 'Image toggle on must reapply filtering');
+
+    messageListener({ action: 'pause' }, {}, () => {});
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(image.style.filter, 'none', 'Pausing must remove extension blur');
+    assert.equal(image.dataset.blocked, undefined);
+    assert.equal(image.alt, '', 'Image metadata must remain unchanged');
+    assert.equal(image.title, '');
+    assert.equal(image.style.opacity, undefined, 'Filtering must not dim the image');
+  }
 }
 
 async function runStaticRegressionChecks() {
@@ -788,6 +903,7 @@ async function runStaticRegressionChecks() {
   assert.match(background, /chrome\.storage\.local\.get\(\['combinedProfanityWords'\]\)/);
 }
 
+await runContentIntegrationChecks();
 await runManifestChecks();
 await runProfanityChecks();
 await runSafeSearchAndBlocklistChecks();

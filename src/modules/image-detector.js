@@ -315,7 +315,7 @@ const ImageDetector = {
   async processImage(imgElement) {
     const result = await this.classifyImage(imgElement);
 
-    if (!result.safe) {
+    if (this.config.enabled && !result.safe) {
       this.blockImage(imgElement, result);
       return { blocked: true, result };
     }

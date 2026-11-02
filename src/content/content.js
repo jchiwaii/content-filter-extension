@@ -1,85 +1,5 @@
 // Enhanced Content Filter - Main Content Script
 
-// ── Image Detector (inline) ──────────────────────────────────────────────────
-window.ImageDetector = (() => {
-  const SUSPICIOUS_DOMAINS = [
-    'pornhub','xvideos','xnxx','xhamster','redtube','youporn','spankbang',
-    'beeg','eporner','pornpic','xxx','nudevista','hentai','rule34'
-  ];
-  const SUSPICIOUS_EXTS = /\.(jpg|jpeg|png|gif|webp|bmp)$/i;
-  const SUSPICIOUS_CLASSES = /\b(adult|nsfw|xxx|porn|naked|nude|sexy|bikini|lingerie)\b/i;
-
-  let enabled = true;
-
-  function isSuspicious(url) {
-    try {
-      const u = new URL(url);
-      const host = u.hostname.toLowerCase();
-      for (const d of SUSPICIOUS_DOMAINS) {
-        if (host.includes(d)) return true;
-      }
-    } catch {}
-    return false;
-  }
-
-  function hasSuspiciousAlt(img) {
-    const alt = (img.alt || '').toLowerCase();
-    const title = (img.title || '').toLowerCase();
-    const src = (img.src || '').toLowerCase();
-    return SUSPICIOUS_CLASSES.test(alt) || SUSPICIOUS_CLASSES.test(title) ||
-           SUSPICIOUS_CLASSES.test(img.className) ||
-           SUSPICIOUS_CLASSES.test(src);
-  }
-
-  function processImage(img) {
-    if (img.dataset.sbProcessed) return;
-    img.dataset.sbProcessed = '1';
-
-    if (hasSuspiciousAlt(img) || isSuspicious(img.src)) {
-      img.style.opacity = '0.3';
-      img.style.filter = 'blur(8px)';
-      img.style.transition = 'opacity 0.3s, filter 0.3s';
-      img.title = 'Potentially adult content';
-      img.alt = '[Filtered]';
-      // increment statistics later
-      chrome.runtime.sendMessage({
-        action: 'updateStatistics',
-        data: { imagesBlocked: 1, site: window.location.hostname }
-      }).catch(()=>{});
-    }
-  }
-
-  function scanPage() {
-    if (!enabled) return;
-    const imgs = document.querySelectorAll('img');
-    imgs.forEach(processImage);
-  }
-
-  function observe() {
-    if (!enabled) return;
-    const observer = new MutationObserver(mutations => {
-      if (!enabled) return;
-      for (const m of mutations) {
-        for (const node of m.addedNodes) {
-          if (node.nodeType === 1 && node.tagName === 'IMG') processImage(node);
-          else if (node.nodeType === 1) {
-            node.querySelectorAll('img').forEach(processImage);
-          }
-        }
-      }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-  }
-
-  return {
-    init: () => { if (!document.body) return; scanPage(); observe(); },
-    setEnabled: (val) => { enabled = val; },
-    config: { enabled: true },
-    setupObserver: observe,
-    scanPage
-  };
-})();
-
 // ── Fallback profanity functions (if profanity-data.js is not loaded) ──
 if (typeof containsProfanity === 'undefined') {
   containsProfanity = function(text, customWords) {
@@ -112,7 +32,9 @@ let config = {
 };
 
 let isPaused = false;
+let filterInitialized = false;
 let imageObserverReady = false;
+let imageConfigReady = null;
 let textMutationObserver = null;
 let mutationFlushTimer = null;
 const pendingTextMutations = [];
@@ -127,6 +49,7 @@ const TEXT_MUTATION_OPTIONS = {
 };
 
 const EDITABLE_TAGS = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
+const SKIPPED_TEXT_TAGS = new Set(['SCRIPT', 'STYLE', 'INPUT', 'TEXTAREA', 'SELECT', 'CODE', 'PRE', 'NOSCRIPT', 'SVG']);
 
 // Statistics for this session
 let statistics = {
@@ -172,6 +95,13 @@ function initializeFilter() {
     return;
   }
 
+  if (!document.body) return;
+  if (filterInitialized) {
+    filterExistingContent();
+    return;
+  }
+  filterInitialized = true;
+
   console.log('[Safe Browse] Initializing content filter');
 
   // Filter existing content
@@ -196,8 +126,6 @@ function initializeFilter() {
     filterExistingContent();
   }, scanInterval);
 
-  // Initialize image detector
-  syncImageFiltering();
   setupFormProtection();
 }
 
@@ -285,15 +213,16 @@ function filterExistingContent() {
 }
 
 async function syncImageFiltering() {
-  // ImageDetector is now always available (defined above)
   const imageDetector = window.ImageDetector;
   if (!imageDetector) return;
 
-  const enabled = isProtectionActive() && config.filterImages !== false;
-
-  if (typeof imageDetector.init === 'function') {
-    await imageDetector.init();
+  if (!imageConfigReady && typeof imageDetector.init === 'function') {
+    imageConfigReady = imageDetector.init();
   }
+  await imageConfigReady;
+
+  // Use the latest state after storage loading, including a pause during startup.
+  const enabled = isProtectionActive() && config.filterImages !== false;
 
   if (typeof imageDetector.setEnabled === 'function') {
     imageDetector.setEnabled(enabled);
@@ -372,6 +301,17 @@ function isInEditableContext(node) {
   return false;
 }
 
+function isInSkippedTextContext(node) {
+  if (node?.ownerDocument?.designMode === 'on' || document.designMode === 'on') return true;
+  if (isInEditableContext(node)) return true;
+  let current = node?.nodeType === 1 ? node : getEditableParent(node);
+  while (current) {
+    if (SKIPPED_TEXT_TAGS.has(current.tagName)) return true;
+    current = getEditableParent(current);
+  }
+  return false;
+}
+
 // Flush statistics to background
 function flushStats() {
   if (statsFlushTimer) {
@@ -415,7 +355,7 @@ function maybeFlushStats() {
 
 // Filter a single text node
 function filterNode(node) {
-  if (isInEditableContext(node)) return;
+  if (isInSkippedTextContext(node)) return;
 
   const text = node.textContent;
   if (!text || !text.trim()) return;
@@ -442,7 +382,7 @@ function filterTextContent() {
 function filterElementTextAttributes(element) {
   if (!element || element.nodeType !== 1) return;
   if (typeof removeProfanity !== 'function' || typeof containsProfanity !== 'function') return;
-  if (isEditableElement(element) || isInEditableContext(element)) return;
+  if (isInSkippedTextContext(element)) return;
 
   const attributes = ['placeholder', 'title', 'aria-label'];
   for (const attribute of attributes) {
@@ -487,21 +427,18 @@ function walkTextNodes(element, callback, visitedWeakSet = new WeakSet()) {
   visitedWeakSet.add(element);
 
   if (element.nodeType === 3) {
-    if (isInEditableContext(element)) return;
+    if (isInSkippedTextContext(element)) return;
     callback(element);
   } else if (element.nodeType === 1) {
-    const skipTags = ['SCRIPT', 'STYLE', 'INPUT', 'TEXTAREA', 'SELECT', 'CODE', 'PRE', 'NOSCRIPT', 'SVG'];
-    if (!skipTags.includes(element.tagName)) {
-      if (!isEditableElement(element) && !isInEditableContext(element)) {
-        // Walk normal child nodes
-        for (let child of element.childNodes) {
+    if (!isInSkippedTextContext(element)) {
+      // Walk normal child nodes
+      for (let child of element.childNodes) {
+        walkTextNodes(child, callback, visitedWeakSet);
+      }
+      // Walk shadow root children (if any)
+      if (element.shadowRoot) {
+        for (let child of element.shadowRoot.childNodes) {
           walkTextNodes(child, callback, visitedWeakSet);
-        }
-        // Walk shadow root children (if any)
-        if (element.shadowRoot) {
-          for (let child of element.shadowRoot.childNodes) {
-            walkTextNodes(child, callback, visitedWeakSet);
-          }
         }
       }
     }
@@ -590,7 +527,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === 'sync' && changes.config) {
     config = { ...config, ...changes.config.newValue };
     if (isProtectionActive()) {
-      filterExistingContent();
+      initializeFilter();
     } else {
       syncImageFiltering();
     }
@@ -608,7 +545,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     const pauseUntil = changes.pauseUntil?.newValue;
     isPaused = Boolean(changes.isPaused?.newValue && pauseUntil > Date.now());
     if (isProtectionActive()) {
-      filterExistingContent();
+      initializeFilter();
     } else {
       syncImageFiltering();
     }
@@ -627,7 +564,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'configUpdate') {
     config = { ...config, ...request.config };
     if (isProtectionActive()) {
-      filterExistingContent();
+      initializeFilter();
     } else {
       syncImageFiltering();
     }
@@ -638,7 +575,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({ success: true });
   } else if (request.action === 'resume') {
     isPaused = false;
-    filterExistingContent();
+    initializeFilter();
     sendResponse({ success: true });
   }
   return true;
