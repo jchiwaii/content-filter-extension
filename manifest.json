@@ -61,8 +61,6 @@
         "assets/logo.svg",
         "assets/fonts/*",
         "assets/fonts/luxury/*",
-        "assets/fonts/Anthony/*",
-        "assets/fonts/CS Dovie/*",
         "assets/vendor/*"
       ],
       "matches": ["<all_urls>"]

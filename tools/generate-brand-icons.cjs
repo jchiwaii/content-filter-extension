@@ -9,18 +9,15 @@ const sourcePath = path.join(root, 'assets/safe-browse-logo.svg');
 async function main() {
   const svg = await fs.readFile(sourcePath);
   const aliases = [
-    'assets/logo.svg', 'assets/images/logo.svg', 'assets/icons/wash-my-eyes-logo.svg',
-    'site/assets/logo.svg', 'site/assets/wash-my-eyes-logo.svg'
+    'assets/logo.svg', 'site/assets/logo.svg'
   ];
   for (const filename of aliases) await fs.writeFile(path.join(root, filename), svg);
 
   const outputs = [
     ['assets/icons/icon16.png', 16], ['assets/icons/icon48.png', 48],
-    ['assets/icons/icon128.png', 128], ['chrome-web-store-assets/store-icon-128x128.png', 128],
-    ['assets/images/logo.png', 512], ['site/assets/logo.png', 512],
-    ['site/assets/favicon.png', 128]
+    ['assets/icons/icon128.png', 128], ['chrome-web-store-assets/store-icon-128x128.png', 128]
   ];
-  for (const directory of ['assets/favicon_io', 'site/assets/favicon_io']) {
+  for (const directory of ['site/assets/favicon_io']) {
     for (const [name, size] of [
       ['favicon-16x16.png', 16], ['favicon-32x32.png', 32],
       ['apple-touch-icon.png', 180], ['android-chrome-192x192.png', 192],
@@ -51,7 +48,7 @@ async function main() {
     offset += pngs[index].length;
   }
   const ico = Buffer.concat([header, ...pngs]);
-  for (const directory of ['assets/favicon_io', 'site/assets/favicon_io']) {
+  for (const directory of ['site/assets/favicon_io']) {
     await fs.writeFile(path.join(root, directory, 'favicon.ico'), ico);
   }
   for (const [filename, size] of outputs) {
@@ -61,6 +58,6 @@ async function main() {
   for (const filename of aliases) {
     if (!(await fs.readFile(path.join(root, filename))).equals(svg)) throw new Error('SVG mismatch: ' + filename);
   }
-  console.log('Updated and verified ' + aliases.length + ' SVG aliases, ' + outputs.length + ' PNGs and 2 ICOs.');
+  console.log('Updated and verified ' + aliases.length + ' SVG aliases, ' + outputs.length + ' PNGs and 1 ICO.');
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

@@ -158,6 +158,8 @@ async function checkPasswordLock() {
           elements.passwordLock.classList.add('hidden');
           elements.mainContent.classList.remove('hidden');
           document.getElementById('passwordError').classList.add('hidden');
+          document.getElementById('passwordInput').value = '';
+          elements.mainToggle.focus();
         } catch (e) {
           document.getElementById('passwordError').classList.remove('hidden');
         }
@@ -168,6 +170,7 @@ async function checkPasswordLock() {
           document.getElementById('unlockBtn').click();
         }
       });
+      document.getElementById('passwordInput').focus();
     }
   }
 }
@@ -273,11 +276,13 @@ function setupEventListeners() {
   elements.customWordsHeader.addEventListener('click', () => {
     elements.customWordsHeader.classList.toggle('active');
     elements.customWordsContent.classList.toggle('show');
+    elements.customWordsHeader.setAttribute('aria-expanded', elements.customWordsContent.classList.contains('show'));
   });
 
   elements.whitelistHeader.addEventListener('click', () => {
     elements.whitelistHeader.classList.toggle('active');
     elements.whitelistContent.classList.toggle('show');
+    elements.whitelistHeader.setAttribute('aria-expanded', elements.whitelistContent.classList.contains('show'));
   });
 }
 
@@ -304,7 +309,9 @@ function updateUI() {
 
   // Pause button
   elements.pauseBtn.querySelector('span:last-child').textContent =
-    isPaused ? 'Resume' : 'Pause 1hr';
+    isPaused ? 'Resume filtering' : 'Pause for 1 hour';
+  elements.pauseBtn.setAttribute('aria-pressed', String(isPaused));
+  elements.pauseBtn.disabled = config.enabled === false && !isPaused;
   elements.pauseBtn.querySelector('.action-icon').innerHTML =
     isPaused 
       ? '<polygon points="6 3 20 12 6 21 6 3"/>'
@@ -378,6 +385,7 @@ async function whitelistCurrentSite() {
 
   try {
     const url = new URL(tabs[0].url);
+    if (!['http:', 'https:'].includes(url.protocol)) return;
     const hostname = normalizeHostname(url.hostname);
     if (!hostname) return;
 
@@ -401,16 +409,24 @@ async function whitelistCurrentSite() {
 
 // Update whitelist button
 async function updateWhitelistButton() {
+  elements.whitelistBtn.disabled = true;
+  elements.whitelistBtn.title = 'Open a website to manage trust';
+  elements.whitelistBtn.setAttribute('aria-pressed', 'false');
+  elements.whitelistBtn.querySelector('span:last-child').textContent = 'Trust this site';
   const tabs = await extensionApi.tabs.query({ active: true, currentWindow: true });
   if (!tabs[0]?.url) return;
 
   try {
     const url = new URL(tabs[0].url);
+    if (!['http:', 'https:'].includes(url.protocol)) return;
     const hostname = normalizeHostname(url.hostname);
     const isWhitelisted = config.whitelistedDomains.some(domain => domainMatches(hostname, domain));
+    elements.whitelistBtn.disabled = false;
+    elements.whitelistBtn.title = (isWhitelisted ? 'Remove trust for ' : 'Trust ') + hostname;
+    elements.whitelistBtn.setAttribute('aria-pressed', String(isWhitelisted));
 
     elements.whitelistBtn.querySelector('span:last-child').textContent =
-      isWhitelisted ? 'Whitelisted' : 'Whitelist';
+      isWhitelisted ? 'Site trusted' : 'Trust this site';
     elements.whitelistBtn.querySelector('.action-icon').innerHTML =
       isWhitelisted 
         ? '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2-1 4-2 7-2 2.89 0 5.13 1 6.78 1.18a1 1 0 0 1 .83 1Z"/><path d="m9 12 2 2 4-4"/>'
@@ -457,7 +473,7 @@ function displayCustomWords() {
   elements.customWordsList.innerHTML = config.customWords.map(word => `
     <span class="tag">
       ${escapeHtml(word)}
-      <button data-word="${escapeHtml(word)}">&times;</button>
+      <button data-word="${escapeHtml(word)}" aria-label="Remove ${escapeHtml(word)}" title="Remove word">&times;</button>
     </span>
   `).join('');
 
@@ -476,14 +492,14 @@ function displayCustomWords() {
 // Display whitelist
 function displayWhitelist() {
   if (!config.whitelistedDomains.length) {
-    elements.whitelistList.innerHTML = '<div class="empty-state">No whitelisted sites</div>';
+    elements.whitelistList.innerHTML = '<div class="empty-state">No trusted sites added</div>';
     return;
   }
 
   elements.whitelistList.innerHTML = config.whitelistedDomains.map(domain => `
     <div class="whitelist-item">
       <span>${escapeHtml(domain)}</span>
-      <button data-domain="${escapeHtml(domain)}">&times;</button>
+      <button data-domain="${escapeHtml(domain)}" aria-label="Remove ${escapeHtml(domain)}" title="Remove trusted site">&times;</button>
     </div>
   `).join('');
 
@@ -494,6 +510,7 @@ function displayWhitelist() {
       config.whitelistedDomains = config.whitelistedDomains.filter(d => d !== domain);
       await saveConfiguration();
       displayWhitelist();
+      updateWhitelistButton();
       reloadActiveTab();
     });
   });
@@ -567,7 +584,7 @@ function domainMatches(hostname, configuredDomain) {
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
-  return div.innerHTML;
+  return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 // Auto-refresh stats
