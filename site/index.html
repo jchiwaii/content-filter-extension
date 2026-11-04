@@ -15,6 +15,8 @@
     />
     <link rel="manifest" href="assets/favicon_io/site.webmanifest" />
     <link rel="stylesheet" href="landing.css" />
+    <link rel="stylesheet" href="assets/vendor/lenis.css">
+    <script defer src="assets/vendor/lenis.min.js"></script>
     <script defer src="landing.js"></script>
   </head>
   <body id="top">
@@ -180,7 +182,7 @@
             </div>
           </div>
         </div>
-        <p class="trusted flex items-center justify-center gap-2">
+        <p class="trusted">
           <img src="assets/trusted-star.svg" width="17" height="16" alt="">
           <span>Trusted by 20 users for a cleaner everyday browse.</span>
         </p>
@@ -316,6 +318,34 @@
           <svg class="icon" aria-hidden="true"><use href="#i-ArrowDown"/></svg>
         </a>
       </div>
+      <section id="faq" class="wrap faq-section" aria-labelledby="faq-title">
+        <div class="faq-heading">
+          <h2 id="faq-title">Questions about<br>Safe Browse.</h2>
+          <p>What it filters, what it doesn’t, and how to use it.</p>
+        </div>
+        <div class="faq-list">
+          <details class="faq-item" open>
+            <summary><span>What does Safe Browse filter?</span><svg class="icon faq-toggle" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="faq-toggle-vertical" d="M12 5v14"/></svg></summary>
+            <p>It removes matching words and unwanted links from pages, blurs likely explicit images, blocks known adult sites, and turns on safe search for supported search engines.</p>
+          </details>
+          <details class="faq-item">
+            <summary><span>Will it catch every explicit image?</span><svg class="icon faq-toggle" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="faq-toggle-vertical" d="M12 5v14"/></svg></summary>
+            <p>No. It checks an image’s labels, filename, and links, rather than looking at the image itself. Images without those clues may not be detected.</p>
+          </details>
+          <details class="faq-item">
+            <summary><span>Can I choose what gets filtered?</span><svg class="icon faq-toggle" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="faq-toggle-vertical" d="M12 5v14"/></svg></summary>
+            <p>Yes. Open the extension popup to turn individual filters on or off, add your own words, or allow a site you trust. You can also pause protection.</p>
+          </details>
+          <details class="faq-item">
+            <summary><span>Does it send my browsing data anywhere?</span><svg class="icon faq-toggle" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="faq-toggle-vertical" d="M12 5v14"/></svg></summary>
+            <p>Safe Browse filters inside your browser. It does not send your page content, searches, or browsing history to a filtering server. Your preferences are saved in Chrome storage.</p>
+          </details>
+          <details class="faq-item">
+            <summary><span>How do I start using it?</span><svg class="icon faq-toggle" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="faq-toggle-vertical" d="M12 5v14"/></svg></summary>
+            <p>Add Safe Browse from the Chrome Web Store, then open the extension from Chrome’s extensions menu. Pin it if you want quick access to the controls.</p>
+          </details>
+        </div>
+      </section>
       <section id="install" class="wrap privacy-band text-center" aria-labelledby="install-title">
         <img class="install-ribbon install-ribbon-left" src="assets/install-ribbon-left.svg" width="607" height="525" alt="" aria-hidden="true">
         <img class="install-ribbon install-ribbon-right" src="assets/install-ribbon-right.svg" width="828" height="525" alt="" aria-hidden="true">

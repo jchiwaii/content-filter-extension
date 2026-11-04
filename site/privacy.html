@@ -1,93 +1,107 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Privacy Policy - Safe Browse</title>
-  <meta name="description" content="Safe Browse privacy policy for Chrome Web Store submission and users.">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon_io/apple-touch-icon.png">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Privacy Policy | Safe Browse</title>
+  <meta name="description" content="How Safe Browse processes page content, stores your preferences, and uses browser permissions.">
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
-  <link rel="shortcut icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/favicon_io/apple-touch-icon.png">
   <link rel="manifest" href="assets/favicon_io/site.webmanifest">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="landing.css">
+  <link rel="stylesheet" href="assets/vendor/lenis.css">
+  <script defer src="assets/vendor/lenis.min.js"></script>
+  <script defer src="landing.js"></script>
 </head>
-<body class="privacy-page">
-  <div class="smooth-page" data-smooth-scroll>
-    <main class="legal-page" id="top">
-      <section class="legal-hero reveal" aria-labelledby="privacy-title">
-        <div class="legal-title-block">
-          <h1 class="legal-kicker" id="privacy-title">Privacy Policy</h1>
+<body id="top" class="policy-page">
+  <a class="skip" href="#policy-content">Skip to policy</a>
+  <header class="wrap topbar flex items-center justify-between">
+    <a class="wordmark inline-flex items-center" href="index.html" aria-label="Safe Browse home"><span class="brand-icon"><img src="assets/logo.svg" alt="" width="200" height="180"></span>Safe Browse</a>
+    <nav class="middle-nav hidden md:flex items-center gap-8" aria-label="Main navigation">
+      <a href="index.html#protection">Protection</a><a href="index.html#how">How it works</a><a href="index.html#faq">FAQ</a>
+    </nav>
+    <a class="nav-install inline-flex items-center gap-2" href="https://chromewebstore.google.com/detail/safe-browse-content-filte/iipiknfekcemmookpphbkdiabdaiipje">Add to Chrome <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10M7 17 17 7"/></svg></a>
+  </header>
+  <main>
+    <section class="wrap policy-intro" aria-labelledby="policy-title">
+      <div>
+        <p class="folio policy-date">Updated 5 November 2026</p>
+        <h1 id="policy-title">Privacy Policy</h1>
+        <p class="policy-summary">What Safe Browse processes, what it stores, and what you control.</p>
+      </div>
+      <img class="policy-shield" src="assets/logo.svg" width="200" height="180" alt="">
+      <img class="policy-intro-shape" src="assets/coral-fan.svg" width="65" height="65" alt="" aria-hidden="true">
+    </section>
+    <div class="policy-body" id="policy-content">
+      <div class="wrap policy-layout">
+        <aside class="policy-contents">
+          <nav aria-label="Policy contents">
+            <p>On this page</p>
+            <a href="#processing">What we process</a>
+            <a href="#storage">What we store</a>
+            <a href="#permissions">Browser permissions</a>
+            <a href="#controls">Your controls</a>
+            <a href="#removal">Exports and removal</a>
+            <a href="#changes">Policy changes</a>
+          </nav>
+          <img src="assets/yellow-triangle.svg" width="54" height="75" alt="" aria-hidden="true">
+        </aside>
+        <div class="policy-articles">
+          <section class="policy-article" id="processing" aria-labelledby="processing-title">
+            <div class="policy-article-heading"><span class="policy-number coral" aria-hidden="true">01</span><h2 id="processing-title">What we process</h2></div>
+            <p>Safe Browse checks page text, image labels and links, website addresses, and supported searches to apply your filters. These checks happen inside your browser.</p>
+            <p>The extension does not send page content, searches, or browsing history to a filtering server. It does not collect personal information for advertising or sell your browsing data.</p>
+
+          </section>
+          <section class="policy-article" id="storage" aria-labelledby="storage-title">
+            <div class="policy-article-heading"><span class="policy-number lilac" aria-hidden="true">02</span><h2 id="storage-title">What we store</h2></div>
+            <p>Safe Browse saves preferences such as enabled filters, profiles, custom words, trusted sites, and blocked sites in Chrome storage.</p>
+            <p>Some preferences use Chrome’s synced storage. If Chrome Sync is enabled, Chrome may sync these settings through your Google account. Filtering itself still happens in your browser.</p>
+            <p>Filtering counts, site statistics, pause status, and recent activity are stored locally. Recent activity can include blocked addresses and filtered searches so you can review what the extension has done.</p>
+
+          </section>
+          <section class="policy-article" id="permissions" aria-labelledby="permissions-title">
+            <div class="policy-article-heading"><span class="policy-number yellow" aria-hidden="true">03</span><h2 id="permissions-title">Browser permissions</h2></div>
+            <p>Safe Browse needs access to websites to filter their content. Its browser permissions support these functions:</p>
+            <dl class="permission-list">
+              <div><dt>Website access</dt><dd>Checks and filters content on the pages you visit.</dd></div>
+              <div><dt>Storage</dt><dd>Saves your filters, preferences, and statistics.</dd></div>
+              <div><dt>Tabs</dt><dd>Updates open tabs and opens extension pages.</dd></div>
+              <div><dt>Web navigation</dt><dd>Checks website addresses and supported searches as you navigate.</dd></div>
+              <div><dt>Context menus</dt><dd>Provides Safe Browse actions in Chrome’s right-click menu.</dd></div>
+              <div><dt>Alarms</dt><dd>Checks timed pauses and maintains filtering counts.</dd></div>
+            </dl>
+          </section>
+          <section class="policy-article" id="controls" aria-labelledby="controls-title">
+            <div class="policy-article-heading"><span class="policy-number coral" aria-hidden="true">04</span><h2 id="controls-title">Your controls</h2></div>
+            <p>You can turn filters on or off, pause protection, add custom words, and allow sites you trust. These choices change how Safe Browse filters pages.</p>
+            <p>If password protection is enabled, unlocking is required to access protected controls. Safe Browse stores a password hash locally, not the password itself.</p>
+
+          </section>
+          <section class="policy-article" id="removal" aria-labelledby="removal-title">
+            <div class="policy-article-heading"><span class="policy-number lilac" aria-hidden="true">05</span><h2 id="removal-title">Exports and removal</h2></div>
+            <p>When you export extension data, Safe Browse creates a JSON file for you to download. It does not upload the export to a server.</p>
+            <p>Use the available extension controls to clear activity or reset preferences. Removing the extension removes its local extension storage. Any files you previously exported remain wherever you saved them.</p>
+
+          </section>
+          <section class="policy-article" id="changes" aria-labelledby="changes-title">
+            <div class="policy-article-heading"><span class="policy-number yellow" aria-hidden="true">06</span><h2 id="changes-title">Policy changes</h2></div>
+            <p>Updates to this policy will be published on this page. The date above shows when it was last revised.</p>
+
+          </section>
         </div>
-      </section>
-
-      <section class="policy-steps" aria-label="Privacy details">
-        <article class="policy-step reveal">
-          <div class="policy-step-heading">
-            <span class="policy-step-line" aria-hidden="true"></span>
-            <span class="policy-step-number">01</span>
-            <h2>Data</h2>
-          </div>
-          <p>Safe Browse does not collect, sell, rent, or share personal information. It does not send your browsing history, page content, searches, statistics, or settings to a remote server.</p>
-        </article>
-
-        <article class="policy-step reveal">
-          <div class="policy-step-heading">
-            <span class="policy-step-line" aria-hidden="true"></span>
-            <span class="policy-step-number">02</span>
-            <h2>Process</h2>
-          </div>
-          <p>Profanity filtering, explicit image checks, adult-site blocking, and safe-search enforcement happen inside your browser. Page content is processed locally so the extension can remove or block unsafe material.</p>
-        </article>
-
-        <article class="policy-step reveal">
-          <div class="policy-step-heading">
-            <span class="policy-step-line" aria-hidden="true"></span>
-            <span class="policy-step-number">03</span>
-            <h2>Store</h2>
-          </div>
-          <p>The extension may store settings, enabled profiles, custom words, whitelist entries, filtering statistics, usage summaries, and recent activity in Chrome storage on your device.</p>
-        </article>
-
-        <article class="policy-step reveal">
-          <div class="policy-step-heading">
-            <span class="policy-step-line" aria-hidden="true"></span>
-            <span class="policy-step-number">04</span>
-            <h2>Permit</h2>
-          </div>
-          <p>Safe Browse asks for permissions such as storage, tabs, web navigation, alarms, context menus, and host access so it can filter pages, block known adult domains, enforce safe search, and open extension screens.</p>
-        </article>
-
-        <article class="policy-step reveal">
-          <div class="policy-step-heading">
-            <span class="policy-step-line" aria-hidden="true"></span>
-            <span class="policy-step-number">05</span>
-            <h2>Export</h2>
-          </div>
-          <p>If you export dashboard data, Safe Browse creates a local JSON download for you. Activity logs and extension settings can be cleared from the extension interface or by removing the extension from Chrome.</p>
-        </article>
-
-        <article class="policy-step reveal">
-          <div class="policy-step-heading">
-            <span class="policy-step-line" aria-hidden="true"></span>
-            <span class="policy-step-number">06</span>
-            <h2>Update</h2>
-          </div>
-          <p>If this policy changes, the updated version will be posted on this page. Continued use of Safe Browse after an update means the revised policy applies from that date forward.</p>
-        </article>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-      <a class="footer-line" href="index.html#top" aria-label="Safe Browse home">
-        <img class="footer-logo" src="assets/logo.svg" alt="" width="200" height="180">
-        <span>Safe Browse</span>
-      </a>
-    </footer>
-  </div>
-
-  <script src="script.js"></script>
+      </div>
+    </div>
+    <div class="wrap policy-return">
+      <a class="text-link" href="index.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7M5 12h14"/></svg>Back to Safe Browse</a>
+      <img src="assets/trusted-star.svg" width="17" height="16" alt="" aria-hidden="true">
+    </div>
+  </main>
+  <footer class="wrap footer flex flex-wrap items-center justify-between gap-4">
+    <a class="wordmark inline-flex items-center" href="index.html" aria-label="Safe Browse home"><span class="brand-icon"><img src="assets/logo.svg" alt="" width="200" height="180"></span>Safe Browse</a><p>Soap for the Internet.</p><a href="#top" aria-current="page">Privacy policy</a>
+  </footer>
+  <a class="back-to-top" href="#top" aria-label="Back to top" title="Back to top" data-back-to-top hidden>
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7M12 19V5"/></svg>
+  </a>
 </body>
 </html>
