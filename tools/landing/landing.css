@@ -5,7 +5,7 @@
 @font-face {
   font-family: "Google Sans";
   src: url("assets/fonts/google-sans-latin-wght-normal.woff2") format("woff2");
-  font-weight: 100 900;
+  font-weight: 400 700;
   font-display: swap;
 }
 @font-face {
@@ -119,30 +119,45 @@ h2 { font-size: 48px; font-weight: 500; line-height: 1.08; margin-top: 19px; tex
 .coral { background: var(--coral); } .lilac { background: var(--violet); } .yellow { background: var(--sun); }
 .steps h3 { margin-block: 0 9px; font-size: 20px; }
 .steps p { max-width: 33ch; margin-inline: auto; font-size: 14px; line-height: 1.45; color: rgb(0 0 0 / 70%); }
-.privacy-band { background: var(--coral); padding-block: 62px; }
-.features-section { background: var(--paper); padding-block: 64px 72px; }
+.privacy-band { position: relative; isolation: isolate; overflow: hidden; background: var(--coral); padding: 64px 48px; margin-block: 60px 48px; border-radius: 8px; }
+.install-copy { position: relative; max-width: 800px; margin-inline: auto; }
+.install-copy h2 { margin: 0; font-size: 38px; line-height: 1.4; }
+.install-ribbon { position: absolute; z-index: -1; pointer-events: none; width: auto; height: 100%; max-width: none; top: 0; }
+.install-ribbon-left { left: 0; }
+.install-ribbon-right { right: 0; }
+.install-shape { position: absolute; pointer-events: none; width: 34px; height: auto; }
+.install-yellow { top: 46px; left: 15%; transform: rotate(-12deg); }
+.install-white { bottom: 32px; right: 20%; filter: brightness(0) invert(1); transform: rotate(-20deg); }
+.features-section { position: relative; isolation: isolate; overflow: hidden; background: var(--paper); padding-top: 64px; }
+.features-ribbon { position: absolute; z-index: -1; pointer-events: none; width: min(60%, 760px); max-width: none; height: auto; }
+.ribbon-violet { left: -100px; top: -90px; }
+.ribbon-coral { right: -120px; top: 30px; }
 .features-section h2 { margin: 0; text-align: center; font-size: 36px; }
-.feature-deck { display: grid; grid-template-columns: 1fr 1.12fr 1fr; align-items: start; gap: 24px; margin-top: 48px; padding-inline: 8px; }
-.feature-card { min-width: 0; min-height: 332px; margin-top: 30px; padding: 32px 26px; clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px)); }
+.features-subtitle { max-width: 440px; margin: 12px auto 0; text-align: center; font-size: 15px; line-height: 1.5; color: rgb(0 0 0 / 70%); }
+.feature-deck { display: grid; grid-template-columns: 1fr 1.08fr 1fr; align-items: start; gap: 28px; margin-top: 40px; padding: 10px 12px 0; height: 330px; overflow: hidden; }
+.feature-card { min-width: 0; min-height: 370px; margin-top: 32px; padding: 30px 28px; border-radius: 8px; }
 .feature-card:first-child { transform: rotate(-2deg); }
 .feature-card:last-child { transform: rotate(2deg); }
-.feature-main { min-height: 390px; margin-top: 0; padding-block: 36px; }
-.feature-icon { display: block; width: 30px; height: 30px; margin-bottom: 22px; }
-.feature-card h3 { font-size: 23px; font-weight: 500; line-height: 1.2; }
-.feature-card p { margin-top: 14px; color: rgb(0 0 0 / 70%); font-size: 15px; line-height: 1.5; }
-.feature-card ul { margin-top: 22px; display: grid; gap: 10px; }
-.feature-card li { position: relative; padding-left: 13px; font-size: 13px; line-height: 1.5; }
-.feature-card li::before { content: ""; position: absolute; left: 0; top: 7px; width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
-.feature-card .feature-note { font-size: 12px; margin-top: 20px; }
+.feature-main { min-height: 390px; margin-top: 0; padding-block: 30px; }
+.feature-icon { display: block; width: 64px; height: 64px; margin-bottom: 24px; }
+.feature-card h3 { font-size: 22px; font-weight: 500; line-height: 1.25; white-space: nowrap; }
+.feature-card p { margin-top: 14px; color: rgb(0 0 0 / 70%); font-weight: 400; font-size: 15px; line-height: 1.5; }
+.steps p, .feature-card p, .features-subtitle { color: rgb(0 0 0 / 70%); font-weight: 400; }
+.feature-transition { position: relative; height: 56px; background: white; }
+.feature-continue { position: relative; z-index: 2; display: grid; place-items: center; width: 44px; height: 44px; margin-inline: auto; transform: translateY(-22px); background: white; border: 1px solid var(--ink); border-radius: 8px; }
+.feature-continue:hover { background: var(--paper); }
 @media (max-width: 1000px) {
-  .feature-deck { grid-template-columns: 1fr; gap: 20px; max-width: 520px; margin-inline: auto; margin-top: 30px; padding: 0; }
+  .feature-deck { grid-template-columns: 1fr; gap: 20px; max-width: 520px; height: auto; margin-inline: auto; margin-top: 30px; padding: 0; overflow: visible; }
   .feature-card, .feature-main { min-height: 0; margin-top: 0; padding: 28px; }
   .feature-card:first-child, .feature-card:last-child { transform: none; }
   .features-section { padding-block: 44px; }
+  .features-ribbon { width: 520px; }
+  .ribbon-violet { left: -280px; top: -30px; }
+  .ribbon-coral { right: -300px; top: 40%; }
   .features-section h2 { font-size: 30px; }
 }
 .privacy-band em { font-family: Pacifico, cursive; font-weight: 400; font-style: normal; }
-.privacy-band p:not(.folio) { max-width: 510px; margin-block: 16px 24px; color: var(--ink); }
+.privacy-band p:not(.folio) { max-width: 510px; margin-block: 16px 24px; color: rgb(0 0 0 / 70%); }
 .text-link { display: inline-flex; align-items: center; gap: 4px; text-decoration: underline; text-underline-offset: 4px; font-size: 15px; }
 .text-link .icon { width: 15px; height: 15px; }
 .footer { padding-block: 24px; font-size: 14px; }
@@ -196,7 +211,12 @@ h2 { font-size: 48px; font-weight: 500; line-height: 1.08; margin-top: 19px; tex
   .steps li { position: relative; width: 100%; min-height: 0; padding: 22px 18px; }
   .steps li:nth-child(n) { left: auto; top: auto; }
   .step-number { top: 18px; left: -50px; }
-  .privacy-band { padding-block: 40px; }
+  .privacy-band { padding: 56px 20px; margin-block: 36px 24px; }
+  .install-copy h2 { font-size: 29px; }
+  .install-ribbon-left { left: -150px; }
+  .install-ribbon-right { right: -230px; }
+  .install-yellow { top: 18px; left: 20px; width: 25px; }
+  .install-white { bottom: 16px; right: 20px; width: 25px; }
   .footer p { display: none; }
 }
 @media (max-width: 460px) {
