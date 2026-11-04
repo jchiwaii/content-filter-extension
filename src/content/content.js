@@ -45,11 +45,15 @@ const TEXT_MUTATION_OPTIONS = {
   subtree: true,
   characterData: true,
   attributes: true,
-  attributeFilter: ['placeholder', 'title', 'aria-label']
+  attributeFilter: ['placeholder', 'title', 'aria-label', 'href']
 };
 
 const EDITABLE_TAGS = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
 const SKIPPED_TEXT_TAGS = new Set(['SCRIPT', 'STYLE', 'INPUT', 'TEXTAREA', 'SELECT', 'CODE', 'PRE', 'NOSCRIPT', 'SVG']);
+
+// Do not start matching halfway through a hostname or an email address.
+const WRITTEN_URL = /(?<![\p{L}\p{N}_@.-])(?:https?:\/\/)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}(?![a-z0-9@-])(?::\d+)?(?:[/?#][^\s<>"'\u201c\u201d]*)?/giu;
+const URL_LABEL = new RegExp('^(?:' + WRITTEN_URL.source + ')$', 'iu');
 
 // Statistics for this session
 let statistics = {
@@ -353,15 +357,67 @@ function maybeFlushStats() {
   scheduleStatsFlush();
 }
 
+function isBlockedWebUrl(url) {
+  if (!url || !['http:', 'https:'].includes(url.protocol)) return false;
+  let path = url.pathname;
+  try { path = decodeURIComponent(path); } catch { /* Keep malformed escapes literal. */ }
+  const address = url.hostname + path;
+  if (checkProfanity(address)) return true;
+
+  // Only unambiguous compounds get substring matching. Short dictionary
+  // entries still need boundaries (e.g. assignment.com and sussex.ac.uk).
+  if (/(?:^|[./_-])sex(?:[./_-]|$)|sexwith(?:me|us)|dirtyword|fuck|blowjob|handjob|camgirl|onlyfans/i.test(address)) return true;
+  for (const label of url.hostname.split('.')) {
+    const base = label.replace(/^(?:my|free|watch)/i, '').replace(/(?:sites?|videos?|movies?|tube|hub|online)$/i, '');
+    if (base && base !== label && checkProfanity(base)) return true;
+  }
+  return typeof normalizeCustomEntries === 'function' && normalizeCustomEntries(config.customWords).some(entry => {
+    if (typeof entry !== 'string' || entry.startsWith('/')) return false;
+    const word = normalizeTerm(entry).replace(/[\s_-]+/g, '');
+    return word.length >= 4 && address.toLowerCase().includes(word);
+  });
+}
+
+function writtenAddressIsBlocked(address) {
+  if (!address || !address.includes('.') || !URL_LABEL.test(address)) return false;
+  try {
+    return isBlockedWebUrl(new URL(/^https?:\/\//i.test(address) ? address : 'https://' + address));
+  } catch { return false; }
+}
+
+function removeBlockedAddresses(text) {
+  if (!text.includes('.')) return text;
+  const result = text.replace(WRITTEN_URL, match => {
+    const address = match.replace(/[.,;:!?)\]}]+$/, '');
+    return writtenAddressIsBlocked(address) ? ' ' + match.slice(address.length) : match;
+  });
+  return result === text ? text : cleanFilteredText(text, result);
+}
+
+function removeBlockedAnchor(anchor) {
+  if (anchor?.tagName !== 'A' || !anchor.parentNode || isInSkippedTextContext(anchor)) return false;
+  const href = anchor.getAttribute('href');
+  if (!href) return false;
+  let url;
+  try { url = new URL(href, anchor.baseURI); } catch { /* Still check the displayed address. */ }
+  // Shortened links often show the real domain across multiple nested spans.
+  const label = anchor.textContent.trim();
+  if (!isBlockedWebUrl(url) && !writtenAddressIsBlocked(label) &&
+      !writtenAddressIsBlocked(anchor.getAttribute('title'))) return false;
+  anchor.remove();
+  statistics.wordsFiltered++;
+  maybeFlushStats();
+  return true;
+}
+
 // Filter a single text node
 function filterNode(node) {
   if (isInSkippedTextContext(node)) return;
 
   const text = node.textContent;
   if (!text || !text.trim()) return;
-  if (!checkProfanity(text)) return;
-
-  const cleaned = cleanProfanity(text);
+  const remaining = removeBlockedAddresses(text);
+  const cleaned = checkProfanity(remaining) ? cleanProfanity(remaining) : remaining;
   if (cleaned !== text) {
     node.textContent = cleaned;
     statistics.wordsFiltered++;
@@ -431,13 +487,14 @@ function walkTextNodes(element, callback, visitedWeakSet = new WeakSet()) {
     callback(element);
   } else if (element.nodeType === 1) {
     if (!isInSkippedTextContext(element)) {
+      if (removeBlockedAnchor(element)) return;
       // Walk normal child nodes
-      for (let child of element.childNodes) {
+      for (const child of Array.from(element.childNodes)) {
         walkTextNodes(child, callback, visitedWeakSet);
       }
       // Walk shadow root children (if any)
       if (element.shadowRoot) {
-        for (let child of element.shadowRoot.childNodes) {
+        for (const child of Array.from(element.shadowRoot.childNodes)) {
           walkTextNodes(child, callback, visitedWeakSet);
         }
       }
@@ -503,6 +560,8 @@ function filterDynamicContent(mutations) {
   if (!isProtectionActive() || !config.filterText) return;
 
   mutations.forEach((mutation) => {
+    const target = mutation.target?.nodeType === 3 ? mutation.target.parentElement : mutation.target;
+    if (removeBlockedAnchor(target?.closest?.('a[href]'))) return;
     if (mutation.type === 'characterData' && mutation.target?.nodeType === 3) {
       filterNode(mutation.target);
     }

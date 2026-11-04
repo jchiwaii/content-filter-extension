@@ -553,6 +553,45 @@ globalThis.__content = {
   }]);
   assert.equal(changedTextNode.textContent, 'This changed in place.');
 
+  for (const [before, after] of [
+    ['Visit sexwithme.com today', 'Visit today'],
+    ['Try HTTPS://WWW.DIRTYWORD.COM:443/posts?id=42!', 'Try!'],
+    ['Links: dirtyword.com and sexwithme.com.', 'Links: and.'],
+    ['See https://example.org/shit/post here', 'See here'],
+    ['A custom example: myhiddenphrase.net/post', 'A custom example:'],
+    ['Avoid myshitsite.com but keep assessmentsite.org', 'Avoid but keep assessmentsite.org'],
+    ['assignment.com sussex.ac.uk and analysis.org', 'assignment.com sussex.ac.uk and analysis.org'],
+    ['Contact mail@dirtyword.com', 'Contact mail@dirtyword.com'],
+    ['Keep https://example.org/?ref=dirtyword.com intact', 'Keep https://example.org/?ref=dirtyword.com intact'],
+    ['Keep ordinary dirtyword and sexwithme prose', 'Keep ordinary dirtyword and sexwithme prose']
+  ]) {
+    const node = { nodeType: 3, textContent: before, parentElement: body };
+    context.__content.filterDynamicContent([{ type: 'characterData', target: node }]);
+    assert.equal(node.textContent, after, before);
+  }
+
+  function link(href, label, parent = body) {
+    const attrs = { href };
+    return {
+      nodeType: 1, tagName: 'A', baseURI: 'https://feed.example/', textContent: label,
+      childNodes: [], parentNode: parent, parentElement: parent,
+      getAttribute: key => attrs[key] ?? null, closest() { return this; },
+      remove() { this.parentNode = null; }
+    };
+  }
+  const direct = link('https://sexwithme.com/', 'Read more');
+  const short = link('https://t.co/abc', 'dirtyword.com');
+  const clean = link('/assignment', 'Read more');
+  const editableLink = link('https://dirtyword.com/', 'Draft', { nodeType: 1, tagName: 'DIV', isContentEditable: true });
+  context.__content.filterDynamicContent([{ type: 'childList', addedNodes: [direct, short, clean, editableLink] }]);
+  assert.equal(direct.parentNode, null);
+  assert.equal(short.parentNode, null);
+  assert.equal(clean.parentNode, body);
+  assert.ok(editableLink.parentNode, 'Draft links must remain untouched');
+  const recycled = link('https://dirtyword.com/', 'Read more');
+  context.__content.filterDynamicContent([{ type: 'attributes', attributeName: 'href', target: recycled }]);
+  assert.equal(recycled.parentNode, null, 'Reused anchors must be checked when href changes');
+
   const editableParent = {
     nodeType: 1,
     tagName: 'DIV',
