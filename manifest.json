@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Safe Browse – Profanity & NSFW Filter",
+  "name": "Safe Browse – Profanity, Curse Words & NSFW Filter",
   "short_name": "Safe Browse",
   "version": "3.0.1",
-  "description": "Soap For The Internet. Blocks profanity, explicit images, adult sites, and unsafe search while you browse.",
+  "description": "Filter curse words and profanity, blur likely explicit images, block known adult sites, and enable SafeSearch while you browse.",
 
   "permissions": [
     "storage",
