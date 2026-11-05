@@ -22,24 +22,20 @@
 
   <div class="popup-container" id="mainContent">
     <header class="header">
-      <img class="popup-logo" src="../../assets/logo.svg" width="48" height="44" alt="">
       <div class="header-left">
         <div class="header-title-line">
           <h1>Safe Browse</h1>
+          <span class="status-badge" id="statusBadge" role="status">Active</span>
         </div>
         <p>Soap for the Internet.</p>
       </div>
-    </header>
-
-    <section class="protection-status" aria-label="Protection">
-      <div><h2>Protection</h2><span class="status-badge" id="statusBadge" role="status">Active</span></div>
       <div class="header-right">
         <label class="main-toggle">
           <input type="checkbox" id="mainToggle" aria-label="Enable protection" role="switch" checked>
           <span class="toggle-slider"></span>
         </label>
       </div>
-    </section>
+    </header>
 
     <section class="quick-stats" aria-label="Filtering statistics">
       <div class="stat-item">
@@ -136,9 +132,26 @@
       </div>
     </section>
 
+    <section id="reviewPrompt" class="review-prompt" aria-labelledby="reviewTitle" hidden>
+      <h2 id="reviewTitle">Enjoying Safe Browse?</h2>
+      <p>Share your experience on the Chrome Web Store.</p>
+      <button id="reviewStars" class="review-stars" aria-label="Leave a review on the Chrome Web Store" title="Leave a review">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg>
+      </button>
+      <div class="review-actions">
+        <button id="reviewOpen" class="btn">Leave a review</button>
+        <button id="reviewDismiss" class="review-dismiss">No thanks</button>
+      </div>
+      <p id="reviewError" role="alert" hidden>Could not open the store. Please try again.</p>
+    </section>
   </div>
 
   <script src="../../src/modules/password.js"></script>
   <script src="popup.js"></script>
+  <script src="review.js"></script>
 </body>
 </html>

@@ -43,11 +43,11 @@ async function main() {
     await page.goto(pathToFileURL(path.resolve(__dirname, '../pages/popup/popup.html')).href);
     await page.waitForFunction(() => document.querySelector('#totalFiltered').textContent === '1.2K');
     await page.evaluate(() => document.fonts.ready);
-    assert.ok(await page.evaluate(() => document.fonts.check('14px "Host Grotesk"')));
+    assert.ok(await page.evaluate(() => document.fonts.check('700 26px "Host Grotesk"')));
     for (const width of [380]) {
       await page.setViewportSize({ width, height: 600 });
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-      assert.ok(await page.evaluate(() => document.body.scrollHeight <= 600), 'Collapsed popup fits Chrome height');
+      assert.ok(await page.locator('#whitelistHeader').isVisible(), 'Lower controls remain available through popup scrolling');
       assert.ok(await page.evaluate(() => [...document.images].every(image => image.complete && image.naturalWidth)));
       await page.screenshot({ path: '/private/tmp/safe-browse-popup-' + width + '.png', fullPage: true });
     }

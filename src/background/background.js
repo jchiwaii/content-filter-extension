@@ -309,8 +309,25 @@ const defaultStats = {
 };
 
 // Initialize extension on install
+// No browsing data or identifiers are attached to the optional uninstall survey.
+const UNINSTALL_FEEDBACK_URL = 'https://tally.so/r/rDBB72';
+
+async function registerUninstallFeedback() {
+  try {
+    if (UNINSTALL_FEEDBACK_URL) {
+      const url = new URL(UNINSTALL_FEEDBACK_URL);
+      if (url.protocol !== 'https:' || url.href.length > 1023) throw new Error('Invalid feedback URL');
+    }
+    await chrome.runtime.setUninstallURL(UNINSTALL_FEEDBACK_URL);
+  } catch (error) {
+    console.warn('[Safe Browse] Could not register uninstall feedback:', error);
+  }
+}
+
+chrome.runtime.onStartup?.addListener(registerUninstallFeedback);
 chrome.runtime.onInstalled.addListener(async (details) => {
   console.log('[Safe Browse] Extension installed/updated:', details.reason);
+  await registerUninstallFeedback();
 
   // Set default configuration
   const syncResult = await chrome.storage.sync.get(['config']);

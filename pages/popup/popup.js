@@ -498,7 +498,7 @@ function displayWhitelist() {
 
   elements.whitelistList.innerHTML = config.whitelistedDomains.map(domain => `
     <div class="whitelist-item">
-      <span>${escapeHtml(domain)}</span>
+      <span>${/^[a-p]{32}$/.test(domain) ? 'Extension page (not a website)' : escapeHtml(domain)}</span>
       <button data-domain="${escapeHtml(domain)}" aria-label="Remove ${escapeHtml(domain)}" title="Remove trusted site">&times;</button>
     </div>
   `).join('');
