@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Safe Browse – Profanity, Curse Words & NSFW Filter",
   "short_name": "Safe Browse",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Filter curse words and profanity, blur likely explicit images, block known adult sites, and enable SafeSearch while you browse.",
 
   "permissions": [
