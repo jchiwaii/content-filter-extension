@@ -863,15 +863,36 @@ function cloneRegex(regex, flags) {
   return new RegExp(regex.source, mergedFlags);
 }
 
+const BUILT_IN_REGEXES = new Set(PROFANITY_DATA.patterns.filter(pattern => pattern instanceof RegExp));
+
 function isSafeRegexSource(source) {
   if (!source || source.length > 256) return false;
-  if (/\\[1-9]/.test(source)) return false;
-  if (/\(\?<([=!])/.test(source)) return false;
-  if (/\([^)]*(?:\+|\*|\{\d+(?:,\d*)?\})[^)]*\)(?:\+|\*|\{\d+(?:,\d*)?\})/.test(source)) {
-    return false;
+  // Fixed-width tokens cannot create backtracking trees. A single terminal +
+  // has no suffix to backtrack against. Reject everything outside this subset.
+  let inClass = false;
+  let repeatable = false;
+  for (let index = 0; index < source.length; index++) {
+    const char = source[index];
+    if (char === '\\') {
+      const escaped = source[++index];
+      if (!escaped || !'dDsSwWbBfnrtv\\.^$*+?()[]{}|/-'.includes(escaped)) return false;
+      repeatable = inClass || !'bB'.includes(escaped);
+      continue;
+    }
+    if (inClass) {
+      if (char === '[') return false;
+      if (char === ']') { inClass = false; repeatable = true; }
+      continue;
+    }
+    if (char === '[') { inClass = true; repeatable = false; continue; }
+    if ('()|*?{}]'.includes(char)) return false;
+    if (char === '+') {
+      if (!repeatable || index !== source.length - 1) return false;
+      continue;
+    }
+    repeatable = char !== '^' && char !== '$';
   }
-  if (/(?:\.\*|\.\+){2,}/.test(source)) return false;
-  return true;
+  return !inClass;
 }
 
 function parseSlashRegex(value, flags) {
@@ -881,7 +902,7 @@ function parseSlashRegex(value, flags) {
 
   const source = value.slice(1, lastSlash);
   const suppliedFlags = value.slice(lastSlash + 1);
-  if (!isSafeRegexSource(source) || /[^gimsuyv]/.test(suppliedFlags)) return null;
+  if (!isSafeRegexSource(source) || /[^gimsu]/.test(suppliedFlags)) return null;
 
   const mergedFlags = mergeRegexFlags(suppliedFlags, flags);
   try {
@@ -910,14 +931,14 @@ function normalizeCustomEntries(customWords) {
 
 function buildCustomRegex(entry, flags = 'gi') {
   if (entry instanceof RegExp) {
+    if (!isSafeRegexSource(entry.source) || /[^gimsu]/.test(entry.flags)) return null;
     return cloneRegex(entry, flags);
   }
 
   const rawValue = String(entry || '').trim();
   if (!rawValue) return null;
 
-  const slashRegex = parseSlashRegex(rawValue, flags);
-  if (slashRegex) return slashRegex;
+  if (rawValue.startsWith('/')) return parseSlashRegex(rawValue, flags);
 
   const value = normalizeTerm(rawValue);
   return buildLiteralTermRegex(value, flags);
@@ -925,14 +946,15 @@ function buildCustomRegex(entry, flags = 'gi') {
 
 function buildSourcePatternRegex(pattern, flags = 'gi') {
   if (pattern instanceof RegExp) {
+    if (!BUILT_IN_REGEXES.has(pattern) &&
+        (!isSafeRegexSource(pattern.source) || /[^gimsu]/.test(pattern.flags))) return null;
     return cloneRegex(pattern, flags);
   }
 
   const value = String(pattern || '').trim();
   if (!value) return null;
 
-  const slashRegex = parseSlashRegex(value, flags);
-  if (slashRegex) return slashRegex;
+  if (value.startsWith('/')) return parseSlashRegex(value, flags);
 
   if (!isSafeRegexSource(value)) return null;
 

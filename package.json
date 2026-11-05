@@ -1,13 +1,13 @@
 {
-  "name": "safebrowse-filter",
+  "name": "safebrowse",
   "version": "3.0.1",
   "description": "Soap For The Internet. A Chrome extension that filters profanity, explicit images, adult sites, and unsafe search.",
   "author": "Safe Browse",
   "license": "MIT",
-  "homepage": "https://github.com/yourusername/safebrowse-filter",
+  "homepage": "https://github.com/jchiwaii/content-filter-extension",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/safebrowse-filter.git"
+    "url": "https://github.com/jchiwaii/content-filter-extension.git"
   },
   "keywords": [
     "content-filter",
@@ -28,12 +28,12 @@
   },
   "scripts": {
     "build": "zip -rFS safebrowse-filter.zip manifest.json package.json README.md src pages assets -x '*.git*' '*.py' '*.zip' '.DS_Store' '*/.DS_Store' 'desktop.ini' '*/desktop.ini'",
-    "test": "node tests/smoke-tests.mjs && node tests/asset-references.mjs && node tests/feedback-tests.mjs",
+    "test": "node tests/regex-safety-tests.mjs && node tests/smoke-tests.mjs && node tests/asset-references.mjs && node tests/feedback-tests.mjs",
     "test:popup": "node tests/popup-ui-tests.cjs",
     "icons": "node tools/generate-brand-icons.cjs"
   },
   "devDependencies": {},
   "bugs": {
-    "url": "https://github.com/yourusername/safebrowse-filter/issues"
+    "url": "https://github.com/jchiwaii/content-filter-extension/issues"
   }
 }
